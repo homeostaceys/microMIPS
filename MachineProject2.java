@@ -239,7 +239,7 @@ public class MachineProject2 {
      * @param sa is the sa value
      * @param func is the func value
      */
-    public void Scenario3(String in, String rs, String rt, String rd, String sa, String func) {
+    public void Scenario3(String in, String rs, String rt, String rd) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -454,25 +454,29 @@ public class MachineProject2 {
                     break;
                 case 4: /* Start! */
                     System.out.println("Opcode of MIPS Program:");
-                    /* Scenario 1: DADDIU or XOR */
-                    if(in != null && rs != null && rt != null && imm != null)
-                        m.Scenario1(in, rs, rt, imm);
-                    /* Scenario 2: LD or SD */
-                    else if(in != null && base != null && rt != null && offset != null)
-                        m.Scenario2(in, base, rt, offset);
-                    /* Scenario 3: DADDU or SLT */
-                    else if(in != null && rs != null && rt != null && rd != null && sa != null && func != null)
-                        m.Scenario3(in, rs, rt, rd, sa, func);
-                    /* Scenario 4: BGTZC */
-                    else if(in != null && rt != null && offset != null)
-                        m.Scenario4(in, rt, offset);
-                    /* Scenario 5: J */
-                    else if(in != null && iindex != null)
-                        m.Scenario5(in, iindex);
-                    else
-                        System.out.println("Invalid.\n");
                     
-                    
+                    for(int i = 0; i < instr.size(); i++) {
+                        parseLoad(instr.get(i));
+                        
+                        /* Scenario 1: DADDIU or XOR */
+                        if(in != null && rs != null && rt != null && imm != null)
+                            m.Scenario1(in, rs, rt, imm);
+                        /* Scenario 2: LD or SD */
+//                        else if(in != null && base != null && rt != null && offset != null)
+//                            m.Scenario2(in, base, rt, offset);
+                        /* Scenario 3: DADDU or SLT */
+                        else if(in != null && rs != null && rt != null && rd != null)
+                            m.Scenario3(in, rs, rt, rd);
+                        /* Scenario 4: BGTZC */
+//                        else if(in != null && rt != null && offset != null)
+//                            m.Scenario4(in, rt, offset);
+//                        /* Scenario 5: J */
+//                        else if(in != null && iindex != null)
+//                            m.Scenario5(in, iindex);
+                        else
+                            System.out.println("Invalid.\n");
+                        
+                    }
                     break;
                 case 5: /* Exit */
                     System.out.println("Exiting...");
