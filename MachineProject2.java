@@ -108,26 +108,39 @@ public class MachineProject2 {
     public String getInstOp(String inst) {
         String op = null;
         
-        if("LD".equalsIgnoreCase("LD"))
+        if(inst.equals("LD".equalsIgnoreCase("LD")))
             op = "110111";
-        else if("SD".equalsIgnoreCase("SD"))
+        else if(inst.equals("SD".equalsIgnoreCase("SD")))
             op = "110111";
-        else if("DADDIU".equalsIgnoreCase("DADDIU"))
+        else if(inst.equals("DADDIU".equalsIgnoreCase("DADDIU")))
             op = "110111";
-        else if("XORI".equalsIgnoreCase("XORI"))
+        else if(inst.equals("XORI".equalsIgnoreCase("XORI")))
             op = "110111";
-        else if("DADDU".equalsIgnoreCase("DADDU"))
+        else if(inst.equals("DADDU".equalsIgnoreCase("DADDU")))
             op = "110111";
-        else if("SLT".equalsIgnoreCase("SLT"))
+        else if(inst.equals("SLT".equalsIgnoreCase("SLT")))
             op = "110111";
-        else if("BGTZC".equalsIgnoreCase("BGTZC"))
+        else if(inst.equals("BGTZC".equalsIgnoreCase("BGTZC")))
             op = "110111";
-        else if("J".equalsIgnoreCase("J"))
+        else if(inst.equals("J".equalsIgnoreCase("J")))
             op = "110111";
         else
             System.out.println("Instruction not supported.");
         
         return op;
+    }
+    
+    public String getFuncOp(String inst) {
+        String func = null;
+        
+        if(inst.equals("DADDU".equalsIgnoreCase("DADDU")))
+            func = "101101";
+        else if(inst.equals("SLT".equalsIgnoreCase("SLT")))
+            func = "101010";
+        else
+            System.out.println("Instruction not supported.");
+        
+        return func;
     }
     
     /** This method gets register opcode for rs, rt, rd, and the like.
@@ -208,6 +221,33 @@ public class MachineProject2 {
         opc += baseopp;
         opc += rtopp;
         opc += offsetopp;
+                        
+        //print in hex
+        System.out.println(convBinToHex(opc) + "\n");
+    }
+    
+    public void Scenario3(String in, String rs, String rt, String rd, String sa, String func) {
+        String opc = null;
+        //get binary
+        String inopp = getInstOp(in);
+        String rsopp = getRegOp(rs);
+        String rtopp = getRegOp(rt);
+        String rdopp = getRegOp(rd);
+        String saopp = "00000";
+        String funcopp = getFuncOp(in);
+
+        //sign extend
+        rsopp = signExtend(rsopp);
+        rtopp = signExtend(rtopp);
+        rdopp = signExtend(rdopp);
+
+        //concatenate
+        opc = inopp;
+        opc += rsopp;
+        opc += rtopp;
+        opc += rdopp;
+        opc += saopp;
+        opc += funcopp;
                         
         //print in hex
         System.out.println(convBinToHex(opc) + "\n");
@@ -295,7 +335,10 @@ public class MachineProject2 {
                rt = null,
                imm = null,
                base = null,
-               offset = null;
+               offset = null,
+               rd = null,
+               sa = null,
+               func = null;
         	   
         MachineProject2 m = new MachineProject2();
         Scanner sc = new Scanner (System.in);
@@ -349,12 +392,15 @@ public class MachineProject2 {
                 case 4: /* Start! */
                     System.out.println("Opcode of MIPS Program:");
                     /* Scenario 1: DADDIU or XOR */
-                    if(in != null && rs != null && rt != null && imm != null) {
+                    if(in != null && rs != null && rt != null && imm != null)
                         m.Scenario1(in, rs, rt, imm);
                     /* Scenario 2: LD or SD */
-                    } else if(in != null && rs != null && rt != null && imm != null) {
+                    else if(in != null && base != null && rt != null && offset != null)
                         m.Scenario2(in, base, rt, offset);
-                    } else
+                    /* Scenario 3: DADDU or SLT */
+                    else if(in != null && rs != null && rt != null && rd != null && sa != null && func != null)
+                        m.Scenario3(in, rs, rt, rd, sa, func);
+                    else
                         System.out.println("Invalid.\n");
                     
                     
