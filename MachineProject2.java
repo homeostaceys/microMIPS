@@ -260,6 +260,7 @@ public class MachineProject2 {
 //                    rs = "R5";
 //                    rt = "R20";
 //                    imm = "FFFF";
+                    System.err.print("Add an instruction: ");
                 	instr = new ArrayList<>();
                 	ctr = 0;
                 	instr.add(sc.nextLine());  
