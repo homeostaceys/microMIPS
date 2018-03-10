@@ -166,6 +166,10 @@ public class MachineProject2 {
         return "B";
     }
     
+    public String getIndexOp(String iindex) {
+        return "C";
+    }
+    
     /** This method prints the opcode for DADDIU or XORI
      * 
      * @param in is the instruction
@@ -226,6 +230,15 @@ public class MachineProject2 {
         System.out.println(convBinToHex(opc) + "\n");
     }
     
+    /** This method prints the opcode for the DADDU and SLT instructions.
+     * 
+     * @param in is the instruction
+     * @param rs is the rs value
+     * @param rt is the rt value
+     * @param rd is the rd value
+     * @param sa is the sa value
+     * @param func is the func value
+     */
     public void Scenario3(String in, String rs, String rt, String rd, String sa, String func) {
         String opc = null;
         //get binary
@@ -248,6 +261,55 @@ public class MachineProject2 {
         opc += rdopp;
         opc += saopp;
         opc += funcopp;
+                        
+        //print in hex
+        System.out.println(convBinToHex(opc) + "\n");
+    }
+    
+    /** This method prints the opcode for BGTZC instruction
+     * 
+     * @param in is the instruction
+     * @param rt is the rt value
+     * @param offset is the offset
+     */
+    public void Scenario4(String in, String rt, String offset) {
+        String opc = null;
+        //get binary
+        String inopp = getInstOp(in);
+        String baseopp = "00000";
+        String rtopp = getRegOp(rt);
+        String offsetopp = getOffsetOp(offset);
+
+        //sign extend
+        rtopp = signExtend(rtopp);
+        offsetopp = signExtendImm(offsetopp);
+
+        //concatenate
+        opc = inopp;
+        opc += baseopp;
+        opc += rtopp;
+        opc += offsetopp;
+                        
+        //print in hex
+        System.out.println(convBinToHex(opc) + "\n");
+    }
+    
+    /** This methods prints the opcode for J instruction
+     * 
+     * @param in is the instruction
+     * @param iindex is the instruction index
+     */
+    public void Scenario5(String in, String iindex) {
+        String opc = null;
+        //get binary
+        String inopp = getInstOp(in);
+        String indexopp = getIndexOp(iindex);
+
+        //sign extend
+
+        //concatenate
+        opc = inopp;
+        opc += indexopp;
                         
         //print in hex
         System.out.println(convBinToHex(opc) + "\n");
@@ -338,7 +400,8 @@ public class MachineProject2 {
                offset = null,
                rd = null,
                sa = null,
-               func = null;
+               func = null,
+               iindex = null;
         	   
         MachineProject2 m = new MachineProject2();
         Scanner sc = new Scanner (System.in);
@@ -400,6 +463,12 @@ public class MachineProject2 {
                     /* Scenario 3: DADDU or SLT */
                     else if(in != null && rs != null && rt != null && rd != null && sa != null && func != null)
                         m.Scenario3(in, rs, rt, rd, sa, func);
+                    /* Scenario 4: BGTZC */
+                    else if(in != null && rt != null && offset != null)
+                        m.Scenario4(in, rt, offset);
+                    /* Scenario 5: J */
+                    else if(in != null && iindex != null)
+                        m.Scenario5(in, iindex);
                     else
                         System.out.println("Invalid.\n");
                     
