@@ -79,6 +79,28 @@ public class MachineProject2 {
         return x;
     }
     
+    /** This method performs sign extension for instruction index.
+     * 
+     * @param x is binary
+     * @return x with sign extension
+     */
+    public String signExtendIndex(String x) {
+        int len = x.length();
+        String msb = "0";
+        String extend = "0";
+        int tmp = len;
+        //msb = Character.toString(x.charAt(0));
+        if(len < 25) {
+            while(tmp < 25) {
+                extend += msb;
+                tmp++;
+            }
+            x = extend + x;
+        }
+            
+        return x;
+    }
+    
     /** This method performs sign extension for immediate.
      * 
      * @param x is binary
@@ -164,10 +186,6 @@ public class MachineProject2 {
     
     public String getOffsetOp(String offset) {
         return "B";
-    }
-    
-    public String getIndexOp(String iindex) {
-        return "C";
     }
     
     /** This method prints the opcode for DADDIU or XORI
@@ -297,15 +315,16 @@ public class MachineProject2 {
     /** This methods prints the opcode for J instruction
      * 
      * @param in is the instruction
-     * @param iindex is the instruction index
+     * @param pos as position
      */
-    public void Scenario5(String in, String iindex) {
+    public void Scenario5(String in, int pos) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
-        String indexopp = getIndexOp(iindex);
+        String indexopp = Integer.toString(pos);
 
         //sign extend
+        indexopp = signExtendIndex(indexopp);
 
         //concatenate
         opc = inopp;
@@ -396,17 +415,12 @@ public class MachineProject2 {
                rs = null, 
                rt = null,
                imm = null,
-               base = null,
-               offset = null,
                rd = null,
-               sa = null,
-               func = null,
-               iindex = null;
+               sa = null;
         	   
         MachineProject2 m = new MachineProject2();
         Scanner sc = new Scanner (System.in);
         ArrayList<String> reg = new ArrayList<>();   // Registers
-        ArrayList<String> freg = new ArrayList<>();  // Floating point Register
         ArrayList<String> instr = new ArrayList<>(); // the instruction per line
         String[][] memory = new String[0][0];
         
@@ -438,7 +452,6 @@ public class MachineProject2 {
                     memory = new String[65536][2];
                     for(int i = 1; i <= 31; i++) {
                         reg.add("0000000000000000");
-                	freg.add("0000000000000000");
                     }
                     for(int i = 0; i < 65535; i++) {
                 	memory[i][0] = Integer.toHexString(i);
@@ -471,8 +484,8 @@ public class MachineProject2 {
 //                        else if(in != null && rt != null && offset != null)
 //                            m.Scenario4(in, rt, offset);
 //                        /* Scenario 5: J */
-//                        else if(in != null && iindex != null)
-//                            m.Scenario5(in, iindex);
+                        else if(in != null)
+                            m.Scenario5(in, i);
                         else
                             System.out.println("Invalid.\n");
                         
