@@ -149,10 +149,6 @@ public class MachineProject2 {
         return convHexToBin(imm);
     }
     
-    public String getBaseOp(String base) {
-        return "A";
-    }
-    
     public String getOffsetOp(String offset) {
         return "B";
     }
@@ -198,7 +194,7 @@ public class MachineProject2 {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
-        String baseopp = getBaseOp(base);
+        String baseopp = getRegOp(base);
         String rtopp = getRegOp(rt);
         String offsetopp = getOffsetOp(offset);
 
@@ -358,7 +354,7 @@ public class MachineProject2 {
                     /* Scenario 2: LD or SD */
                     } else if(in != null && rs != null && rt != null && imm != null) {
                         m.Scenario2(in, base, rt, offset);
-                    }else
+                    } else
                         System.out.println("Invalid.\n");
                     
                     
