@@ -3,6 +3,9 @@ package machineproject2;
 import java.math.BigInteger;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 /* THINGS NEED TO DO 
  * 1. errorCheck() function - possibly use regular expression
@@ -340,37 +343,16 @@ public class MachineProject2 {
      * @return a boolean expression if it passes the error checking criteria
      */
     public static Boolean errorCheck(String instrc) {
-    	String[] parts = instrc.split(" ");
-    	System.out.println(parts[0]);
-    	if(parts[0].equalsIgnoreCase("LD")) {
-    		/* perform reg expression check for LD */
-    	}
-    	if(parts[0].equalsIgnoreCase("SD")) {
-    		/* perform reg expression check for SD */
-    	}
-    	if(parts[0].equalsIgnoreCase("DADDIU")) {
-    		/* perform reg expression check for DADDIU */
-    	}
-    	if(parts[0].equalsIgnoreCase("XORI")) {
-    		/* perform reg expression check for XORI */
-    	}
-    	if(parts[0].equalsIgnoreCase("DADDU")) {
-    		/* perform reg expression check for DADDU */
-    	}
-    	if(parts[0].equalsIgnoreCase("SLT")) {
-    		/* perform reg expression check for SLT */
-    	}
-    	if(parts[0].equalsIgnoreCase("BGTZC")) {
-    		/* perform reg expression check for BGTZC */
-    	}
-    	if(parts[0].equalsIgnoreCase("J")) {
-    		/* perform reg expression check for J */
+    	String pattern="^((\\w+:)?(LD|ld)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),)( (\\w+))(\\((r|R)([0-9]|1[0-9]|2[0-9]|3[0-1])\\)))$|^((\\w+:)?(SD|sd)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),)( (\\w+)|([0-9A-Fa-f]{4}))(\\((r|R)([0-9]|1[0-9]|2[0-9]|3[0-1])\\)))$|^((\\w+:)?(DADDIU|daddiu)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( ((0x)|#)(([0-9a-fA-f])){4}))$|^((\\w+:)?(XORI|xori)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( ((0x)|#)(([0-9a-fA-f])){4}))$|^((\\w+:)?(DADDU|daddu)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1])))$|^((\\w+:)?(SLT|slt)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1])))$|^((\\w+:)?(BGTZC|bgtzc)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( \\w+))$|^(END|end)$";
+    	Pattern r= Pattern.compile(pattern);
+    	Matcher m = r.matcher(instrc);
+    	if (m.find()) {
+    		return true;
     	}
     	else {
     		System.out.println("Instruction error !!!");
     		return false;
     	}
-    	return true;
     }
     
     /** This method gets parses the instruction then loads into memory.
