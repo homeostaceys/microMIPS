@@ -42,6 +42,15 @@ public class MachineProject2 {
         return(Integer.toBinaryString(x));
     }
     
+    /** This method converts Decimal to Hexadecimal
+     * 
+     * @param x is a decimal number
+     * @return Hexadecimal String of x
+     */
+    public String convDecToHex(int x) {
+        return Integer.toHexString(x);
+    }
+    
     /** This method converts Hexadecimal to Binary.
      * 
      * @param x is a hexadecimal number
@@ -542,22 +551,23 @@ public class MachineProject2 {
                       opcode = new String[instructions.size()][4]; /*address, rep, label, code*/
                       
                       for(int i = 0; i < instructions.size(); i++) {
+                          opcode[i][0] = m.convDecToHex(i*4);   // address
                           parseLoad(reg, memory,instructions.get(i));
                           /* Scenario 1: DADDIU or XOR */
                           if(in != null && rs != null && rt != null && imm != null)
-                              opcode[i][3] = m.Scenario1(in, rs, rt, imm);
+                              opcode[i][1] = m.Scenario1(in, rs, rt, imm);  //rep
                           /* Scenario 2: LD or SD */
                           else if(in != null && base != null && rt != null && offset != null)
-                              opcode[i][3] = m.Scenario2(in, base, rt, offset);
+                              opcode[i][1] = m.Scenario2(in, base, rt, offset);  //rep
                           /* Scenario 3: DADDU or SLT */
                           else if(in != null && rs != null && rt != null && rd != null)
-                              opcode[i][3] = m.Scenario3(in, rs, rt, rd);
+                              opcode[i][1] = m.Scenario3(in, rs, rt, rd);  //rep
                           /* Scenario 4: BGTZC */
                           else if(in != null && rt != null && offset != null)
-                              opcode[i][3] = m.Scenario4(in, rt, offset);
+                              opcode[i][1] = m.Scenario4(in, rt, offset);  //rep
                           /* Scenario 5: J */
                           else if(in != null)
-                              opcode[i][3] = m.Scenario5(in, i);
+                              opcode[i][1] = m.Scenario5(in, i);  //rep
                           else
                               System.out.println("Invalid.\n"); 
                           /* reset to null */
