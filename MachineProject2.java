@@ -26,10 +26,11 @@ public class MachineProject2 {
     public void mainMenu() {
         System.out.println("What would you like to do?\n");
         System.out.println("[1] - Input Instruction(s)");
-        System.out.println("[2] - Reset Tables");
-        System.out.println("[3] - Load Tables");
-        System.out.println("[4] - Start!");
-        System.out.println("[5] - Exit\n");
+        System.out.println("[2] - Input Registers");
+        System.out.println("[3] - Input Memory");
+        System.out.println("[4] - Load Tables");
+        System.out.println("[5] - Start!");
+        System.out.println("[6] - Exit\n");
         System.out.print (">> ");
     }
     
@@ -133,21 +134,21 @@ public class MachineProject2 {
     public String getInstOp(String inst) {
         String op = null;
         
-        if(inst.equals("LD".equalsIgnoreCase("LD")))
+        if(inst.equalsIgnoreCase("LD"))
             op = "110111";
-        else if(inst.equals("SD".equalsIgnoreCase("SD")))
+        else if(inst.equalsIgnoreCase("SD"))
             op = "110111";
-        else if(inst.equals("DADDIU".equalsIgnoreCase("DADDIU")))
+        else if(inst.equalsIgnoreCase("DADDIU"))
             op = "110111";
-        else if(inst.equals("XORI".equalsIgnoreCase("XORI")))
+        else if(inst.equalsIgnoreCase("XORI"))
             op = "110111";
-        else if(inst.equals("DADDU".equalsIgnoreCase("DADDU")))
+        else if(inst.equalsIgnoreCase("DADDU"))
             op = "110111";
-        else if(inst.equals("SLT".equalsIgnoreCase("SLT")))
+        else if(inst.equalsIgnoreCase("SLT"))
             op = "110111";
-        else if(inst.equals("BGTZC".equalsIgnoreCase("BGTZC")))
+        else if(inst.equalsIgnoreCase("BGTZC"))
             op = "110111";
-        else if(inst.equals("J".equalsIgnoreCase("J")))
+        else if(inst.equalsIgnoreCase("J"))
             op = "110111";
         else
             System.out.println("Instruction not supported.");
@@ -158,9 +159,9 @@ public class MachineProject2 {
     public String getFuncOp(String inst) {
         String func = null;
         
-        if(inst.equals("DADDU".equalsIgnoreCase("DADDU")))
+        if(inst.equalsIgnoreCase("DADDU"))
             func = "101101";
-        else if(inst.equals("SLT".equalsIgnoreCase("SLT")))
+        else if(inst.equalsIgnoreCase("SLT"))
             func = "101010";
         else
             System.out.println("Instruction not supported.");
@@ -342,17 +343,50 @@ public class MachineProject2 {
      * @param instrc is the instruction
      * @return a boolean expression if it passes the error checking criteria
      */
-    public static Boolean errorCheck(String instrc) {
+    public static Boolean errorCheck(String instrc, boolean check) {
     	String pattern="^((\\w+:)?(LD|ld)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),)( (\\w+))(\\((r|R)([0-9]|1[0-9]|2[0-9]|3[0-1])\\)))$|^((\\w+:)?(SD|sd)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),)( (\\w+)|([0-9A-Fa-f]{4}))(\\((r|R)([0-9]|1[0-9]|2[0-9]|3[0-1])\\)))$|^((\\w+:)?(DADDIU|daddiu)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( ((0x)|#)(([0-9a-fA-f])){4}))$|^((\\w+:)?(XORI|xori)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( ((0x)|#)(([0-9a-fA-f])){4}))$|^((\\w+:)?(DADDU|daddu)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1])))$|^((\\w+:)?(SLT|slt)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1])))$|^((\\w+:)?(BGTZC|bgtzc)( (r|R)([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( \\w+))$|^((\\w+:)?(J|j)( \\w+))$|^(END|end)$";
     	Pattern r= Pattern.compile(pattern);
     	Matcher m = r.matcher(instrc);
     	if (m.find()) {
     		return true;
     	}
-    	else {
-    		System.out.println("Instruction error !!!");
-    		return false;
+    	System.out.println("Instruction error !!!");
+    	check = false;
+    	return false;
+    	
+    }
+    /** This method checks whether the value to be inputted in the register is valid or not.
+     * 
+     * @param regval is the register values
+     * @return a boolean expression if it passes the error checking criteria
+     */
+    public static Boolean checkRData(String regval) {
+    	String pattern = "^(([0-9A-Fa-f]{4}){4})$";
+    	Pattern r= Pattern.compile(pattern);
+    	Matcher m = r.matcher(regval);
+    	if(m.find()) {
+    		return true;
     	}
+    	System.out.println("Invalid value !!! Value not changed ");
+    	return false;
+    }
+    /** This method checks whether the value to be inputted in the memory is valid or not.
+     * 
+     * @param memloc is the memory location
+     * @param memval is the memory value 
+     * @return a boolean expression if it passes the error checking criteria
+     */
+    public static Boolean checkMData(String memloc, String memval) {
+    	
+    	String pat = "^([0-9A-Fa-f]{2})$";
+    	Pattern p = Pattern.compile(pat);
+    	Matcher match = p.matcher(memval);
+    	
+    	if((Integer.parseInt(memloc,16)> 0 && Integer.parseInt(memloc,16) < 4096) && match.find()) {
+    		return true;
+    	}
+    	System.out.println("Invalid value !!! Value not changed ");
+    	return false;
     }
     
     /** This method gets parses the instruction then loads into memory.
@@ -360,28 +394,32 @@ public class MachineProject2 {
      * @param instrc is the instruction
      *
      */
-    public static void parseLoad(String instrc) {
+    public static void parseLoad(ArrayList<String> reg, String[][] memory, String instrc) {
     	String[] parts = instrc.split(" ");
-    	System.out.println(parts[0]);
-    	if(parts[0].equalsIgnoreCase("LD")) {
+    	String cmd = parts[0];
+    	if(cmd.contains(":")) {
+    		cmd = cmd.split(":")[1];
+    	}
+    	
+    	if(cmd.equalsIgnoreCase("LD")) {
     		/* parse and load for LD */
     	}
-    	if(parts[0].equalsIgnoreCase("SD")) {
+    	if(cmd.equalsIgnoreCase("SD")) {
     		/* parse and load for SD */
     	}
-    	if(parts[0].equalsIgnoreCase("DADDIU")) {
+    	if(cmd.equalsIgnoreCase("DADDIU")) {
     		/* parse and load for DADDIU */
     	}
-    	if(parts[0].equalsIgnoreCase("XORI")) {
+    	if(cmd.equalsIgnoreCase("XORI")) {
     		/* parse and load for XORI */
     	}
-    	if(parts[0].equalsIgnoreCase("DADDU")) {
+    	if(cmd.equalsIgnoreCase("DADDU")) {
     		/* parse and load for DADDU */
     	}
-    	if(parts[0].equalsIgnoreCase("SLT")) {
+    	if(cmd.equalsIgnoreCase("SLT")) {
     		/* parse and load for SLT */
     	}
-    	if(parts[0].equalsIgnoreCase("BGTZC")) {
+    	if(cmd.equalsIgnoreCase("BGTZC")) {
     		/* parse and load for BGTZC */
     	}
     	else {
@@ -392,19 +430,22 @@ public class MachineProject2 {
     public static void main(String[] args) {
        
         boolean exitMain = false;
-        int opt, ctr;
+        boolean check = true;
+        int opt, ctr, regnum;
+        String regval, memloc, memval, instr;
         String in = null, 
                rs = null, 
                rt = null,
                imm = null,
                rd = null,
                sa = null;
-        	   
+                	   
         MachineProject2 m = new MachineProject2();
         Scanner sc = new Scanner (System.in);
         ArrayList<String> reg = new ArrayList<>();   // Registers
-        ArrayList<String> instr = new ArrayList<>(); // the instruction per line
+        ArrayList<String> instructions = new ArrayList<>(); // the instruction per line
         String[][] memory = new String[0][0];
+        String[][] opcode;
         
         /* initialize regs */
                
@@ -420,60 +461,103 @@ public class MachineProject2 {
 //                    rs = "R5";
 //                    rt = "R20";
 //                    imm = "FFFF";
-                    instr = new ArrayList<>();
+                    instructions = new ArrayList<>();
                     ctr = 0;
-                    System.out.print("Add an instruction: ");
-                    instr.add(sc.nextLine());  
-                    while(errorCheck(instr.get(ctr))&&((instr.get(ctr).compareToIgnoreCase("END")) != 0)) {
-                        instr.add(sc.nextLine());
-                        ctr++;
-                    }
+                    System.out.print("Add an instruction: \n");
+                    do {
+                    	instr = sc.nextLine().toUpperCase();
+                    	if((!instr.equals("END"))&&(!instr.equals(""))) {
+                    		if(errorCheck(instr, check))
+                    			instructions.add(instr);
+                    	}
+                    } while((!instr.equals("END")));
+                   
+                     System.out.println(instructions);
                     
                     break;
-                case 2: /* Reset all register and memory values */
-                    memory = new String[65536][2];
-                    for(int i = 1; i <= 31; i++) {
+                case 2: /* Input register values R1-R31*/
+                    
+                	for(int i = 0; i < 32; i++) {
                         reg.add("0000000000000000");
                     }
-                    for(int i = 0; i < 65535; i++) {
-                	memory[i][0] = Integer.toHexString(i);
-                	memory[i][1] = "00";
+                   
+                    do {
+                    	
+	                	System.out.println("Input register number (to exit press -1): ");
+	                	regnum = sc.nextInt();
+	                	sc.nextLine();
+	                	System.out.println("Input register value: ");
+	                	regval = sc.nextLine();
+	                	if((regnum > 0 && regnum < 32) && checkRData(regval)) {
+	                		reg.set(regnum, regval.toUpperCase());
+	                		System.out.println("Success! Value changed");
+                    	}
+                    	else {
+                    		System.out.println("Error!! Enter again");
+                    	}
+                    }while( regnum != -1 );
+                    for(int i = 0; i < 32; i++) {
+                       System.out.println("R"+i+"="+(reg.get(i)));
                     }
-                	
                     break;
-                case 3: /* Load values to tables */
-                    for(int i = 0; i < instr.size(); i++) {
-                	parseLoad(instr.get(i));
-                    }
-                	
-                    break;
-                case 4: /* Start! */
-                    System.out.println("Opcode of MIPS Program:");
+                case 3: /* Input memory values */
+                	memory = new String[8192][2];
+                	 for(int i = 0; i < 8192; i++) {
+                     	memory[i][0] = Integer.toHexString(i).toUpperCase();
+                     	memory[i][1] = "00";
+                     }
+                	 do {
+                     	
+ 	                	System.out.println("Input memory location [0000-0fff] (enter exit to abort) : ");
+ 	                	memloc = sc.nextLine().toUpperCase();
+ 	                	System.out.println("Input memory value: ");
+ 	                	memval = sc.nextLine().toUpperCase();
+ 	                	if(!memloc.equals("EXIT") &&  !memloc.equals("") ) {
+	 	                	if(checkMData(memloc,memval)) {
+	 	                		memory[Integer.parseInt(memloc,16)][1] = memval;
+	 	                		System.out.println("Success! Value changed");
+	 	                	}
+	                     	else {
+	                     		System.out.println("Error!! Enter again");
+	                     	}
+ 	                	}
+                     }while(!memloc.equals("EXIT") &&  !memloc.equals(""));
                     
-                    for(int i = 0; i < instr.size(); i++) {
-                        parseLoad(instr.get(i));
-                        
-                        /* Scenario 1: DADDIU or XOR */
-                        if(in != null && rs != null && rt != null && imm != null)
-                            m.Scenario1(in, rs, rt, imm);
-                        /* Scenario 2: LD or SD */
-//                        else if(in != null && base != null && rt != null && offset != null)
-//                            m.Scenario2(in, base, rt, offset);
-                        /* Scenario 3: DADDU or SLT */
-                        else if(in != null && rs != null && rt != null && rd != null)
-                            m.Scenario3(in, rs, rt, rd);
-                        /* Scenario 4: BGTZC */
-//                        else if(in != null && rt != null && offset != null)
-//                            m.Scenario4(in, rt, offset);
-//                        /* Scenario 5: J */
-                        else if(in != null)
-                            m.Scenario5(in, i);
-                        else
-                            System.out.println("Invalid.\n");
-                        
-                    }
+                     for(int i = 0; i < 8192; i++) {
+                      	System.out.println(memory[i][0]+"----" + memory[i][1]);
+                      }
+                	break;
+                case 4: /* Load values to tables and Opcode */
+                	  System.out.println("Opcode of MIPS Program:");
+                      opcode = new String[instructions.size()][4]; /*address, rep, label, code*/
+                      
+                      for(int i = 0; i < instructions.size(); i++) {
+                          parseLoad(reg, memory,instructions.get(i));
+                          /* Scenario 1: DADDIU or XOR */
+                          if(in != null && rs != null && rt != null && imm != null)
+                              m.Scenario1(in, rs, rt, imm);
+                          /* Scenario 2: LD or SD */
+//                          else if(in != null && base != null && rt != null && offset != null)
+//                              m.Scenario2(in, base, rt, offset);
+                          /* Scenario 3: DADDU or SLT */
+                          else if(in != null && rs != null && rt != null && rd != null)
+                              m.Scenario3(in, rs, rt, rd);
+                          /* Scenario 4: BGTZC */
+//                          else if(in != null && rt != null && offset != null)
+//                              m.Scenario4(in, rt, offset);
+//                          /* Scenario 5: J */
+                          else if(in != null)
+                              m.Scenario5(in, i);
+                          else
+                              System.out.println("Invalid.\n"); 
+                      }
                     break;
-                case 5: /* Exit */
+                case 5: /* Start! */
+                  
+                        
+                    
+                    break;
+                case 6: /* Exit */
                     System.out.println("Exiting...");
                     exitMain = true;
                     break;
