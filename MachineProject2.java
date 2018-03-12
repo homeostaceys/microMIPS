@@ -188,9 +188,9 @@ public class MachineProject2 {
         return convHexToBin(imm);
     }
     
-    public String getOffsetOp(String offset) {
-        return Integer.toString(Integer.parseInt(offset)/4);
-    }
+//    public String getOffsetOp(String offset) {
+//        return Integer.toString(Integer.parseInt(offset)/4);
+//    }
     
     /** This method gets the opcode for DADDIU or XORI
      * 
@@ -237,7 +237,8 @@ public class MachineProject2 {
         String inopp = getInstOp(in);
         String baseopp = getRegOp(base);
         String rtopp = getRegOp(rt);
-        String offsetopp = getOffsetOp(offset);
+//        String offsetopp = getOffsetOp(offset);
+        String offsetopp = convHexToBin(offset);
 
         //sign extend
         baseopp = signExtend(baseopp);
@@ -302,8 +303,9 @@ public class MachineProject2 {
         String inopp = getInstOp(in);
         String baseopp = "00000";
         String rtopp = getRegOp(rt);
-        String offsetopp = getOffsetOp(offset);
-
+ //        String offsetopp = getOffsetOp(offset);
+        String offsetopp = convHexToBin(offset);
+        
         //sign extend
         rtopp = signExtend(rtopp);
         offsetopp = signExtendImm(offsetopp);
@@ -559,7 +561,7 @@ public class MachineProject2 {
                           else
                               System.out.println("Invalid.\n"); 
                           /* reset to null */
-                          lbl = in = rs = rt = imm = rd = sa = base = offset = null;
+                          in = rs = rt = imm = rd = sa = base = offset = null;
                       }
                     break;
                 case 5: /* Start! */
