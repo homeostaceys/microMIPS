@@ -189,7 +189,7 @@ public class MachineProject2 {
     }
     
     public String getOffsetOp(String offset) {
-        return "B";
+        return Integer.toString(Integer.parseInt(offset)/4);
     }
     
     /** This method gets the opcode for DADDIU or XORI
@@ -551,9 +551,9 @@ public class MachineProject2 {
                           else if(in != null && rs != null && rt != null && rd != null)
                               opcode[i][3] = m.Scenario3(in, rs, rt, rd);
                           /* Scenario 4: BGTZC */
-//                          else if(in != null && rt != null && offset != null)
-//                              opcode[i][3] = m.Scenario4(in, rt, offset);
-//                          /* Scenario 5: J */
+                          else if(in != null && rt != null && offset != null)
+                              opcode[i][3] = m.Scenario4(in, rt, offset);
+                          /* Scenario 5: J */
                           else if(in != null)
                               opcode[i][3] = m.Scenario5(in, i);
                           else
