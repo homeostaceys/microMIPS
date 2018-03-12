@@ -192,14 +192,15 @@ public class MachineProject2 {
         return "B";
     }
     
-    /** This method prints the opcode for DADDIU or XORI
+    /** This method gets the opcode for DADDIU or XORI
      * 
      * @param in is the instruction
      * @param rs is the rs value
      * @param rt is the rt value
      * @param imm is the immediate value
+     * @return opcode in hexadecimal
      */
-    public void Scenario1(String in, String rs, String rt, String imm) {
+    public String Scenario1(String in, String rs, String rt, String imm) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -218,18 +219,19 @@ public class MachineProject2 {
         opc += rtopp;
         opc += immopp;
                         
-        //print in hex
-        System.out.println(convBinToHex(opc) + "\n");
+        //return in hex
+        return convBinToHex(opc);
     }
     
-    /** This method prints the opcode for SD or LD
+    /** This method gets the opcode for SD or LD
      * 
      * @param in is the instruction
      * @param base is the base value
      * @param rt is the rt value 
      * @param offset is the offset value
+     * @return opcode in hexadecimal
      */
-    public void Scenario2(String in, String base, String rt, String offset) {
+    public String Scenario2(String in, String base, String rt, String offset) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -248,20 +250,19 @@ public class MachineProject2 {
         opc += rtopp;
         opc += offsetopp;
                         
-        //print in hex
-        System.out.println(convBinToHex(opc) + "\n");
+        //return in hex
+        return convBinToHex(opc);
     }
     
-    /** This method prints the opcode for the DADDU and SLT instructions.
+    /** This method gets the opcode for the DADDU and SLT instructions.
      * 
      * @param in is the instruction
      * @param rs is the rs value
      * @param rt is the rt value
      * @param rd is the rd value
-     * @param sa is the sa value
-     * @param func is the func value
+     * @return opcode in hexadecimal
      */
-    public void Scenario3(String in, String rs, String rt, String rd) {
+    public String Scenario3(String in, String rs, String rt, String rd) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -284,17 +285,18 @@ public class MachineProject2 {
         opc += saopp;
         opc += funcopp;
                         
-        //print in hex
-        System.out.println(convBinToHex(opc) + "\n");
+        //return in hex
+        return convBinToHex(opc);
     }
     
-    /** This method prints the opcode for BGTZC instruction
+    /** This method gets the opcode for BGTZC instruction
      * 
      * @param in is the instruction
      * @param rt is the rt value
      * @param offset is the offset
+     * @return opcode in hexadecimal
      */
-    public void Scenario4(String in, String rt, String offset) {
+    public String Scenario4(String in, String rt, String offset) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -312,16 +314,17 @@ public class MachineProject2 {
         opc += rtopp;
         opc += offsetopp;
                         
-        //print in hex
-        System.out.println(convBinToHex(opc) + "\n");
+        //return in hex
+        return convBinToHex(opc);
     }
     
-    /** This methods prints the opcode for J instruction
+    /** This methods gets the opcode for J instruction
      * 
      * @param in is the instruction
      * @param pos as position
+     * @return opcode in hexadecimal
      */
-    public void Scenario5(String in, int pos) {
+    public String Scenario5(String in, int pos) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -334,8 +337,8 @@ public class MachineProject2 {
         opc = inopp;
         opc += indexopp;
                         
-        //print in hex
-        System.out.println(convBinToHex(opc) + "\n");
+        //return in hex
+        return convBinToHex(opc);
     }
     
     /** This method checks whether the instruction is a valid instruction.
@@ -391,6 +394,8 @@ public class MachineProject2 {
     
     /** This method gets parses the instruction then loads into memory.
      * 
+     * @param reg
+     * @param memory
      * @param instrc is the instruction
      *
      */
@@ -433,12 +438,15 @@ public class MachineProject2 {
         boolean check = true;
         int opt, ctr, regnum;
         String regval, memloc, memval, instr;
-        String in = null, 
+        String lbl = null,
+               in = null, 
                rs = null, 
                rt = null,
                imm = null,
                rd = null,
-               sa = null;
+               sa = null,
+               base = null,
+               offset = null;
                 	   
         MachineProject2 m = new MachineProject2();
         Scanner sc = new Scanner (System.in);
@@ -535,21 +543,23 @@ public class MachineProject2 {
                           parseLoad(reg, memory,instructions.get(i));
                           /* Scenario 1: DADDIU or XOR */
                           if(in != null && rs != null && rt != null && imm != null)
-                              m.Scenario1(in, rs, rt, imm);
+                              opcode[i][3] = m.Scenario1(in, rs, rt, imm);
                           /* Scenario 2: LD or SD */
-//                          else if(in != null && base != null && rt != null && offset != null)
-//                              m.Scenario2(in, base, rt, offset);
+                          else if(in != null && base != null && rt != null && offset != null)
+                              opcode[i][3] = m.Scenario2(in, base, rt, offset);
                           /* Scenario 3: DADDU or SLT */
                           else if(in != null && rs != null && rt != null && rd != null)
-                              m.Scenario3(in, rs, rt, rd);
+                              opcode[i][3] = m.Scenario3(in, rs, rt, rd);
                           /* Scenario 4: BGTZC */
 //                          else if(in != null && rt != null && offset != null)
-//                              m.Scenario4(in, rt, offset);
+//                              opcode[i][3] = m.Scenario4(in, rt, offset);
 //                          /* Scenario 5: J */
                           else if(in != null)
-                              m.Scenario5(in, i);
+                              opcode[i][3] = m.Scenario5(in, i);
                           else
                               System.out.println("Invalid.\n"); 
+                          /* reset to null */
+                          lbl = in = rs = rt = imm = rd = sa = base = offset = null;
                       }
                     break;
                 case 5: /* Start! */
