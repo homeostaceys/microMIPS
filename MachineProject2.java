@@ -67,7 +67,7 @@ public class MachineProject2 {
      */
     public static String convBinToHex(String x) {
         int decimal = Integer.parseInt(x,2);
-        return(Integer.toString(decimal,16));
+        return Integer.toString(decimal, 16);
     }
     
     /** This method performs sign extension.
@@ -81,7 +81,9 @@ public class MachineProject2 {
         String extend = "0";
         int tmp = len;
         //msb = Character.toString(x.charAt(0));
-        if(len < 4) {
+        if (len == 4)
+            x = extend + x;
+        else if(len < 4) {
             while(tmp < 4) {
                 extend += msb;
                 tmp++;
@@ -103,6 +105,8 @@ public class MachineProject2 {
         String extend = "0";
         int tmp = len;
         //msb = Character.toString(x.charAt(0));
+        if (len == 25)
+            x = extend + x;
         if(len < 25) {
             while(tmp < 25) {
                 extend += msb;
@@ -125,6 +129,8 @@ public class MachineProject2 {
         String extend = "0";
         int tmp = len;
         //msb = Character.toString(x.charAt(0));
+        if (len == 15)
+            x = extend + x;
         if(len < 15) {
             while(tmp < 15) {
                 extend += msb;
@@ -146,19 +152,19 @@ public class MachineProject2 {
         if(inst.equalsIgnoreCase("LD"))
             op = "110111";
         else if(inst.equalsIgnoreCase("SD"))
-            op = "110111";
+            op = "111111";
         else if(inst.equalsIgnoreCase("DADDIU"))
-            op = "110111";
+            op = "011001";
         else if(inst.equalsIgnoreCase("XORI"))
-            op = "110111";
+            op = "001110";
         else if(inst.equalsIgnoreCase("DADDU"))
-            op = "110111";
+            op = "000000";
         else if(inst.equalsIgnoreCase("SLT"))
-            op = "110111";
+            op = "000000";
         else if(inst.equalsIgnoreCase("BGTZC"))
-            op = "110111";
+            op = "010111";
         else if(inst.equalsIgnoreCase("J"))
-            op = "110111";
+            op = "000010";
         else
             System.out.println("Instruction not supported.");
         
@@ -211,6 +217,7 @@ public class MachineProject2 {
      */
     public static String Scenario1(String in, String rs, String rt, String imm) {
         String opc = null;
+        
         //get binary
         String inopp = getInstOp(in);
         String rsopp = getRegOp(rs);
@@ -221,13 +228,20 @@ public class MachineProject2 {
         rsopp = signExtend(rsopp);
         rtopp = signExtend(rtopp);
         immopp = signExtendImm(immopp);
-
+        
+        System.out.println("in = " + inopp);
+        System.out.println("rs = " + rsopp);
+        System.out.println("rt = " + rtopp);
+        System.out.println("imm = " + immopp);
+        
         //concatenate
         opc = inopp;
         opc += rsopp;
         opc += rtopp;
         opc += immopp;
-                        
+        
+        System.out.println("opc = " + opc);
+        
         //return in hex
         return convBinToHex(opc);
     }
@@ -411,7 +425,6 @@ public class MachineProject2 {
      *
      */
     public static void parseLoad(String[][] opcode, String instrc, int instrc_num) {
-        
         String cmd = null;
         
              
@@ -420,30 +433,27 @@ public class MachineProject2 {
     	}
         String[] parts = instrc.split(" ");
         cmd = parts[0];
-    	if(cmd.equalsIgnoreCase("LD") || cmd.equalsIgnoreCase("SD")) {
-    		/* parse and load for LD or SD */
+        /* parse and load for LD or SD */
+    	if(cmd.equalsIgnoreCase("LD") || cmd.equalsIgnoreCase("SD"))
                 opcode[instrc_num][1] = Scenario2(cmd, parts[2].split("(")[1].replace(")",""), parts[1].replace(",", ""), parts[2].split("(")[0]);
-    	}
-    	if(cmd.equalsIgnoreCase("DADDIU")||cmd.equalsIgnoreCase("XORI")) {
-    		/* parse and load for DADDIU or XORI */
+    	/* parse and load for DADDIU or XORI */
+        else if(cmd.equalsIgnoreCase("DADDIU")||cmd.equalsIgnoreCase("XORI")) {
                 if(parts[3].contains("0x"))
-                    parts[3].replace("0x","");
+                    parts[3] = parts[3].replace("0x","");
                 else
-                    parts[3].replace("#","");
-                opcode[instrc_num][1] = Scenario1(cmd, parts[2].replace(",", ""), parts[1].replace(",", ""), parts[3]); 
+                    parts[3] = parts[3].replace("#","");
+                
+                opcode[instrc_num][1] = Scenario1(cmd, parts[2].replace(",", ""), parts[1].replace(",", ""), parts[3]);
     	}
-    	if(cmd.equalsIgnoreCase("DADDU") || cmd.equalsIgnoreCase("SLT")) {
-    		/* parse and load for DADDU or SLT */
-                opcode[instrc_num][1] = Scenario3(cmd, parts[2].replace(",",""), parts[3], parts[1].replace(",","")); 
-    	}
-    	if(cmd.equalsIgnoreCase("BGTZC")) {
-    		/* parse and load for BGTZC */
+        /* parse and load for DADDU or SLT */
+        else if(cmd.equalsIgnoreCase("DADDU") || cmd.equalsIgnoreCase("SLT"))
+                opcode[instrc_num][1] = Scenario3(cmd, parts[2].replace(",",""), parts[3], parts[1].replace(",",""));
+    	/* parse and load for BGTZC */
+        else if(cmd.equalsIgnoreCase("BGTZC"))
                 opcode[instrc_num][1] = Scenario4(cmd, parts[1].replace(",",""), parts[2]);
-    	}
-    	else {
-    		/* parse and load for J */
-                opcode[instrc_num][1] = Scenario5(cmd, instrc_num);
-    	}
+    	/* parse and load for J */
+        else
+            opcode[instrc_num][1] = Scenario5(cmd, instrc_num);
     }
     
     public static void main(String[] args) {
@@ -555,8 +565,9 @@ public class MachineProject2 {
                       
                       for(int i = 0; i < instructions.size(); i++) {
                           opcode[i][0] = m.convDecToHex(i*4);   // address
+                          System.out.println("Instr = " + instructions.get(i));
                           parseLoad(opcode, instructions.get(i), i);
-                          
+                          System.out.println("address: " + opcode[i][0]+"---- opcode: "+opcode[i][1]);
                           
                       }
                     break;
