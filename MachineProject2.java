@@ -38,7 +38,7 @@ public class MachineProject2 {
      * @param x is an integer number
      * @return Binary String of x
      */
-    public String convToBin(int x) {
+    public static String convToBin(int x) {
         return(Integer.toBinaryString(x));
     }
     
@@ -47,7 +47,7 @@ public class MachineProject2 {
      * @param x is a decimal number
      * @return Hexadecimal String of x
      */
-    public String convDecToHex(int x) {
+    public static String convDecToHex(int x) {
         return Integer.toHexString(x);
     }
     
@@ -56,7 +56,7 @@ public class MachineProject2 {
      * @param x is a hexadecimal number
      * @return Binary String of x
      */
-    public String convHexToBin(String x) {
+    public static String convHexToBin(String x) {
         return new BigInteger(x, 16).toString(2);
     }
     
@@ -65,7 +65,7 @@ public class MachineProject2 {
      * @param x is binary
      * @return x in hexadecimal format
      */
-    public String convBinToHex(String x) {
+    public static String convBinToHex(String x) {
         int decimal = Integer.parseInt(x,2);
         return(Integer.toString(decimal,16));
     }
@@ -75,7 +75,7 @@ public class MachineProject2 {
      * @param x is binary
      * @return x with sign extension
      */
-    public String signExtend(String x) {
+    public static String signExtend(String x) {
         int len = x.length();
         String msb = "0";
         String extend = "0";
@@ -97,7 +97,7 @@ public class MachineProject2 {
      * @param x is binary
      * @return x with sign extension
      */
-    public String signExtendIndex(String x) {
+    public static String signExtendIndex(String x) {
         int len = x.length();
         String msb = "0";
         String extend = "0";
@@ -119,7 +119,7 @@ public class MachineProject2 {
      * @param x is binary
      * @return x with sign extension
      */
-    public String signExtendImm(String x) {
+    public static String signExtendImm(String x) {
         int len = x.length();
         String msb = "0";
         String extend = "0";
@@ -140,7 +140,7 @@ public class MachineProject2 {
      * @param inst is the instruction
      * @return op is the opcode of the instruction
      */
-    public String getInstOp(String inst) {
+    public static String getInstOp(String inst) {
         String op = null;
         
         if(inst.equalsIgnoreCase("LD"))
@@ -165,7 +165,7 @@ public class MachineProject2 {
         return op;
     }
     
-    public String getFuncOp(String inst) {
+    public static String getFuncOp(String inst) {
         String func = null;
         
         if(inst.equalsIgnoreCase("DADDU"))
@@ -183,7 +183,7 @@ public class MachineProject2 {
      * @param reg is the register
      * @return Binary String of reg
      */ 
-    public String getRegOp(String reg) {
+    public static String getRegOp(String reg) {
         reg = reg.replaceAll("\\D+","");
         return convToBin(Integer.parseInt(reg));
     }
@@ -193,7 +193,7 @@ public class MachineProject2 {
      * @param imm is immediate
      * @return Binary String of imm
      */
-    public String getImmOp(String imm) {
+    public static String getImmOp(String imm) {
         return convHexToBin(imm);
     }
     
@@ -209,7 +209,7 @@ public class MachineProject2 {
      * @param imm is the immediate value
      * @return opcode in hexadecimal
      */
-    public String Scenario1(String in, String rs, String rt, String imm) {
+    public static String Scenario1(String in, String rs, String rt, String imm) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -240,7 +240,7 @@ public class MachineProject2 {
      * @param offset is the offset value
      * @return opcode in hexadecimal
      */
-    public String Scenario2(String in, String base, String rt, String offset) {
+    public static String Scenario2(String in, String base, String rt, String offset) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -272,7 +272,7 @@ public class MachineProject2 {
      * @param rd is the rd value
      * @return opcode in hexadecimal
      */
-    public String Scenario3(String in, String rs, String rt, String rd) {
+    public static String Scenario3(String in, String rs, String rt, String rd) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -306,7 +306,7 @@ public class MachineProject2 {
      * @param offset is the offset
      * @return opcode in hexadecimal
      */
-    public String Scenario4(String in, String rt, String offset) {
+    public static String Scenario4(String in, String rt, String offset) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -335,7 +335,7 @@ public class MachineProject2 {
      * @param pos as position
      * @return opcode in hexadecimal
      */
-    public String Scenario5(String in, int pos) {
+    public static String Scenario5(String in, int pos) {
         String opc = null;
         //get binary
         String inopp = getInstOp(in);
@@ -410,36 +410,39 @@ public class MachineProject2 {
      * @param instrc is the instruction
      *
      */
-    public static void parseLoad(ArrayList<String> reg, String[][] memory, String instrc) {
-    	String[] parts = instrc.split(" ");
-    	String cmd = parts[0];
-    	if(cmd.contains(":")) {
-    		cmd = cmd.split(":")[1];
+    public static void parseLoad(String[][] opcode, String instrc, int instrc_num) {
+        
+        String cmd = null;
+        
+             
+    	if(instrc.contains(":")) {
+    		instrc = instrc.split(":")[1]; //DADDIU R1, R2, R4
     	}
-    	
-    	if(cmd.equalsIgnoreCase("LD")) {
-    		/* parse and load for LD */
+        String[] parts = instrc.split(" ");
+        cmd = parts[0];
+    	if(cmd.equalsIgnoreCase("LD") || cmd.equalsIgnoreCase("SD")) {
+    		/* parse and load for LD or SD */
+                opcode[instrc_num][1] = Scenario2(cmd, parts[2].split("(")[1].replace(")",""), parts[1].replace(",", ""), parts[2].split("(")[0]);
     	}
-    	if(cmd.equalsIgnoreCase("SD")) {
-    		/* parse and load for SD */
+    	if(cmd.equalsIgnoreCase("DADDIU")||cmd.equalsIgnoreCase("XORI")) {
+    		/* parse and load for DADDIU or XORI */
+                if(parts[3].contains("0x"))
+                    parts[3].replace("0x","");
+                else
+                    parts[3].replace("#","");
+                opcode[instrc_num][1] = Scenario1(cmd, parts[2].replace(",", ""), parts[1].replace(",", ""), parts[3]); 
     	}
-    	if(cmd.equalsIgnoreCase("DADDIU")) {
-    		/* parse and load for DADDIU */
-    	}
-    	if(cmd.equalsIgnoreCase("XORI")) {
-    		/* parse and load for XORI */
-    	}
-    	if(cmd.equalsIgnoreCase("DADDU")) {
-    		/* parse and load for DADDU */
-    	}
-    	if(cmd.equalsIgnoreCase("SLT")) {
-    		/* parse and load for SLT */
+    	if(cmd.equalsIgnoreCase("DADDU") || cmd.equalsIgnoreCase("SLT")) {
+    		/* parse and load for DADDU or SLT */
+                opcode[instrc_num][1] = Scenario3(cmd, parts[2].replace(",",""), parts[3], parts[1].replace(",","")); 
     	}
     	if(cmd.equalsIgnoreCase("BGTZC")) {
     		/* parse and load for BGTZC */
+                opcode[instrc_num][1] = Scenario4(cmd, parts[1].replace(",",""), parts[2]);
     	}
     	else {
     		/* parse and load for J */
+                opcode[instrc_num][1] = Scenario5(cmd, instrc_num);
     	}
     }
     
@@ -548,30 +551,13 @@ public class MachineProject2 {
                 	break;
                 case 4: /* Load values to tables and Opcode */
                 	  System.out.println("Opcode of MIPS Program:");
-                      opcode = new String[instructions.size()][4]; /*address, rep, label, code*/
+                      opcode = new String[instructions.size()][3]; /*address, rep, label*/
                       
                       for(int i = 0; i < instructions.size(); i++) {
                           opcode[i][0] = m.convDecToHex(i*4);   // address
-                          parseLoad(reg, memory,instructions.get(i));
-                          /* Scenario 1: DADDIU or XOR */
-                          if(in != null && rs != null && rt != null && imm != null)
-                              opcode[i][1] = m.Scenario1(in, rs, rt, imm);  //rep
-                          /* Scenario 2: LD or SD */
-                          else if(in != null && base != null && rt != null && offset != null)
-                              opcode[i][1] = m.Scenario2(in, base, rt, offset);  //rep
-                          /* Scenario 3: DADDU or SLT */
-                          else if(in != null && rs != null && rt != null && rd != null)
-                              opcode[i][1] = m.Scenario3(in, rs, rt, rd);  //rep
-                          /* Scenario 4: BGTZC */
-                          else if(in != null && rt != null && offset != null)
-                              opcode[i][1] = m.Scenario4(in, rt, offset);  //rep
-                          /* Scenario 5: J */
-                          else if(in != null)
-                              opcode[i][1] = m.Scenario5(in, i);  //rep
-                          else
-                              System.out.println("Invalid.\n"); 
-                          /* reset to null */
-                          in = rs = rt = imm = rd = sa = base = offset = null;
+                          parseLoad(opcode, instructions.get(i), i);
+                          
+                          
                       }
                     break;
                 case 5: /* Start! */
