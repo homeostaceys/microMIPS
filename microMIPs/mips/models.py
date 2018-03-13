@@ -11,13 +11,14 @@ class Codes(models.Model):
         return self.instruction
     class Meta:
         verbose_name_plural = "Codes"
+
 class Opcodetable(models.Model):
     instrc = models.CharField(max_length=10)
     opcode = models.CharField(max_length=6)
     rs = models.CharField(blank=True, max_length=5)
     sa = models.CharField(blank=True, max_length=5)
     func = models.CharField(blank=True, max_length=10)
-    
+
     def __str__(self):
         return self.instrc
 

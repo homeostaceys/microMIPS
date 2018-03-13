@@ -9,4 +9,5 @@ app_name = 'ecommerce'
 urlpatterns = [
 
     url(r'^$', views.index, name='index'),
+
 ]
