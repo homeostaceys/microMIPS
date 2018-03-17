@@ -11,31 +11,57 @@
 </head>
 <body>
 
-    <div class="navbar-expand-lg navbar-dark">
-        <a class="navbar-brand ml-5 p-3 text-uppercase" href="{% url 'mips:index' %}"><h3>Mips Simulator</h3></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+{#    <div class="navbar-expand-lg navbar-dark">#}
 
-        <div class="container">
+{#        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">#}
+{#            <span class="navbar-toggler-icon"></span>#}
+{#        </button>#}
+{#        <div class="collapse navbar-collapse" id="navbarSupportedContent">#}
+{#            #}
+{##}
+{#                <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Input Instructions</button>#}
+{##}
+{##}
+{#                <a href="{% url 'mips:load' %}" role="button" class="btn btn-info btn-lg">Load Instructions</a>#}
+{##}
 
-            <div class="button-container">
-                <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Input Instructions</button>
-            </div>
-            <div class="button-container">
-                <a href="{% url 'mips:load' %}" role="button" class="btn btn-info btn-lg">Load Instructions</a>
-            </div>
-            <div class="dropdown">
-              <button class="btn btn-info btn-lg dropdown-toggle" type="button" data-toggle="dropdown">Pipelining
-              <span class="caret"></span></button>
-              <ul class="dropdown-menu">
-                <li><a href="#">Detailed Pipelining</a></li>
-                <li><a href="#">Other Pipelining</a></li>
-              </ul>
-            </div>
+{#            </ul>#}
+{#        </div>#}
+{##}
+{#    </div>#}
+<nav id="navbar" class="navbar navbar-expand-lg navbar-dark" >
+  			<a class="navbar-brand ml-5 p-3 text-uppercase" href="{% url 'mips:index' %}"><h3>Mips Simulator</h3></a>
 
-        </div>
-    </div>
+  			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    			<span class="navbar-toggler-icon"></span>
+  			</button>
+
+	  		<div class="collapse navbar-collapse " id="navbarSupportedContent">
+	    		<ul class="navbar-nav nav-pills nav-fill ml-auto">
+
+                    <li class="nav-item mr-2">
+                        <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Input Instructions</button>
+                    </li>
+                    <li class="nav-item mr-2">
+                        <a href="{% url 'mips:load' %}" role="button" class="btn btn-info btn-lg">Load Instructions</a>
+                    </li>
+
+                    <li class="nav-item mr-2">
+                        <div class="dropdown">
+                          <button class="btn btn-info btn-lg dropdown-toggle" type="button" data-toggle="dropdown">Pipelining
+                          <span class="caret"></span></button>
+                          <ul class="dropdown-menu dropdown-menu-right list-group-flush">
+                            <li><a  class="dropdown-item font-weight-bold list-group-item" href="#">Detailed Pipelining</a></li>
+                            <li><a   class="dropdown-item font-weight-bold list-group-item" href="#">Other Pipelining</a></li>
+                          </ul>
+                        </div>
+                    </li>
+
+
+
+	    		</ul>
+	  		</div>
+		</nav>
 
 {#    <!--Modal for Input Instructions-->#}
 {#    <div class="modal fade" id="myModal" role="dialog">#}
