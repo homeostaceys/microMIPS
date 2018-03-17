@@ -24,7 +24,7 @@ def check(request):
     codearea = request.session['codearea']
     list = codearea.split("\r\n")
     print(list)
-
+    #not yet done need to do line per line check and label check else prompt an error
     return render(request, 'mips/load.html')
 
 def errorCheck(instr):
