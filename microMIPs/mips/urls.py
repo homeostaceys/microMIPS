@@ -11,6 +11,8 @@ urlpatterns = [
 
     url(r'^$', views.index, name='index'),
     url(r'^load/$', views.load, name='load'),
+    url(r'^inputcode/$', views.inputcode, name='inputcode'),
+    url(r'^check/$', views.check, name='check'),
 
 ]
 

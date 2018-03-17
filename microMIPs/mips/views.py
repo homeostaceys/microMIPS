@@ -1,5 +1,5 @@
-from django.shortcuts import render
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 import binascii
 
 from .models import *
@@ -12,7 +12,20 @@ def index(request):
 
     return render(request,'mips/index.html')
 
+def inputcode(request):
+    if (request.method == "POST"):
+        codearea = request.POST["codearea"]
+        request.session['codearea'] = codearea
+        list = codearea.split("\r\n")
+        print(list)
+    return HttpResponse('Success')
 
+def check(request):
+    codearea = request.session['codearea']
+    list = codearea.split("\r\n")
+    print(list)
+
+    return render(request, 'mips/load.html')
 
 def errorCheck(instr):
     regex = r"^((\w+:( )?)?((LD|SD) R([0-9]|1[0-9]|2[0-9]|3[0-1]),)( ([0-9A-F]){4})(\(R([0-9]|1[0-9]|2[0-9]|3[0-1])\)))$|^((\w+:( )?)?(DADDIU|XORI)( R([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( ((0x)|#)(([0-9A-F])){4}))$|^((\w+:( )?)?(DADDU|SLT)( R([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( R([0-9]|1[0-9]|2[0-9]|3[0-1])))$|^((\w+:( )?)?(BGTZC R([0-9]|1[0-9]|2[0-9]|3[0-1]),)( \w+))$|^((\w+:( )?)?(J \w+))$"

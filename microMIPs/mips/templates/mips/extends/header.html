@@ -9,26 +9,13 @@
     	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
 </head>
+<script>
+
+    {% block script %}
+    {% endblock %}
+</script>
 <body>
 
-{#    <div class="navbar-expand-lg navbar-dark">#}
-
-{#        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">#}
-{#            <span class="navbar-toggler-icon"></span>#}
-{#        </button>#}
-{#        <div class="collapse navbar-collapse" id="navbarSupportedContent">#}
-{#            #}
-{##}
-{#                <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Input Instructions</button>#}
-{##}
-{##}
-{#                <a href="{% url 'mips:load' %}" role="button" class="btn btn-info btn-lg">Load Instructions</a>#}
-{##}
-
-{#            </ul>#}
-{#        </div>#}
-{##}
-{#    </div>#}
 <nav id="navbar" class="navbar navbar-expand-lg navbar-dark" >
   			<a class="navbar-brand ml-5 p-3 text-uppercase" href="{% url 'mips:index' %}"><h3>Mips Simulator</h3></a>
 

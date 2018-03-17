@@ -1,22 +1,54 @@
 
 {% extends 'mips/extends/header.html' %}
+{% block script %}
+$(document).ready( function(){
 
-{#    <!--Modal for Input Instructions-->#}
-{#    <div class="modal fade" id="myModal" role="dialog">#}
-{#        <div class="modal-dialog">#}
-{#            <div class="modal-content">#}
-{#                <div class="modal-header.html">#}
-{#                    <button type="button" class="close" data-dismiss="modal">&times;</button>#}
-{#                    <h3 class="modal-title">Input Instructions</h3>#}
-{#                </div>#}
-{#                <div class="modal-body">#}
-{#                    <input type="text" class="form-control" placeholder="Input Instruction Here">#}
-{#                </div>#}
-{#                <div class="modal-footer">#}
-{#                    <button type="button" class="btn btn-success" data-dismiss="modal">Save</button>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
+    $('#myform').on("submit", function (event) {
+        event.preventDefault();
+        var data = new FormData(this);
+
+        $.ajax({
+            url: "/inputcode/",
+            method: "POST",
+            data: data,
+            async: false,
+            cache: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            processData: false,
+            success: function (response) {}
+        });
+    });
+    $("body").on("click", "a", function() {
+        $('#myform').submit();
+    });
+
+});
+
+
+
+
+{% endblock %}
+{% block body %}
+    <div class="container-fluid ml-2">
+        <form method="GET" enctype="multipart/form-data" id="myform">
+
+            <div class="form-group ">
+                {% csrf_token %}
+                <label for="exampleFormControlTextarea1">Enter Codes Here</label>
+                {%  if request.session.codearea != None %}
+                <textarea name="codearea" class="form-control col-6" id="exampleFormControlTextarea1" spellcheck="false" style="height:400px;" >{{request.session.codearea}}</textarea>
+                {% else %}
+                <textarea name="codearea" class="form-control col-6" id="exampleFormControlTextarea1" spellcheck="false" style="height:400px;" ></textarea>
+                {% endif %}
+
+            </div>
+            <div class="">
+                <a href="{% url 'mips:check' %}"><div class="btn btn-primary" id="id_load">LOAD</div></a>
+            </div>
+        </div>
+        </form>
+
+    </div>
     
-    
+{% endblock %}

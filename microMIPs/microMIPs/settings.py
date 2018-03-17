@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 ROOT_URLCONF = 'microMIPs.urls'
 
@@ -73,6 +74,7 @@ WSGI_APPLICATION = 'microMIPs.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+
 
 DATABASES = {
     'default': {
@@ -122,5 +124,4 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/'
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+
