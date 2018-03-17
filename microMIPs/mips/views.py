@@ -26,9 +26,10 @@ def errorCheck(instr):
 # di pa 'to tapos lol
 def parseLoad(instrc, instrc_num):
     if ":" in instrc:
-        instrc = instrc.split(":")[1]; #DADDIU R1, R2, R4
-    parts = instrc.split(" ");
-    cmd = parts[0];
+        label = instrc.split(":")[0]
+        instrc = instrc.split(":")[1] #DADDIU R1, R2, R4
+    parts = instrc.split(" ")
+    cmd = parts[0]
     # parse and load for LD or SD
     if cmd == "LD" or cmd == "SD":
         base = parts[2].split("()")[1].replace(")","")
