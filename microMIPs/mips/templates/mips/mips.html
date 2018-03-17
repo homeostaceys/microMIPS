@@ -3,99 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Mips Simulation</title>
-    <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    
-    <style>
-        @font-face {
-            font-family: Proxima;
-            src: url(Proxima.ttf)
-        }
-        
-        body {
-            margin: 0;
-            padding: 0;
-            background: url(bg1.jpg) no-repeat;
-            background-size: cover;
-        }
-        
-        /*Navigation Bar Elements*/
-        .navbar-container {
-            display: flex;
-            flex-direction: row;
-            top: 0;
-            margin: 10px;
-            opacity:0.9;
-        }
-        
-        .navbar-content {
-            margin: 15px 15px;
-        }
-        
-        .navbar-content a {
-            padding: 10px 15px;
-            text-decoration: none;
-            color: white;
-            font-size: 30px;
-            font-family: Proxima;
-            font-weight: bold;
-        }
-        
-        .navbar-content a:hover{
-            background-color: #202020;
-            color: white;
-        }
-        
-        /*Body Elements*/
-        .container {
-            display: flex;
-            justify-content: flex-start;
-            flex-direction: row;
-            align-items: center;
-            margin: 0;
-        }
-        
-        .container, .modal {
-            font-family: Proxima;
-            
-        }
-        
-        .modal {
-            margin-top: 300px;
-        }
-        
-        .modal-body {
-            margin: 40px 0px
-        }
-        
-        .btn-lg {
-            border-radius: 0;
-            margin-right: 20px;  
-        }
-        
-        .dropdown-menu {
-            font-size: 15px;
-        }
-        
-        .dropdown-menu li a:hover {
-            background-color: #111111;
-            color: white;
-        }
-        
-        .footer {
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            padding: 20px 0px;
-            background-color: #111111;
-            color: white;
-            text-align: center;
-            font-family: Proxima;
-            letter-spacing: 3px;
-        }
-    </style>
+    <script src="{{ STATIC_URL }} /static/js/jquery.min.js"></script>
+    	<script src="{{ STATIC_URL }} /static/js/bootstrap.min.js"></script>
+    	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
 </head>
 <body>
     
@@ -108,7 +19,7 @@
                 <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Input Instructions</button>
             </div>
             <div class="button-container">
-                <a href="loadpage.html" role="button" class="btn btn-info btn-lg">Load Instructions</a>
+                <a href="load.html" role="button" class="btn btn-info btn-lg">Load Instructions</a>
             </div>
             <div class="dropdown">
               <button class="btn btn-info btn-lg dropdown-toggle" type="button" data-toggle="dropdown">Pipelining

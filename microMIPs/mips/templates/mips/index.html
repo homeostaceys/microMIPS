@@ -1,23 +1,22 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-    	<script src="{{ STATIC_URL }} /static/js/jquery.min.js"></script>
-    	<script src="{{ STATIC_URL }} /static/js/bootstrap.min.js"></script>
-    	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
 
-		<title>{% block title %}{% endblock %}</title>
-	</head>
-	{% block extrascript %}
-    {% endblock %}
-    <script>
+{% extends 'mips/extends/header.html' %}
 
-    </script>
-
-	<body>
-
-
-    	{% block body %}
-    	{% endblock %}
-	</body>
-</html>
+{#    <!--Modal for Input Instructions-->#}
+{#    <div class="modal fade" id="myModal" role="dialog">#}
+{#        <div class="modal-dialog">#}
+{#            <div class="modal-content">#}
+{#                <div class="modal-header.html">#}
+{#                    <button type="button" class="close" data-dismiss="modal">&times;</button>#}
+{#                    <h3 class="modal-title">Input Instructions</h3>#}
+{#                </div>#}
+{#                <div class="modal-body">#}
+{#                    <input type="text" class="form-control" placeholder="Input Instruction Here">#}
+{#                </div>#}
+{#                <div class="modal-footer">#}
+{#                    <button type="button" class="btn btn-success" data-dismiss="modal">Save</button>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+    
+    
