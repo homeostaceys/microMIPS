@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.shortcuts import render, redirect
+import binascii
 
 from .models import *
 
@@ -24,7 +25,7 @@ def errorCheck(instr):
 #def opcode(instr):
     
 # di pa 'to tapos lol
-def parseLoad(instrc, instrc_num):
+def opcode(instrc, instrc_num):
     if ":" in instrc:
         label = instrc.split(":")[0]
         instrc = instrc.split(":")[1] #DADDIU R1, R2, R4
@@ -35,6 +36,25 @@ def parseLoad(instrc, instrc_num):
         base = parts[2].split("()")[1].replace(")","")
         rt = parts[1].replace(",", "")
         offset = parts[2].split("(")[0]
+        
+        if cmd == "LD":
+            inop = "110111"
+        else:
+            inop = "111111"
+        
+        baseop = '{0:05b}'.format(base)                 # Integer to binary
+        rtop = '{0:05b}'.format(rt)                     # Integer to binary
+        offsetop = binary(binascii.hexlify(offset))     # hex to binary
+        
+        opc = inop
+        opc = opc + baseop
+        opc = opc + rtop
+        opc = opc + offsetop
+        
+        opc = binascii.hexlify(opc)
+        
+        return opc
+        
     # parse and load for DADDIU or XORI
     elif cmd == "DADDIU" or cmd == "XORI":
         if "0x" in parts[3]:
@@ -45,6 +65,25 @@ def parseLoad(instrc, instrc_num):
         rs = parts[2].replace(",", "")
         rt = parts[1].replace(",", "")
         imm = parts[3]
+        
+        if cmd == "DADDIU":
+            inop = "011001"
+        else:
+            inop = "001110"
+            
+        rsop = '{0:05b}'.format(rs)                     # Integer to binary
+        rtop = '{0:05b}'.format(rt)                     # Integer to binary
+        immop = binary(binascii.hexlify(imm))           # hex to binary
+        
+        opc = inop
+        opc = opc + rsop
+        opc = opc + rtop
+        opc = opc + immop
+        
+        opc = binascii.hexlify(opc)
+        
+        return opc
+        
     # parse and load for DADDU or SLT
     elif cmd == "DADDU" or cmd == "SLT":
         rs = parts[2].replace(",","")
