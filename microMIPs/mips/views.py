@@ -39,12 +39,12 @@ def errorCheck(instr):
 # di pa 'to tapos lol
 def opcode(instrc, instrc_num):
     if ":" in instrc:
-        label = instrc.split(":")[0]
-        instrc = instrc.split(":")[1] #DADDIU R1, R2, R4
+        Codes.label = instrc.split(":")[0]              # store label
+        instrc = instrc.split(":")[1]
     parts = instrc.split(" ")
     cmd = parts[0]
-    # parse and load for LD or SD
-    if cmd == "LD" or cmd == "SD":
+    
+    if cmd == "LD" or cmd == "SD":                      # parse and load for LD or SD
         base = parts[2].split("()")[1].replace(")","")
         rt = parts[1].replace(",", "")
         offset = parts[2].split("(")[0]
@@ -67,8 +67,7 @@ def opcode(instrc, instrc_num):
         
         return opc
         
-    # parse and load for DADDIU or XORI
-    elif cmd == "DADDIU" or cmd == "XORI":
+    elif cmd == "DADDIU" or cmd == "XORI":               # parse and load for DADDIU or XORI
         if "0x" in parts[3]:
             parts[3] = parts[3].replace("0x","")
         else:
@@ -96,8 +95,7 @@ def opcode(instrc, instrc_num):
         
         return opc
         
-    # parse and load for DADDU or SLT
-    elif cmd == "DADDU" or cmd == "SLT":
+    elif cmd == "DADDU" or cmd == "SLT":                # parse and load for DADDU or SLT
         rs = parts[2].replace(",","")
         rt = parts[3]
         rd = parts[1].replace(",","")
@@ -126,8 +124,7 @@ def opcode(instrc, instrc_num):
         
         return opc
         
-	# parse and load for BGTZC
-    elif cmd == "BGTZC":
+    elif cmd == "BGTZC":                                # parse and load for BGTZC
         rt = parts[1].replace(",","")
         offset = parts[2]
         
@@ -145,8 +142,12 @@ def opcode(instrc, instrc_num):
         
         return opc
         
-	# parse and load for J
-    else:
-        a = "a"
+    else:                                               # parse and load for J
+        instrc_num.zfill(16)
         
-         #opcode[instrc_num][1] = Scenario5(cmd, instrc_num)
+        opc = inop;
+        opc += indexop;
+        
+        opc = binascii.hexlify(opc)
+        
+        return opc
