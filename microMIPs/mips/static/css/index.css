@@ -86,6 +86,23 @@ body {
     letter-spacing: 3px;
 }
 
+#myform {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+}
+
 .tablebox {
     display: flex;
     flex-direction: row;
@@ -101,4 +118,9 @@ body {
 
 .col-lg-offset-4 {
     margin-top: 50px;
+}
+
+#id_load {
+    width: 200px;
+    padding: 10px 0px;
 }
