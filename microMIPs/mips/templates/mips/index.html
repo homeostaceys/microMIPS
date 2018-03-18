@@ -35,7 +35,7 @@ $(document).ready( function(){
 
             <div class="form-group ">
                 {% csrf_token %}
-                <label for="exampleFormControlTextarea1">Enter Codes Here</label>
+                <label for="exampleFormControlTextarea1" style="color: white">Enter Codes Here</label>
                 {%  if request.session.codearea != None %}
                 <textarea name="codearea" class="form-control col-6" id="exampleFormControlTextarea1" spellcheck="false" style="height:400px;" >{{request.session.codearea}}</textarea>
                 {% else %}
@@ -43,12 +43,13 @@ $(document).ready( function(){
                 {% endif %}
 
             </div>
-            <div class="">
+            <div class="button">
                 <a href="{% url 'mips:check' %}"><div class="btn btn-primary" id="id_load">LOAD</div></a>
             </div>
-        </div>
         </form>
-
     </div>
+        
+
+    
     
 {% endblock %}
