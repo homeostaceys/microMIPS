@@ -35,8 +35,7 @@ def errorCheck(instr):
 
     return False
 
-#def opcode(instr):
-    
+  
 # di pa 'to tapos lol
 def opcode(instrc, instrc_num):
     if ":" in instrc:
@@ -102,11 +101,52 @@ def opcode(instrc, instrc_num):
         rs = parts[2].replace(",","")
         rt = parts[3]
         rd = parts[1].replace(",","")
+        
+        inop = "000000"
+        
+        rsop = '{0:05b}'.format(rs)                     # Integer to binary
+        rtop = '{0:05b}'.format(rt)                     # Integer to binary
+        rdop = '{0:05b}'.format(rd)                     # Integer to binary
+        
+        saop = "00000"
+        
+        if cmd == "DADDU":
+            funcop = "101101"
+        else:
+            funcop = "101010"
+            
+        opc = inop
+        opc = opc + rsop
+        opc = opc + rtop
+        opc = opc + rdop
+        opc = opc + saop
+        opc = opc + funcop
+        
+        opc = binascii.hexlify(opc)
+        
+        return opc
+        
 	# parse and load for BGTZC
     elif cmd == "BGTZC":
         rt = parts[1].replace(",","")
         offset = parts[2]
+        
+        inopp = "010111"
+        baseopp = "00000"
+        rtop = '{0:05b}'.format(rt)                     # Integer to binary
+        offsetop = binary(binascii.hexlify(offset))     # hex to binary
+        
+        opc = inop
+        opc = opc + baseop
+        opc = opc + rtop
+        opc = opc + offsetop
+        
+        opc = binascii.hexlify(opc)
+        
+        return opc
+        
 	# parse and load for J
     else:
         a = "a"
+        
          #opcode[instrc_num][1] = Scenario5(cmd, instrc_num)
