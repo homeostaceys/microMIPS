@@ -8,6 +8,7 @@ body {
     padding: 0;
     background: url(/mips/static/image/bg1.jpg) no-repeat;
     background-size: cover;
+    overflow-y: hidden;
 }
 
 /*Navigation Bar Elements*/

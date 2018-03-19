@@ -30,7 +30,18 @@ $(document).ready( function(){
 
 {% endblock %}
 {% block body %}
+
     <div class="container-fluid ml-auto ">
+        {% if error == True %}
+            <div class=" alert alert-danger col-6 text-uppercase text-center" role="alert" style="margin-left: 25%;">
+                 <i class="fa fa-times-circle-o" style="font-size: 30px;"></i> Invalid instruction !! Please check line {{ line }}
+            </div>
+        {% endif %}
+        {% if errorlabel == True %}
+            <div class=" alert alert-danger col-6 text-uppercase text-center" role="alert" style="margin-left: 25%;">
+                 <i class="fa fa-times-circle-o" style="font-size: 30px;"></i> Invalid Label !! Please check line {{ line }}
+            </div>
+        {% endif %}
         <form method="GET" enctype="multipart/form-data" id="myform">
 
             <div class="form-group " style="height:700px;">
@@ -44,8 +55,6 @@ $(document).ready( function(){
 
         </form>
     </div>
-        
 
-    
-    
+
 {% endblock %}
