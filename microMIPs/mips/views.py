@@ -121,10 +121,12 @@ def checkMData(memval):
     return False
   
 # di pa 'to tapos lol
-def opcode(instrc, instrc_num):
-    if ":" in instrc:
-        Codes.label = instrc.split(":")[0]              # store label
-        instrc = instrc.split(":")[1]
+def opcode(request):
+    codes_obj = Codes.objects.all()[:1].get()
+    #if ":" in instrc:
+    #    Codes.label = instrc.split(":")[0]              # store label
+    #    instrc = instrc.split(":")[1]
+    instrc = codes_obj.instruction
     parts = instrc.split(" ")
     cmd = parts[0]
     
@@ -137,19 +139,25 @@ def opcode(instrc, instrc_num):
             inop = "110111"
         else:
             inop = "111111"
+            
+        base = base.replace("R", "")
+        rt = rt.replace("R", "")
         
-        baseop = '{0:05b}'.format(base)                 # Integer to binary
-        rtop = '{0:05b}'.format(rt)                     # Integer to binary
-        offsetop = binary(binascii.hexlify(offset))     # hex to binary
+        baseop = '{0:05b}'.format(int(base))                 # Integer to binary
+        rtop = '{0:05b}'.format(int(rt))                     # Integer to binary
+        offsetop = "{0:16b}".format(int(imm,16))             # hex to binary
+        offsetop = offsetop.replace(" ", "")
         
         opc = inop
         opc = opc + baseop
         opc = opc + rtop
         opc = opc + offsetop
         
-        opc = binascii.hexlify(opc)
+        temp = int(opc,2)
+        opc = hex(temp)[2:]
+        #opc = binascii.hexlify(opc)
         
-        return opc
+        return HttpResponse(opc)
         
     elif cmd == "DADDIU" or cmd == "XORI":               # parse and load for DADDIU or XORI
         if "0x" in parts[3]:
@@ -165,19 +173,26 @@ def opcode(instrc, instrc_num):
             inop = "011001"
         else:
             inop = "001110"
-            
-        rsop = '{0:05b}'.format(rs)                     # Integer to binary
-        rtop = '{0:05b}'.format(rt)                     # Integer to binary
-        immop = binary(binascii.hexlify(imm))           # hex to binary
+        
+        rs = rs.replace("R", "")
+        rt = rt.replace("R", "")
+        
+        rsop = '{0:05b}'.format(int(rs))                     # Integer to binary
+        rtop = '{0:05b}'.format(int(rt))                     # Integer to binary
+        #immop = bin(binascii.hexlify(imm))           # hex to binary
+        immop = "{0:16b}".format(int(imm,16))
+        immop = immop.replace(" ", "")
         
         opc = inop
         opc = opc + rsop
         opc = opc + rtop
         opc = opc + immop
         
-        opc = binascii.hexlify(opc)
+        temp = int(opc,2)
+        opc = hex(temp)[2:]
+        #opc = binascii.hexlify(opc)                     # binary to hex
         
-        return opc
+        return HttpResponse(opc)
         
     elif cmd == "DADDU" or cmd == "SLT":                # parse and load for DADDU or SLT
         rs = parts[2].replace(",","")
@@ -204,9 +219,11 @@ def opcode(instrc, instrc_num):
         opc = opc + saop
         opc = opc + funcop
         
-        opc = binascii.hexlify(opc)
+        temp = int(opc,2)
+        opc = hex(temp)[2:]
+        #opc = binascii.hexlify(opc)
         
-        return opc
+        return HttpResponse(opc)
         
     elif cmd == "BGTZC":                                # parse and load for BGTZC
         rt = parts[1].replace(",","")
@@ -222,9 +239,11 @@ def opcode(instrc, instrc_num):
         opc = opc + rtop
         opc = opc + offsetop
         
-        opc = binascii.hexlify(opc)
+        temp = int(opc,2)
+        opc = hex(temp)[2:]
+        #opc = binascii.hexlify(opc)
         
-        return opc
+        return HttpResponse(opc)
         
     else:                                               # parse and load for J
         instrc_num.zfill(16)
@@ -232,6 +251,8 @@ def opcode(instrc, instrc_num):
         opc = inop;
         opc += indexop;
         
-        opc = binascii.hexlify(opc)
+        temp = int(opc,2)
+        opc = hex(temp)[2:]
+        #opc = binascii.hexlify(opc)
         
-        return opc
+        return HttpResponse(opc)

@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^load/$', views.load, name='load'),
     url(r'^inputcode/$', views.inputcode, name='inputcode'),
+    url(r'^opcode/$', views.opcode, name='opcode'),
     url(r'^check/$', views.check, name='check'),
     url(r'^reset/$', views.reset, name='reset'),
 
