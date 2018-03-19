@@ -71,6 +71,7 @@ def check(request):
             code = Codes.objects.create(id=i,address=format(i * 4, 'x').zfill(4), rep="", label=label, instruction=instr,
                                         status=status)
             code.save()
+            opcode()
         else:
             error = True
             line = i + 1
@@ -120,7 +121,7 @@ def checkMData(memval):
 
     return False
   
-def opcode(request):
+def opcode():
     codes_obj = Codes.objects.all()[:1].get()
     #if ":" in instrc:
     #    Codes.label = instrc.split(":")[0]              # store label
@@ -147,6 +148,9 @@ def opcode(request):
         offsetop = "{0:16b}".format(int(imm,16))             # hex to binary
         offsetop = offsetop.replace(" ", "")
         
+        while len(offsetop) < 16:
+            offsetop = "0" + offsetop
+        
         opc = inop
         opc = opc + baseop
         opc = opc + rtop
@@ -156,7 +160,7 @@ def opcode(request):
         opc = hex(temp)[2:]
         #opc = binascii.hexlify(opc)
         
-        return HttpResponse(opc)
+        #return HttpResponse(opc)
         
     elif cmd == "DADDIU" or cmd == "XORI":               # parse and load for DADDIU or XORI
         if "0x" in parts[3]:
@@ -182,6 +186,9 @@ def opcode(request):
         immop = "{0:16b}".format(int(imm,16))
         immop = immop.replace(" ", "")
         
+        while len(immop) < 16:
+            immop = "0" + immop
+        
         opc = inop
         opc = opc + rsop
         opc = opc + rtop
@@ -191,7 +198,11 @@ def opcode(request):
         opc = hex(temp)[2:]
         #opc = binascii.hexlify(opc)                     # binary to hex
         
-        return HttpResponse(opc)
+        codes_obj.rep = opc
+        codes_obj.save(update_fields=['rep'])
+        
+        #codes_obj.update(rep=opc)
+        #return HttpResponse(opc)
         
     elif cmd == "DADDU" or cmd == "SLT":                # parse and load for DADDU or SLT
         rs = parts[2].replace(",","")
@@ -226,7 +237,7 @@ def opcode(request):
         opc = hex(temp)[2:]
         #opc = binascii.hexlify(opc)
         
-        return HttpResponse(opc)
+        #return HttpResponse(opc)
         
     elif cmd == "BGTZC":                                # parse and load for BGTZC
         rt = parts[1].replace(",","")
@@ -240,6 +251,9 @@ def opcode(request):
         offsetop = "{0:16b}".format(int(offset,16))
         offsetop = offsetop.replace(" ", "")
         
+        while len(offsetop) < 16:
+            offsetop = "0" + offsetop
+        
         opc = inop
         opc = opc + baseop
         opc = opc + rtop
@@ -249,7 +263,7 @@ def opcode(request):
         opc = hex(temp)[2:]
         #opc = binascii.hexlify(opc)
         
-        return HttpResponse(opc)
+        #return HttpResponse(opc)
         
     else:                                               # parse and load for J
         instrc_num.zfill(16)
@@ -261,4 +275,4 @@ def opcode(request):
         opc = hex(temp)[2:]
         #opc = binascii.hexlify(opc)
         
-        return HttpResponse(opc)
+        #return HttpResponse(opc)
