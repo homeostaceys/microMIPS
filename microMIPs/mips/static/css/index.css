@@ -42,7 +42,19 @@ body {
 }
 
 /*Body Elements*/
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+}
 
+
+.col {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
 
 .container, .modal {
     font-family: Proxima;
@@ -101,6 +113,22 @@ body {
     justify-content: center;
 }
 
+.tablebox {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    
+}
+
+.table-container {
+    color: white;
+    font-family: Proxima;
+}
+
+.col-lg-offset-4 {
+    margin-top: 50px;
+}
 
 #id_load {
     width: 200px;
