@@ -12,18 +12,18 @@
 
         <div class="col  ml-lg-5 mr-lg-5">
             <h2 align="center"><strong class="text-white">Opcode Table</strong></h2>
-            <table class="table table-bordered" >
+            <table class="table table-bordered" style="table-layout: fixed;" >
                 <thead>
                     <tr style="background-color: white; color: #111111;">
                         <th>Instruction</th>
                         <th>Opcode</th>
                     </tr>
                 </thead>
-                <tbody style="color: white;overflow-y: scroll; display: inline-block; height: 30em;">
+                <tbody style="color: white;overflow-y: scroll; height: 30em; overflow: auto;">
                     {% for instr in instrclist %}
-                    <tr style="width:inherit;">
-                        <th>{{ instr.instruction }}</th>
-                        <th>{{ instr.rep }}</th>
+                    <tr>
+                        <td>{{ instr.instruction }}</td>
+                        <td>{{ instr.rep }}</td>
                     </tr>
                     {% endfor %}
 
@@ -41,11 +41,11 @@
                         <th>Content</th>
                     </tr>
                 </thead>
-                <tbody style=" color: white; overflow-y: scroll; display: inline-block; height: 30em;">
+                <tbody style="color: white; overflow: scroll; height: 30em; display:inline-block;">
                     {% for mem in memlist %}
-                    <tr style="width:inherit;">
-                        <th><button role="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editModal" >{{ mem.address }}</button></th>
-                        <th>{{ mem.memval }}</th>
+                    <tr>
+                        <td><button role="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editModal" >{{ mem.address }}</button></td>
+                        <td>{{ mem.memval }}</td>
                     </tr>
                     {% endfor %}
 
@@ -61,7 +61,7 @@
         <div class=" ml-lg-5 col mr-lg-5">
             <h2 align="center"><strong class="text-white">Register Table</strong></h2>
             <table class="table table-bordered">
-                <thead style="display: block;">
+                <thead>
                     <tr style="background-color: white; color: #111111;display: block;">
                         <th  style="display: inline-block;">Register</th>
                         <th  style="display: inline-block;">Content</th>
@@ -70,8 +70,8 @@
                 <tbody style=" color: white;overflow-y: scroll; display: inline-block; height: 30em;">
                     {% for reg in reglist %}
                     <tr>
-                        <th>R{{ reg.regnum }}</th>
-                        <th>{{ reg.regval }}</th>
+                        <td>R{{ reg.regnum }}</td>
+                        <td>{{ reg.regval }}</td>
                     </tr>
                     {% endfor %}
 
@@ -92,12 +92,15 @@
             </div>
             
             <div class="modal-body">
-                <label>Memory Content</label>
-                <input type="text" class="form-control">
+                <form method="GET" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label>Memory Content</label>
+                    <input type="text" class="form-control" name="editarea">
+                </form>
             </div>
             
             <div class="modal-footer">
-                <button type="submit" class="btn btn-success">Save</button>
+                <button type="submit" class="btn btn-success" >Save</button>
             </div>
         </div>
     </div>
