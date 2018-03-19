@@ -7,7 +7,29 @@ from .models import *
 import re
 # Create your views here.
 def load(request):
-    return render(request, 'mips/load.html')
+    reglist = Register.objects.all()
+    memlist = Memory.objects.all()
+    context={
+        'reglist':reglist,
+        'memlist':memlist,
+
+    }
+    return render(request, 'mips/load.html', context)
+def reset(request):
+    i = 0
+    j = 2574
+    rlist = Register.objects.all()
+    mlist = Memory.objects.all()
+    for r in rlist:
+        if r.regval != "0000000000000000":
+            r.regval = "0000000000000000"
+            r.save()
+    for m in mlist:
+        if m.memval != "00":
+            m.memval = "00"
+            m.save()
+
+    return redirect('/load/')
 def index(request):
 
     return render(request,'mips/index.html')
@@ -17,7 +39,6 @@ def inputcode(request):
         codearea = request.POST["codearea"]
         request.session['codearea'] = codearea
         list = codearea.split("\r\n")
-        print(list)
     return HttpResponse('Success')
 
 def check(request):
@@ -26,6 +47,7 @@ def check(request):
     c = Codes.objects.all()
     c.delete()
     codearea = request.session['codearea']
+    codearea = codearea.upper()
     list = codearea.split("\r\n")
     i = 0
     while i < len(list):
@@ -59,11 +81,10 @@ def check(request):
 
     branchjumplist = Codes.objects.filter(status=1)
     for l in branchjumplist:
-        print(str(l).split(" ")[-1])
-        lbl = Codes.objects.filter(label=str(l).split(" ")[-1])
+
         try:
+            lbl = Codes.objects.filter(label=str(l).split(" ")[-1])
             lbl[0]
-            print("True")
         except IndexError:
             errorlabel = True
             line = l.id + 1
@@ -83,6 +104,19 @@ def errorCheck(instr):
 
     return False
 
+def checkRData(regval):
+    regex = r"^(([0-9A-Fa-f]{4}){4})$"
+    if re.search(regex, regval): # need to add checking of labels
+        return True
+
+    return False
+
+def checkMData(memval):
+    regex = r"^([0-9A-Fa-f]{2})$"
+    if ((int(memval,16) > 0 and int(memval,16) < 4096) and re.search(regex, memval)): # need to add checking of labels
+        return True
+
+    return False
   
 # di pa 'to tapos lol
 def opcode(instrc, instrc_num):

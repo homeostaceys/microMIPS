@@ -26,21 +26,22 @@ class Opcodetable(models.Model):
     class Meta:
         verbose_name_plural = "Opcode Table"
 
-class Registers(models.Model):
-    regnum = models.PositiveIntegerField(default=0)
-    regval = models.CharField(max_length=16)
-
-    def __str__(self):
-        return "R"+self.regnum
-    class Meta:
-        verbose_name_plural = "Registers"
 
 class Memory(models.Model):
     address = models.CharField(max_length=4)
-    memval = models.CharField(max_length=2)
+    memval = models.CharField(max_length=2,default="00")
 
     def __str__(self):
         return self.address
 
     class Meta:
         verbose_name_plural = "Memory"
+
+
+class Register(models.Model):
+    regval = models.CharField(max_length=16,default="0000000000000000")
+    regnum = models.PositiveIntegerField(default=0)
+    def __str__(self):
+        return "R"+str(self.regnum)
+    class Meta:
+        verbose_name_plural = "Registers"

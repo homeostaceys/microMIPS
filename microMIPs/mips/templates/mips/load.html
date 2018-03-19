@@ -14,10 +14,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th>Address</th>
-                            <th>Content</th>
-                        </tr>
+
                         <tr>
                             <th>Address</th>
                             <th>Content</th>
@@ -43,18 +40,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th>R1</th>
-                            <th>Content</th>
-                        </tr>
-                        <tr>
-                            <th>R2</th>
-                            <th>Content</th>
-                        </tr>
-                        <tr>
-                            <th>R3</th>
-                            <th>Content</th>
-                        </tr>
+                        {% for reg in reglist %}
+                            <tr>
+                                <th>R{{ reg.regnum }}</th>
+                                <th>{{ reg.regval }}</th>
+                            </tr>
+                        {% endfor %}
+
                     </tbody>
                 </table>
             </div>

@@ -49,8 +49,11 @@ $(document).ready( function(){
                 <label for="exampleFormControlTextarea1" style="color: white;">Enter Codes Here</label>
                 <textarea name="codearea" class="form-control col-6" id="exampleFormControlTextarea1" spellcheck="false" >{{request.session.codearea}}</textarea>
                  <div class="button mt-2">
-                    <a href="{% url 'mips:check' %}"><div class="btn btn-primary" id="id_load">LOAD</div></a>
-                </div>
+                     <div class="row">
+                        <div class="col"><a href="{% url 'mips:check' %}"><div class="btn btn-success" id="id_load">LOAD</div></a></div>
+                         <div class="col"><a href="{% url 'mips:reset' %}"><div class="btn btn-primary" id="id_load">RESET</div></a></div>
+                     </div>
+                 </div>
             </div>
 
         </form>
