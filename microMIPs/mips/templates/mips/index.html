@@ -30,22 +30,18 @@ $(document).ready( function(){
 
 {% endblock %}
 {% block body %}
-    <div class="container-fluid ml-2">
+    <div class="container-fluid ml-auto ">
         <form method="GET" enctype="multipart/form-data" id="myform">
 
-            <div class="form-group ">
+            <div class="form-group " style="height:700px;">
                 {% csrf_token %}
-                <label for="exampleFormControlTextarea1" style="color: white">Enter Codes Here</label>
-                {%  if request.session.codearea != None %}
-                <textarea name="codearea" class="form-control col-6" id="exampleFormControlTextarea1" spellcheck="false" style="height:400px;" >{{request.session.codearea}}</textarea>
-                {% else %}
-                <textarea name="codearea" class="form-control col-6" id="exampleFormControlTextarea1" spellcheck="false" style="height:400px;" ></textarea>
-                {% endif %}
+                <label for="exampleFormControlTextarea1" style="color: white;">Enter Codes Here</label>
+                <textarea name="codearea" class="form-control col-6" id="exampleFormControlTextarea1" spellcheck="false" >{{request.session.codearea}}</textarea>
+                 <div class="button mt-2">
+                    <a href="{% url 'mips:check' %}"><div class="btn btn-primary" id="id_load">LOAD</div></a>
+                </div>
+            </div>
 
-            </div>
-            <div class="button">
-                <a href="{% url 'mips:check' %}"><div class="btn btn-primary" id="id_load">LOAD</div></a>
-            </div>
         </form>
     </div>
         

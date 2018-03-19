@@ -23,7 +23,13 @@ def inputcode(request):
 def check(request):
     codearea = request.session['codearea']
     list = codearea.split("\r\n")
-    print(list)
+    i = 0
+    while i < len(list):
+        if errorCheck(list[i]):
+            Codes.objects.create(address=chr(i))
+        else:
+            print("FAILED")
+
     #not yet done need to do line per line check and label check else prompt an error
     return render(request, 'mips/load.html')
 

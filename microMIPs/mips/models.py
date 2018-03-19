@@ -6,6 +6,7 @@ class Codes(models.Model):
     rep = models.CharField(max_length=8)
     label = models.CharField(max_length=30)
     instruction = models.CharField(max_length=40)
+    status = models.IntegerField(default=0)
     
     def __str__(self):
         return self.instruction
