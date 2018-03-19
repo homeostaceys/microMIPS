@@ -134,7 +134,7 @@ def opcode(instrc, instrc_num):
         offset = parts[2].split("(")[0]
         
         if cmd == "LD":
-            opc = Opcodetable.Opcode.get(Opcodetable.Instrc="LD")
+            inop = "110111"
         else:
             inop = "111111"
         
