@@ -1,55 +1,85 @@
 
 {% extends 'mips/extends/header.html' %}
-    <!--Memory Table-->
-{% block body %}
-    <div class="tablebox" style="overflow-y: scroll; height:600px;">
-        <div class="table-container">
-            <div class="col-lg-4 col-lg-offset-4">
-                <h2 align="center"><strong>Memory Table</strong></h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr style="background-color: white; color: #111111;">
-                            <th>Address</th>
-                            <th>Content</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/load.css' %}">
+{% endblock %}
 
-                        <tr>
-                            <th>Address</th>
-                            <th>Content</th>
-                        </tr>
-                        <tr>
-                            <th>Address</th>
-                            <th>Content</th>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+{% block body %}
+<div class="container ml-lg-5">
+  <div class="row ">
+    <!--Opcode Table-->
+
+        <div class="col  ml-lg-5 mr-lg-5">
+            <h2 align="center"><strong class="text-white">Opcode Table</strong></h2>
+            <table class="table table-bordered" >
+                <thead>
+                    <tr style="background-color: white; color: #111111;">
+                        <th>Instruction</th>
+                        <th>Opcode</th>
+                    </tr>
+                </thead>
+                <tbody style="color: white;overflow-y: scroll; display: inline-block; height: 30em;">
+                    {% for instr in instrclist %}
+                    <tr style="width:inherit;">
+                        <th>{{ instr.instruction }}</th>
+                        <th>{{ instr.rep }}</th>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+    <!--Memory Table-->
+       <div class="col ml-lg-5 mr-lg-5">
+            <h2  align="center"><strong class="text-white" >Memory Table</strong></h2>
+            <table class="table table-bordered" >
+                <thead>
+                    <tr style="background-color: white; color: #111111;">
+                        <th>Address</th>
+                        <th>Content</th>
+                    </tr>
+                </thead>
+                <tbody style=" color: white; overflow-y: scroll; display: inline-block; height: 30em;">
+                    {% for mem in memlist %}
+                    <tr style="width:inherit;">
+                        <th>{{ mem.address }}</th>
+                        <th>{{ mem.memval }}</th>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
         </div>
+
+
 
         <!--Register Table-->
-        <div class="table-container">
-            <div class="col-lg-4 col-lg-offset-4">
-                <h2 align="center"><strong>Register Table</strong></h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr style="background-color: white; color: #111111;">
-                            <th>Register</th>
-                            <th>Content</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for reg in reglist %}
-                            <tr>
-                                <th>R{{ reg.regnum }}</th>
-                                <th>{{ reg.regval }}</th>
-                            </tr>
-                        {% endfor %}
 
-                    </tbody>
-                </table>
-            </div>
+        <div class=" ml-lg-5 col mr-lg-5">
+            <h2 align="center"><strong class="text-white">Register Table</strong></h2>
+            <table class="table table-bordered">
+                <thead style="display: block;">
+                    <tr style="background-color: white; color: #111111;display: block;">
+                        <th  style="display: inline-block;">Register</th>
+                        <th  style="display: inline-block;">Content</th>
+                    </tr>
+                </thead>
+                <tbody style=" color: white;overflow-y: scroll; display: inline-block; height: 30em;">
+                    {% for reg in reglist %}
+                    <tr>
+                        <th>R{{ reg.regnum }}</th>
+                        <th>{{ reg.regval }}</th>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
         </div>
-    </div>
+
+  </div>
+</div>
+</div>
 {% endblock %}
