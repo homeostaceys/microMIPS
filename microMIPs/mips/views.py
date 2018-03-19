@@ -9,9 +9,11 @@ import re
 def load(request):
     reglist = Register.objects.all()
     memlist = Memory.objects.all()
+    instrlist = Codes.objects.all()
     context={
         'reglist':reglist,
         'memlist':memlist,
+        'instrclist':instrlist,
 
     }
     return render(request, 'mips/load.html', context)
