@@ -120,7 +120,6 @@ def checkMData(memval):
 
     return False
   
-# di pa 'to tapos lol
 def opcode(request):
     codes_obj = Codes.objects.all()[:1].get()
     #if ":" in instrc:
@@ -201,9 +200,13 @@ def opcode(request):
         
         inop = "000000"
         
-        rsop = '{0:05b}'.format(rs)                     # Integer to binary
-        rtop = '{0:05b}'.format(rt)                     # Integer to binary
-        rdop = '{0:05b}'.format(rd)                     # Integer to binary
+        rs = rt.replace("R", "")
+        rt = rt.replace("R", "")
+        rd = rd.replace("R", "")
+        
+        rsop = '{0:05b}'.format(int(rs))                     # Integer to binary
+        rtop = '{0:05b}'.format(int(rt))                     # Integer to binary
+        rdop = '{0:05b}'.format(int(rd))                     # Integer to binary
         
         saop = "00000"
         
@@ -231,8 +234,11 @@ def opcode(request):
         
         inopp = "010111"
         baseopp = "00000"
-        rtop = '{0:05b}'.format(rt)                     # Integer to binary
-        offsetop = binary(binascii.hexlify(offset))     # hex to binary
+        rt = rt.replace("R", "")
+        rtop = '{0:05b}'.format(int(rt))                     # Integer to binary
+        #offsetop = binary(binascii.hexlify(offset))     # hex to binary
+        offsetop = "{0:16b}".format(int(offset,16))
+        offsetop = offsetop.replace(" ", "")
         
         opc = inop
         opc = opc + baseop
