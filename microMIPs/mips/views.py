@@ -71,7 +71,7 @@ def check(request):
             code = Codes.objects.create(id=i,address=format(i * 4, 'x').zfill(4), rep="", label=label, instruction=instr,
                                         status=status)
             code.save()
-            opcode()
+            opcode(code)
         else:
             error = True
             line = i + 1
@@ -121,8 +121,8 @@ def checkMData(memval):
 
     return False
   
-def opcode():
-    codes_obj = Codes.objects.all()[:1].get()
+def opcode(codes_obj):
+    #codes_obj = Codes.objects.all()[:1].get()
     #if ":" in instrc:
     #    Codes.label = instrc.split(":")[0]              # store label
     #    instrc = instrc.split(":")[1]
