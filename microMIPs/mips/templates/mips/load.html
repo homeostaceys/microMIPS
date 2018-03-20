@@ -1,11 +1,62 @@
-
 {% extends 'mips/extends/header.html' %}
 {% load static %}
 {% block extrahead %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/load.css' %}">
 {% endblock %}
+{% block script%}
+    $(document).ready(function(){
+        $('#editform').on("submit", function (event) {
+                event.preventDefault();
+                var data = new FormData(this);
+                $.ajax({
+                    url: "/editmem/",
+                    method: "POST",
+                    data: data,
+                    async: false,
+                    cache: false,
+                    contentType: false,
+                    enctype: 'multipart/form-data',
+                    processData: false,
+                    success: function (response) {
+                        if ( response === "Success")
+                            location.reload();
+                    }
+                });
+        });
+    });
 
+    function editmem(  address, memval){
+        $('#memadd').val(address);
+        $('#memval').val(memval);
+    }
+{% endblock %}
 {% block body %}
+
+<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="editModal" id="editModal" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form action="#" method="GET" enctype="multipart/form-data" id="editform">
+<div class="modal-header">
+                <h2>Edit Memory</h2>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+
+                    {% csrf_token %}
+                    <label>Memory Content</label>
+                    <input type="hidden" id="memadd" name="memadd" value="">
+                    <input type="text" id="memval" class="form-control" name="memvalue" pattern="^([0-9A-Fa-f]{2})$"  size="2" maxlength="2" title="LENGTH OF A BYTE AND VALID HEX VAULES" required>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" >Save</button>
+            </div>
+             </form>
+        </div>
+    </div>
+</div>
 <div class="container ml-lg-5">
   <div class="row ">
     <!--Opcode Table-->
@@ -42,11 +93,21 @@
                     </tr>
                 </thead>
                 <tbody style="color: white; overflow: scroll; height: 30em; display:inline-block;">
-                    {% for mem in memlist %}
+                    {% for mem in mem1list %}
+
                     <tr>
-                        <td><button role="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editModal" >{{ mem.address }}</button></td>
-                        <td>{{ mem.memval }}</td>
+                        <td><a role="button" onclick="editmem('{{ mem.address}}','{{ mem.memval }}');" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editModal" >{{ mem.address }}</a></td>
+                        <td >{{ mem.memval }}</td>
                     </tr>
+
+                    {% endfor %}
+                    {% for mem in mem2list %}
+
+                    <tr>
+                        <td>{{ mem.address }}</td>
+                        <td >{{ mem.memval }}</td>
+                    </tr>
+
                     {% endfor %}
 
                 </tbody>
@@ -83,26 +144,4 @@
 </div>
 </div>
 
-<div id="editModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Edit Memory</h2>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            
-            <div class="modal-body">
-                <form method="GET" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <label>Memory Content</label>
-                    <input type="text" class="form-control" name="editarea">
-                </form>
-            </div>
-            
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success" >Save</button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}

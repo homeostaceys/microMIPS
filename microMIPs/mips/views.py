@@ -5,12 +5,21 @@ from .models import *
 import re
 # Create your views here.
 def load(request):
+    mem1list = []
+    mem2list = []
     reglist = Register.objects.all()
     memlist = Memory.objects.all()
     instrlist = Codes.objects.all()
+    for m in memlist:
+        if int(m.address,16) >= 0 and int(m.address,16) < 4096:
+            mem1list.append(m)
+        else:
+            mem2list.append(m)
+
     context={
         'reglist':reglist,
-        'memlist':memlist,
+        'mem1list':mem1list,
+        'mem2list': mem2list,
         'instrclist':instrlist,
 
     }
@@ -18,6 +27,8 @@ def load(request):
 def reset(request):
     i = 0
     j = 2574
+    ilist = Codes.objects.all()
+    ilist.delete()
     rlist = Register.objects.all()
     mlist = Memory.objects.all()
     for r in rlist:
@@ -30,6 +41,10 @@ def reset(request):
             m.save()
 
     return redirect('/load/')
+def pipeline(request):
+
+    return render(request,'mips/pipeline.html')
+
 def index(request):
 
     return render(request,'mips/index.html')
@@ -39,6 +54,15 @@ def inputcode(request):
         codearea = request.POST["codearea"]
         request.session['codearea'] = codearea
         list = codearea.split("\r\n")
+    return HttpResponse('Success')
+def editmem(request):
+    if (request.method == "POST"):
+        memadd = request.POST['memadd']
+        memvalue = request.POST['memvalue']
+        print(memadd,"",memvalue)
+        editcont = Memory.objects.get(address=memadd)
+        editcont.memval = memvalue
+        editcont.save()
     return HttpResponse('Success')
 
 def check(request):
@@ -105,19 +129,6 @@ def errorCheck(instr):
 
     return False
 
-def checkRData(regval):
-    regex = r"^(([0-9A-Fa-f]{4}){4})$"
-    if re.search(regex, regval): # need to add checking of labels
-        return True
-
-    return False
-
-def checkMData(memval):
-    regex = r"^([0-9A-Fa-f]{2})$"
-    if ((int(memval,16) > 0 and int(memval,16) < 4096) and re.search(regex, memval)): # need to add checking of labels
-        return True
-
-    return False
   
 def opcode(codes_obj):
     #codes_obj = Codes.objects.all()[:1].get()
