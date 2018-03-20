@@ -5,6 +5,7 @@
 {% endblock %}
 {% block script%}
     $(document).ready(function(){
+
         $('#editform').on("submit", function (event) {
                 event.preventDefault();
                 var data = new FormData(this);
