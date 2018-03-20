@@ -1,7 +1,5 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-import binascii
-
 from .models import *
 
 import re
@@ -126,9 +124,11 @@ def opcode(codes_obj):
     #if ":" in instrc:
     #    Codes.label = instrc.split(":")[0]              # store label
     #    instrc = instrc.split(":")[1]
+    
     instrc = codes_obj.instruction
     parts = instrc.split(" ")
     cmd = parts[0]
+    o = Opcodetable.objects.all()
     
     if cmd == "LD" or cmd == "SD":                      # parse and load for LD or SD
         base = parts[2].split("()")[1].replace(")","")
@@ -148,7 +148,7 @@ def opcode(codes_obj):
         offsetop = "{0:16b}".format(int(imm,16))             # hex to binary
         offsetop = offsetop.replace(" ", "")
         
-        while len(offsetop) < 16:
+        while len(offsetop) < 16:                        # zero extend
             offsetop = "0" + offsetop
         
         opc = inop
@@ -156,11 +156,14 @@ def opcode(codes_obj):
         opc = opc + rtop
         opc = opc + offsetop
         
-        temp = int(opc,2)
+        temp = int(opc,2)                                # binary to hex
         opc = hex(temp)[2:]
-        #opc = binascii.hexlify(opc)
         
-        #return HttpResponse(opc)
+        while len(opc) < 8:                          # zero extend
+            opc = "0" + opc
+        
+        codes_obj.rep = opc.upper()
+        codes_obj.save(update_fields=['rep'])
         
     elif cmd == "DADDIU" or cmd == "XORI":               # parse and load for DADDIU or XORI
         if "0x" in parts[3]:
@@ -180,29 +183,28 @@ def opcode(codes_obj):
         rs = rs.replace("R", "")
         rt = rt.replace("R", "")
         
-        rsop = '{0:05b}'.format(int(rs))                     # Integer to binary
-        rtop = '{0:05b}'.format(int(rt))                     # Integer to binary
-        #immop = bin(binascii.hexlify(imm))           # hex to binary
-        immop = "{0:16b}".format(int(imm,16))
+        rsop = '{0:05b}'.format(int(rs))                # Integer to binary
+        rtop = '{0:05b}'.format(int(rt))                # Integer to binary
+                  
+        immop = "{0:16b}".format(int(imm,16))           # hex to binary
         immop = immop.replace(" ", "")
         
-        while len(immop) < 16:
+        while len(immop) < 16:                          # zero extend
             immop = "0" + immop
         
-        opc = inop
+        opc = str(inop)
         opc = opc + rsop
         opc = opc + rtop
         opc = opc + immop
         
-        temp = int(opc,2)
-        opc = hex(temp)[2:]
-        #opc = binascii.hexlify(opc)                     # binary to hex
+        temp = int(opc,2)                               # binary to hex
+        opc = hex(temp)[2:]   
         
-        codes_obj.rep = opc
+        while len(opc) < 8:                          # zero extend
+            opc = "0" + opc
+        
+        codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
-        
-        #codes_obj.update(rep=opc)
-        #return HttpResponse(opc)
         
     elif cmd == "DADDU" or cmd == "SLT":                # parse and load for DADDU or SLT
         rs = parts[2].replace(",","")
@@ -233,11 +235,14 @@ def opcode(codes_obj):
         opc = opc + saop
         opc = opc + funcop
         
-        temp = int(opc,2)
+        temp = int(opc,2)                               # binary to hex
         opc = hex(temp)[2:]
-        #opc = binascii.hexlify(opc)
         
-        #return HttpResponse(opc)
+        while len(opc) < 8:                          # zero extend
+            opc = "0" + opc
+        
+        codes_obj.rep = opc.upper()
+        codes_obj.save(update_fields=['rep'])
         
     elif cmd == "BGTZC":                                # parse and load for BGTZC
         rt = parts[1].replace(",","")
@@ -246,12 +251,12 @@ def opcode(codes_obj):
         inopp = "010111"
         baseopp = "00000"
         rt = rt.replace("R", "")
-        rtop = '{0:05b}'.format(int(rt))                     # Integer to binary
-        #offsetop = binary(binascii.hexlify(offset))     # hex to binary
-        offsetop = "{0:16b}".format(int(offset,16))
+        rtop = '{0:05b}'.format(int(rt))                # Integer to binary
+ 
+        offsetop = "{0:16b}".format(int(offset,16))     # hex to binary
         offsetop = offsetop.replace(" ", "")
         
-        while len(offsetop) < 16:
+        while len(offsetop) < 16:                       # zero extend
             offsetop = "0" + offsetop
         
         opc = inop
@@ -259,11 +264,14 @@ def opcode(codes_obj):
         opc = opc + rtop
         opc = opc + offsetop
         
-        temp = int(opc,2)
+        temp = int(opc,2)                               # binary to hex
         opc = hex(temp)[2:]
-        #opc = binascii.hexlify(opc)
         
-        #return HttpResponse(opc)
+        while len(opc) < 8:                          # zero extend
+            opc = "0" + opc
+        
+        codes_obj.rep = opc.upper()
+        codes_obj.save(update_fields=['rep'])
         
     else:                                               # parse and load for J
         instrc_num.zfill(16)
@@ -271,8 +279,11 @@ def opcode(codes_obj):
         opc = inop;
         opc += indexop;
         
-        temp = int(opc,2)
+        temp = int(opc,2)                               # binary to hex
         opc = hex(temp)[2:]
-        #opc = binascii.hexlify(opc)
         
-        #return HttpResponse(opc)
+        while len(opc) < 8:                          # zero extend
+            opc = "0" + opc
+        
+        codes_obj.rep = opc.upper()
+        codes_obj.save(update_fields=['rep'])
