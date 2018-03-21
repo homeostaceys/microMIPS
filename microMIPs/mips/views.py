@@ -71,7 +71,7 @@ def index(request):
         request.session['codearea']
     except:
         resetdb(request)
-
+    
     return render(request,'mips/index.html')
 
 def inputcode(request):
@@ -162,6 +162,7 @@ def opcode(codes_obj):
     #    instrc = instrc.split(":")[1]
     
     instrc = codes_obj.instruction
+    
     parts = instrc.split(" ")
     cmd = parts[0]
     o = Opcodetable.objects.all()
@@ -249,7 +250,7 @@ def opcode(codes_obj):
         
         inop = "000000"
         
-        rs = rt.replace("R", "")
+        rs = rs.replace("R", "")
         rt = rt.replace("R", "")
         rd = rd.replace("R", "")
         
@@ -309,11 +310,14 @@ def opcode(codes_obj):
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
         
-    else:                                               # parse and load for J
-        instrc_num.zfill(16)
+    elif cmd == "J":                                               # parse and load for J
+        opc = "000010"
+        jlbl = parts[1].replace(",","")
         
-        opc = inop;
-        opc += indexop;
+        label = Codes.objects.filter(label=lbl).values("label")
+        
+        #opc = opc + str(label)
+        #opc = opc + indexop;
         
         temp = int(opc,2)                               # binary to hex
         opc = hex(temp)[2:]
