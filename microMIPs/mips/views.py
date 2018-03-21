@@ -167,7 +167,7 @@ def opcode(codes_obj):
     o = Opcodetable.objects.all()
     
     if cmd == "LD" or cmd == "SD":                      # parse and load for LD or SD
-        base = parts[2].split("()")[1].replace(")","")
+        base = parts[2].split("(")[1].replace(")","")
         rt = parts[1].replace(",", "")
         offset = parts[2].split("(")[0]
         
@@ -181,7 +181,7 @@ def opcode(codes_obj):
         
         baseop = '{0:05b}'.format(int(base))                 # Integer to binary
         rtop = '{0:05b}'.format(int(rt))                     # Integer to binary
-        offsetop = "{0:16b}".format(int(imm,16))             # hex to binary
+        offsetop = "{0:16b}".format(int(offset,16))             # hex to binary
         offsetop = offsetop.replace(" ", "")
         
         while len(offsetop) < 16:                        # zero extend
