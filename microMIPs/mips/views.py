@@ -318,6 +318,9 @@ def opcode(codes_obj):
         jlbl = parts[1].replace(",","")
         
         #label = Codes.objects.filter(label=jlbl).values("label").get()
+
+        #all = Codes.objects.all()
+        #label = all.objects.filter(label=jlbl)
         
         #opc = opc + jlbl
         
