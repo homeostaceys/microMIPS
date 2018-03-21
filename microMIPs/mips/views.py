@@ -144,7 +144,10 @@ def check(request):
                 'line': line,
             }
             return render(request, 'mips/index.html', context)
-
+        
+    #codes_obj = Codes.objects.all()
+    #for e in codes_obj:
+    #    opcode(e)
     return redirect('/load/')
 
 def errorCheck(instr):
