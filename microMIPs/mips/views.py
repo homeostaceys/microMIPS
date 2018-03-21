@@ -312,11 +312,12 @@ def opcode(codes_obj):
         
     elif cmd == "J":                                               # parse and load for J
         opc = "000010"
-        jlbl = parts[1].replace(",","")
+        #jlbl = parts[1].replace(",","")
         
-        label = Codes.objects.filter(label=lbl).values("label")
+        #label = Codes.objects.filter(label=jlbl).values("label").get(pk=1)
         
         #opc = opc + str(label)
+        
         #opc = opc + indexop;
         
         temp = int(opc,2)                               # binary to hex
