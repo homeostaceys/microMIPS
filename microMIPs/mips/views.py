@@ -145,9 +145,9 @@ def check(request):
             }
             return render(request, 'mips/index.html', context)
         
-    #codes_obj = Codes.objects.all()
-    #for e in codes_obj:
-    #    opcode(e)
+    codes_obj = Codes.objects.all()
+    for e in codes_obj:
+        opcode(e)
     return redirect('/load/')
 
 def errorCheck(instr):
@@ -315,11 +315,11 @@ def opcode(codes_obj):
         
     elif cmd == "J":                                               # parse and load for J
         opc = "000010"
-        #jlbl = parts[1].replace(",","")
+        jlbl = parts[1].replace(",","")
         
-        #label = Codes.objects.filter(label=jlbl).values("label").get(pk=1)
+        #label = Codes.objects.filter(label=jlbl).values("label").get()
         
-        #opc = opc + str(label)
+        #opc = opc + jlbl
         
         #opc = opc + indexop;
         
