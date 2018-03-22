@@ -292,6 +292,13 @@ def opcode(codes_obj):
         rt = rt.replace("R", "")
         rtop = '{0:05b}'.format(int(rt))                # Integer to binary
  
+
+ #      if Codes.objects.filter(label=offset).exists():
+ # then do label thing
+# else:
+# do the normal offset thing
+
+
         offsetop = "{0:16b}".format(int(offset,16))     # hex to binary
         offsetop = offsetop.replace(" ", "")
         
