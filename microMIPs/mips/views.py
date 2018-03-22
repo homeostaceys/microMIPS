@@ -118,7 +118,6 @@ def check(request):
             code = Codes.objects.create(id=i,address=format(i * 4, 'x').zfill(4), rep="", label=label, instruction=instr,
                                         status=status)
             code.save()
-            opcode(code)
         else:
             error = True
             line = i + 1
@@ -144,7 +143,7 @@ def check(request):
                 'line': line,
             }
             return render(request, 'mips/index.html', context)
-        
+    
     codes_obj = Codes.objects.all()
     for e in codes_obj:
         opcode(e)
@@ -317,14 +316,23 @@ def opcode(codes_obj):
         opc = "000010"
         jlbl = parts[1].replace(",","")
         
-        #label = Codes.objects.filter(label=jlbl).values("label").get()
-
-        #all = Codes.objects.all()
-        #label = all.objects.filter(label=jlbl)
+        label = Codes.objects.filter(label=jlbl).get()
         
-        #opc = opc + jlbl
+        lbl = label.address
+        lbl = lbl.replace("0","")
+        lbl = int(lbl,16)           # hex to binary
+        lbl = str(int(lbl)/4)
+        lbl = lbl.split(".")[0]         # remove decimal point
         
-        #opc = opc + indexop;
+        lbl = "{0:b}".format(int(lbl))
+        
+        while len(lbl) < 26:                          # zero extend
+            lbl = "0" + lbl
+        
+        
+        opc = opc + lbl
+        
+       
         
         temp = int(opc,2)                               # binary to hex
         opc = hex(temp)[2:]
