@@ -158,36 +158,30 @@ def errorCheck(instr):
 
   
 def opcode(codes_obj):
-    #codes_obj = Codes.objects.all()[:1].get()
-    #if ":" in instrc:
-    #    Codes.label = instrc.split(":")[0]              # store label
-    #    instrc = instrc.split(":")[1]
+    instrc = codes_obj.instruction                          # get whole instruction
     
-    instrc = codes_obj.instruction
+    parts = instrc.split(" ")                               # split
+    cmd = parts[0]                                          # get instruction
     
-    parts = instrc.split(" ")
-    cmd = parts[0]
-    o = Opcodetable.objects.all()
-    
-    if cmd == "LD" or cmd == "SD":                      # parse and load for LD or SD
-        base = parts[2].split("(")[1].replace(")","")
-        rt = parts[1].replace(",", "")
-        offset = parts[2].split("(")[0]
+    if cmd == "LD" or cmd == "SD":                          # LD or SD
+        base = parts[2].split("(")[1].replace(")","")       # get base
+        rt = parts[1].replace(",", "")                      # get rt
+        offset = parts[2].split("(")[0]                     # get offset
         
         if cmd == "LD":
-            inop = "110111"
+            inop = "110111"                                 # opcode(6)
         else:
-            inop = "111111"
+            inop = "111111"                                 # opcode(6)
             
         base = base.replace("R", "")
         rt = rt.replace("R", "")
         
-        baseop = '{0:05b}'.format(int(base))                 # Integer to binary
-        rtop = '{0:05b}'.format(int(rt))                     # Integer to binary
-        offsetop = "{0:16b}".format(int(offset,16))             # hex to binary
+        baseop = '{0:05b}'.format(int(base))                # Integer to binary
+        rtop = '{0:05b}'.format(int(rt))                    # Integer to binary
+        offsetop = "{0:16b}".format(int(offset,16))         # hex to binary
         offsetop = offsetop.replace(" ", "")
         
-        while len(offsetop) < 16:                        # zero extend
+        while len(offsetop) < 16:                           # zero extend
             offsetop = "0" + offsetop
         
         opc = inop
@@ -195,40 +189,40 @@ def opcode(codes_obj):
         opc = opc + rtop
         opc = opc + offsetop
         
-        temp = int(opc,2)                                # binary to hex
+        temp = int(opc,2)                                  # binary to hex
         opc = hex(temp)[2:]
         
-        while len(opc) < 8:                          # zero extend
+        while len(opc) < 8:                                # zero extend
             opc = "0" + opc
         
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
         
-    elif cmd == "DADDIU" or cmd == "XORI":               # parse and load for DADDIU or XORI
+    elif cmd == "DADDIU" or cmd == "XORI":                 # DADDIU or XORI
         if "0x" in parts[3]:
             parts[3] = parts[3].replace("0x","")
         else:
             parts[3] = parts[3].replace("#","")
             
-        rs = parts[2].replace(",", "")
-        rt = parts[1].replace(",", "")
-        imm = parts[3]
+        rs = parts[2].replace(",", "")                     # get rs
+        rt = parts[1].replace(",", "")                     # get rt
+        imm = parts[3]                                     # get imm
         
         if cmd == "DADDIU":
-            inop = "011001"
+            inop = "011001"                                # opcode(6)
         else:
-            inop = "001110"
+            inop = "001110"                                # opcode(6)  
         
         rs = rs.replace("R", "")
         rt = rt.replace("R", "")
         
-        rsop = '{0:05b}'.format(int(rs))                # Integer to binary
-        rtop = '{0:05b}'.format(int(rt))                # Integer to binary
+        rsop = '{0:05b}'.format(int(rs))                  # Integer to binary
+        rtop = '{0:05b}'.format(int(rt))                  # Integer to binary
                   
-        immop = "{0:16b}".format(int(imm,16))           # hex to binary
+        immop = "{0:16b}".format(int(imm,16))             # hex to binary
         immop = immop.replace(" ", "")
         
-        while len(immop) < 16:                          # zero extend
+        while len(immop) < 16:                            # zero extend
             immop = "0" + immop
         
         opc = str(inop)
@@ -236,36 +230,36 @@ def opcode(codes_obj):
         opc = opc + rtop
         opc = opc + immop
         
-        temp = int(opc,2)                               # binary to hex
+        temp = int(opc,2)                                 # binary to hex
         opc = hex(temp)[2:]   
         
-        while len(opc) < 8:                          # zero extend
+        while len(opc) < 8:                               # zero extend
             opc = "0" + opc
         
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
         
-    elif cmd == "DADDU" or cmd == "SLT":                # parse and load for DADDU or SLT
+    elif cmd == "DADDU" or cmd == "SLT":                  # DADDU or SLT
         rs = parts[2].replace(",","")
         rt = parts[3]
         rd = parts[1].replace(",","")
         
-        inop = "000000"
+        inop = "000000"                                   # opcode(6)
         
         rs = rs.replace("R", "")
         rt = rt.replace("R", "")
         rd = rd.replace("R", "")
         
-        rsop = '{0:05b}'.format(int(rs))                     # Integer to binary
-        rtop = '{0:05b}'.format(int(rt))                     # Integer to binary
-        rdop = '{0:05b}'.format(int(rd))                     # Integer to binary
+        rsop = '{0:05b}'.format(int(rs))                  # Integer to binary
+        rtop = '{0:05b}'.format(int(rt))                  # Integer to binary
+        rdop = '{0:05b}'.format(int(rd))                  # Integer to binary
         
-        saop = "00000"
+        saop = "00000"                                    # sa(5)
         
         if cmd == "DADDU":
-            funcop = "101101"
+            funcop = "101101"                             # func(6)
         else:
-            funcop = "101010"
+            funcop = "101010"                             # func(6)
             
         opc = inop
         opc = opc + rsop
@@ -274,77 +268,78 @@ def opcode(codes_obj):
         opc = opc + saop
         opc = opc + funcop
         
-        temp = int(opc,2)                               # binary to hex
+        temp = int(opc,2)                                 # binary to hex
         opc = hex(temp)[2:]
         
-        while len(opc) < 8:                          # zero extend
+        while len(opc) < 8:                               # zero extend
             opc = "0" + opc
         
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
         
-    elif cmd == "BGTZC":                                # parse and load for BGTZC
+    elif cmd == "BGTZC":                                  # BGTZC
         rt = parts[1].replace(",","")
-        offset = parts[2]
+        blbl = parts[2]                                   # label/offset
+        inop = "010111"                                   # opcode(6)
+        rsop = "00000"                                    # rs(5)
+        rt = rt.replace("R", "")                          # get rt
+        rtop = '{0:05b}'.format(int(rt))                  # Integer to binary
         
-        inopp = "010111"
-        baseopp = "00000"
-        rt = rt.replace("R", "")
-        rtop = '{0:05b}'.format(int(rt))                # Integer to binary
- 
-
- #      if Codes.objects.filter(label=offset).exists():
- # then do label thing
-# else:
-# do the normal offset thing
-
-
-        offsetop = "{0:16b}".format(int(offset,16))     # hex to binary
-        offsetop = offsetop.replace(" ", "")
+        label = Codes.objects.filter(label=blbl).get()    
+        dest = label.address                              # get dest address
+        dest = int(dest,16)                               # hex to binary
+        dest = str(int(dest)/4)                           
+        dest = dest.split(".")[0]                         # remove decimal point
         
-        while len(offsetop) < 16:                       # zero extend
-            offsetop = "0" + offsetop
+        #label2 = Codes.objects.filter(instruction=instrc).get()
+        #pc = label2.address
+        pc = codes_obj.address                            # get pc address
+        pc = int(pc,16)                                   # hex to binary
+        pc = str(int((pc)/4)+1)
+        pc = pc.split(".")[0]                             # remove decimal point
+        
+        offset = (int(dest)-int(pc))/4                    # offset = (DEST - PC) / 4
+        offset = "{0:b}".format(int(offset))              # integer to binary
+
+        while len(offset) < 16:                           # zero extend
+            offset = "0" + offset
         
         opc = inop
-        opc = opc + baseop
+        opc = opc + rsop
         opc = opc + rtop
-        opc = opc + offsetop
+        opc = opc + offset
         
-        temp = int(opc,2)                               # binary to hex
+        temp = int(opc,2)                                 # binary to hex
         opc = hex(temp)[2:]
         
-        while len(opc) < 8:                          # zero extend
+        while len(opc) < 8:                               # zero extend
             opc = "0" + opc
         
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
         
-    elif cmd == "J":                                               # parse and load for J
-        opc = "000010"
-        jlbl = parts[1].replace(",","")
+    elif cmd == "J":                                      # J
+        opc = "000010"                                    # opcode(6)
+        jlbl = parts[1].replace(",","")                   # label/instruction index
         
         label = Codes.objects.filter(label=jlbl).get()
         
-        lbl = label.address
-        lbl = lbl.replace("0","")
-        lbl = int(lbl,16)           # hex to binary
-        lbl = str(int(lbl)/4)
-        lbl = lbl.split(".")[0]         # remove decimal point
+        lbl = label.address                              # get label/instruction index address
+        lbl = int(lbl,16)                                # hex to binary
+        lbl = str(int(lbl)/4)                            # address / 4
+        lbl = lbl.split(".")[0]                          # remove decimal point
         
         lbl = "{0:b}".format(int(lbl))
         
-        while len(lbl) < 26:                          # zero extend
+        while len(lbl) < 26:                             # zero extend
             lbl = "0" + lbl
         
-        
         opc = opc + lbl
-        
-       
         
         temp = int(opc,2)                               # binary to hex
         opc = hex(temp)[2:]
         
-        while len(opc) < 8:                          # zero extend
+        while len(opc) < 8:                             # zero extend
             opc = "0" + opc
         
         codes_obj.rep = opc.upper()
