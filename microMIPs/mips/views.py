@@ -195,6 +195,9 @@ def opcode(codes_obj):
         while len(opc) < 8:                                # zero extend
             opc = "0" + opc
         
+        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=baseop,rt=rtop,imm=offsetop)
+        opco.save()
+        
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
         
@@ -236,6 +239,9 @@ def opcode(codes_obj):
         while len(opc) < 8:                               # zero extend
             opc = "0" + opc
         
+        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=immop)
+        opco.save()
+        
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
         
@@ -273,6 +279,9 @@ def opcode(codes_obj):
         
         while len(opc) < 8:                               # zero extend
             opc = "0" + opc
+        
+        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=(rdop+saop+funcop))
+        opco.save()
         
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
@@ -315,6 +324,9 @@ def opcode(codes_obj):
         while len(opc) < 8:                               # zero extend
             opc = "0" + opc
         
+        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=offsetop)
+        opco.save()
+        
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
         
@@ -341,6 +353,9 @@ def opcode(codes_obj):
         
         while len(opc) < 8:                             # zero extend
             opc = "0" + opc
+        
+        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=lbl[:5],rt=lbl[5:10],imm=lbl[10:])
+        opco.save()
         
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
