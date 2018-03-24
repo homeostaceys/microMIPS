@@ -24,7 +24,7 @@ def load(request):
 
     }
     return render(request, 'mips/load.html', context)
-def reset(request):
+def reset():
     i = 0
     j = 2574
     ilist = Codes.objects.all()
@@ -40,7 +40,22 @@ def reset(request):
             m.memval = "00"
             m.save()
 
-    return redirect('/load/')
+def resetindex(request):
+    i = 0
+    j = 2574
+    ilist = Codes.objects.all()
+    ilist.delete()
+    rlist = Register.objects.all()
+    mlist = Memory.objects.all()
+    for r in rlist:
+        if r.regval != "0000000000000000":
+            r.regval = "0000000000000000"
+            r.save()
+    for m in mlist:
+        if m.memval != "00":
+            m.memval = "00"
+            m.save()
+    return redirect("/")
 
 def resetdb(request):
     i = 0
@@ -90,11 +105,11 @@ def editmem(request):
         editcont.save()
     return HttpResponse('Success')
 
+
 def check(request):
     error = None
     line = None
-    c = Codes.objects.all()
-    c.delete()
+    reset()
     codearea = request.session['codearea']
     codearea = codearea.upper()
     list = codearea.split("\r\n")
@@ -115,7 +130,8 @@ def check(request):
 
             if "J" in instr or "BGTZC" in instr:
                 status = 1
-            code = Codes.objects.create(id=i,address=format(i * 4, 'x').zfill(4), rep="", label=label, instruction=instr,
+            code = Codes.objects.create(id=i, address=format(i * 4, 'x').zfill(4), rep="", label=label,
+                                        instruction=instr,
                                         status=status)
             code.save()
         else:
@@ -143,11 +159,12 @@ def check(request):
                 'line': line,
             }
             return render(request, 'mips/index.html', context)
-    
+
     codes_obj = Codes.objects.all()
     for e in codes_obj:
         opcode(e)
     return redirect('/load/')
+
 
 def errorCheck(instr):
     regex = r"^((\w+:( )?)?((LD|SD) R([0-9]|1[0-9]|2[0-9]|3[0-1]),)( ([0-9A-F]){4})(\(R([0-9]|1[0-9]|2[0-9]|3[0-1])\)))$|^((\w+:( )?)?(DADDIU|XORI)( R([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( ((0x)|#)(([0-9A-F])){4}))$|^((\w+:( )?)?(DADDU|SLT)( R([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( R([0-9]|1[0-9]|2[0-9]|3[0-1])))$|^((\w+:( )?)?(BGTZC R([0-9]|1[0-9]|2[0-9]|3[0-1]),)( \w+))$|^((\w+:( )?)?(J \w+))$"
