@@ -104,12 +104,12 @@ def check(request):
         label = ""
         status = 0
         if errorCheck(list[i]) == True:
-            if ":" in list[i]:
-                label = list[i].split(":")[0]
-                instr = list[i].split(":")[1]
-            elif ": " in list[i]:
+            if ": " in list[i]:
                 label = list[i].split(": ")[0]
                 instr = list[i].split(": ")[1]
+            elif ":" in list[i]:
+                label = list[i].split(":")[0]
+                instr = list[i].split(":")[1]
             else:
                 instr = list[i]
 
