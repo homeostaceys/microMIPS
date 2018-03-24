@@ -131,24 +131,24 @@ def piplineparse():
         spl = instr.replace(",","")
         spl = spl.split(" ")
         if "DADDIU" in spl[0] or "XORI" in spl[0]:
-            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=spl[1],src1=spl[2],src2="")
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=spl[1],src1=spl[2],src2="",label=c.label,stat=0)
             pip.save()
         elif "LD" in spl[0]:
             src = spl[2].split("(")
-            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=spl[1],src1=src[1].replace(")",""),src2="")
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=spl[1],src1=src[1].replace(")",""),src2="",label=c.label,stat=0)
             pip.save()
         elif  "DADDU" in spl[0] or "SLT" in spl[0]:
-            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=spl[1],src1=spl[2],src2=spl[3])
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=spl[1],src1=spl[2],src2=spl[3],label=c.label,stat=0)
             pip.save()
         elif "SD" in spl[0]:
             dest = spl[2].split("(")
-            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=dest[1].replace(")",""),src1=spl[1],src2="")
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=dest[1].replace(")",""),src1=spl[1],src2="",label=c.label,stat=0)
             pip.save()
         elif "BGTZC" in spl[0]:
-            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest="",src1=spl[1],src2="")
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest="",src1=spl[1],src2="",label=c.label,stat=0)
             pip.save()
         else: #J
-            pip = Piplnsrcdest.objects.create(instrnum=i, instrc=c.instruction, dest="", src1="", src2="")
+            pip = Piplnsrcdest.objects.create(instrnum=i, instrc=c.instruction, dest="", src1="", src2="",label=c.label,stat=0)
             pip.save()
         i+=1
             
@@ -196,7 +196,15 @@ def check(request):
 
         try:
             lbl = Codes.objects.filter(label=str(l).split(" ")[-1])
-            lbl[0]
+            if len(lbl) > 1:
+                errorlabel = True
+                line = Codes.objects.filter(label=label)[:1].get().id + 1
+                print("False")
+                context = {
+                    'errorlabel': errorlabel,
+                    'line': line,
+                }
+                return render(request, 'mips/index.html', context)
         except IndexError:
             errorlabel = True
             line = l.id + 1
@@ -207,6 +215,7 @@ def check(request):
             }
             return render(request, 'mips/index.html', context)
 
+
     codes_obj = Codes.objects.all()
     for e in codes_obj:
         opcode(e)
@@ -216,7 +225,7 @@ def check(request):
 
 
 def errorCheck(instr):
-    regex = r"^((\w+:( )?)?((LD|SD) R([0-9]|1[0-9]|2[0-9]|3[0-1]),)( ([0-9A-F]){4})(\(R([0-9]|1[0-9]|2[0-9]|3[0-1])\)))$|^((\w+:( )?)?(DADDIU|XORI)( R([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( ((0x)|#)(([0-9A-F])){4}))$|^((\w+:( )?)?(DADDU|SLT)( R([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( R([0-9]|1[0-9]|2[0-9]|3[0-1])))$|^((\w+:( )?)?(BGTZC R([0-9]|1[0-9]|2[0-9]|3[0-1]),)( \w+))$|^((\w+:( )?)?(J \w+))$"
+    regex = r"^(\w+:( )?)$|((\w+:( )?)?((LD|SD) R([0-9]|1[0-9]|2[0-9]|3[0-1]),)( ([0-9A-F]){4})(\(R([0-9]|1[0-9]|2[0-9]|3[0-1])\)))$|^((\w+:( )?)?(DADDIU|XORI)( R([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( ((0x)|#)(([0-9A-F])){4}))$|^((\w+:( )?)?(DADDU|SLT)( R([0-9]|1[0-9]|2[0-9]|3[0-1]),){2}( R([0-9]|1[0-9]|2[0-9]|3[0-1])))$|^((\w+:( )?)?(BGTZC R([0-9]|1[0-9]|2[0-9]|3[0-1]),)( \w+))$|^((\w+:( )?)?(J \w+))$"
     if re.search(regex, instr): # need to add checking of labels
         return True
 
@@ -431,29 +440,51 @@ def pipelinemap(request):
     plist = Piplnsrcdest.objects.all()
     arrpln.append(["IF","ID","EX","MEM","WB"])
     counter = 1
+    count= 0
+    posjump = 0
+    poslabel = 0
     while counter != len(plist):
         complain = 0
         lstoappend = []
         previnstr = Piplnsrcdest.objects.filter(instrnum=counter-1).get().instrc
         print(previnstr,"previnstr")
         if "BGTZC" in previnstr or "J" in previnstr:
-            #if (BRANCH == True or J)
-            #automatically do jump
-            #else:
-            for obj in arrpln[-1]:
-                if obj == " " or obj == "IF":
-                    lstoappend.append(" ")
-                if obj == "ID":
-                    lstoappend.append("IF")
-                if obj == "EX" or obj == "MEM":
-                    lstoappend.append("*")
-                if obj == "WB":
-                    lstoappend.append("ID")
-                    lstoappend.append("EX")
-                    lstoappend.append("MEM")
-                    lstoappend.append("WB")
-                if obj == "*" or obj == "/":
-                    lstoappend.append("/")
+            posjump = counter
+            poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
+            if "J" in previnstr:
+                ###NEED TO CHECK EXECUTE 3 LINES THEN IF MORE THAN 3 LINES APPEND [] UNTIL POSITIONOFLABEL
+                for obj in arrpln[-1]:
+                    if obj == " " or obj == "IF":
+                        lstoappend.append(" ")
+                    if obj == "ID":
+                        lstoappend.append("IF")
+                    if obj == "EX" or obj == "MEM":
+                        lstoappend.append("*")
+                    if obj == "WB":
+                        lstoappend.append("ID")
+                        lstoappend.append("EX")
+                        lstoappend.append("MEM")
+                        lstoappend.append("WB")
+                    if obj == "*" or obj == "/":
+                        lstoappend.append("/")
+            if "BGTZC" in previnstr and Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().stat == 1:
+                #DO BGTZC SINCE IT SHOULD BRANCH
+                pass
+            else:#BRANCH NOR JUMP NOT TAKEN
+                for obj in arrpln[-1]:
+                    if obj == " " or obj == "IF":
+                        lstoappend.append(" ")
+                    if obj == "ID":
+                        lstoappend.append("IF")
+                    if obj == "EX" or obj == "MEM":
+                        lstoappend.append("*")
+                    if obj == "WB":
+                        lstoappend.append("ID")
+                        lstoappend.append("EX")
+                        lstoappend.append("MEM")
+                        lstoappend.append("WB")
+                    if obj == "*" or obj == "/":
+                        lstoappend.append("/")
             print(lstoappend)
             print("DO FREEZE")
         else:
@@ -484,6 +515,8 @@ def pipelinemap(request):
                         lstoappend.append("WB")
                 if obj == "*" or obj == "/":
                     lstoappend.append("/")
+
+
         arrpln.append(lstoappend)
         counter+=1
 
