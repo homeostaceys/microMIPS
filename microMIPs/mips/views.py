@@ -376,3 +376,11 @@ def opcode(codes_obj):
         
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
+
+def pipelinemap(request):
+    clist = Codes.objects.all()
+    for c in clist:
+        if c.status == 0:
+
+    context={}
+    return render(request, 'mips/pipeline.html', context)
