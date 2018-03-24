@@ -148,7 +148,8 @@ def piplineparse():
             pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest="",src1=spl[1],src2="")
             pip.save()
         else: #J
-            pass
+            pip = Piplnsrcdest.objects.create(instrnum=i, instrc=c.instruction, dest="", src1="", src2="")
+            pip.save()
         i+=1
             
 
@@ -433,8 +434,27 @@ def pipelinemap(request):
     while counter != len(plist):
         complain = 0
         lstoappend = []
-        currinstr = Piplnsrcdest.objects.filter(instrnum=counter).get().instrc
-        if "BGTZC" in currinstr or "J" in currinstr:
+        previnstr = Piplnsrcdest.objects.filter(instrnum=counter-1).get().instrc
+        print(previnstr,"previnstr")
+        if "BGTZC" in previnstr or "J" in previnstr:
+            #if (BRANCH == True or J)
+            #automatically do jump
+            #else:
+            for obj in arrpln[-1]:
+                if obj == " " or obj == "IF":
+                    lstoappend.append(" ")
+                if obj == "ID":
+                    lstoappend.append("IF")
+                if obj == "EX" or obj == "MEM":
+                    lstoappend.append("*")
+                if obj == "WB":
+                    lstoappend.append("ID")
+                    lstoappend.append("EX")
+                    lstoappend.append("MEM")
+                    lstoappend.append("WB")
+                if obj == "*" or obj == "/":
+                    lstoappend.append("/")
+            print(lstoappend)
             print("DO FREEZE")
         else:
             prevobj = Piplnsrcdest.objects.filter(instrnum=counter-1).get()
@@ -464,8 +484,8 @@ def pipelinemap(request):
                         lstoappend.append("WB")
                 if obj == "*" or obj == "/":
                     lstoappend.append("/")
-            arrpln.append(lstoappend)
+        arrpln.append(lstoappend)
         counter+=1
-    print(arrpln)
+
     context={'arrpln':arrpln}
     return render(request, 'mips/pipeline.html', context)
