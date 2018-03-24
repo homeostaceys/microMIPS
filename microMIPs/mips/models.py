@@ -17,8 +17,8 @@ class Opcodetable(models.Model):
     instrc = models.CharField(max_length=10)
     opcode = models.CharField(max_length=6)
     rs = models.CharField(blank=True, max_length=5)
-    sa = models.CharField(blank=True, max_length=5)
-    func = models.CharField(blank=True, max_length=10)
+    rt = models.CharField(blank=True, max_length=5)
+    imm = models.CharField(blank=True, max_length=16)
 
     def __str__(self):
         return self.instrc
