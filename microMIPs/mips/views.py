@@ -119,6 +119,7 @@ def editmem(request):
 
 def piplineparse():
     codes_obj = Codes.objects.all()
+    i = 0
     for c in codes_obj:
         intrc = c.instruction
         if ": " in intrc:
@@ -130,24 +131,25 @@ def piplineparse():
         spl = instr.replace(",","")
         spl = spl.split(" ")
         if "DADDIU" in spl[0] or "XORI" in spl[0]:
-            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest=spl[1],src1=spl[2],src2="")
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=spl[1],src1=spl[2],src2="")
             pip.save()
         elif "LD" in spl[0]:
             src = spl[2].split("(")
-            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest=spl[1],src1=src[1].replace(")",""),src2="")
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=spl[1],src1=src[1].replace(")",""),src2="")
             pip.save()
         elif  "DADDU" in spl[0] or "SLT" in spl[0]:
-            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest=spl[1],src1=spl[2],src2=spl[3])
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=spl[1],src1=spl[2],src2=spl[3])
             pip.save()
         elif "SD" in spl[0]:
             dest = spl[2].split("(")
-            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest=dest[1].replace(")",""),src1=spl[1],src2="")
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=dest[1].replace(")",""),src1=spl[1],src2="")
             pip.save()
         elif "BGTZC" in spl[0]:
-            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest="",src1=spl[1],src2="")
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest="",src1=spl[1],src2="")
             pip.save()
         else: #J
             pass
+        i+=1
             
 
 def check(request):
@@ -423,16 +425,75 @@ def opcode(codes_obj):
         codes_obj.save(update_fields=['rep'])
 
 def pipelinemap(request):
-    plist = Piplnsrcdest.objects.all()
-    i = 0
-    while i < len(plist)-1:
-        
-        if plist[i].dest == plist[i+1].src1 or plist[i].dest == plist[i+1].src2:
-            print("conflict")
-        else:
-            print("not")
-        i += 1
-
-
-    context={}
+    # arrpln=[]
+    # plist = Piplnsrcdest.objects.all()
+    # IF = []
+    # ID = []
+    # EX = []
+    # MEM = []
+    # WB = []
+    # i = 0
+    # counter =0
+    # while i < len(plist):
+    #     IF.append("IF"+"["+str(i)+"]")
+    #     ID.append("ID"+"["+str(i)+"]")
+    #     EX.append("EX"+"["+str(i)+"]")
+    #     MEM.append("MEM"+"["+str(i)+"]")
+    #     WB.append("WB"+"["+str(i)+"]")
+    #
+    #     i+=1
+    #
+    # arrpln.append([IF[0]])#Cycle 1
+    # arrpln.append([IF[1], ID[0]]) #Cycle 2
+    # arrpln.append([IF[2], ID[1],EX[0]]) #Cycle 3
+    # while "WB[" + str(len(plist) - 1) + "]" not in arrpln[-1]: #If not the end of the pipe
+    #     #print(arrpln[-1].values)
+    #     #if "EX" in arrpln[-1]:
+    #     m=None
+    #     print(arrpln[-1])
+    #     matchex= [ a for a in arrpln[-1] if "EX" in a] #Looking for EX
+    #     print(matchex,"match")
+    #     if matchex[0] != []: #If found
+    #         counter = int(matchex[0].split("[")[1].replace("]",""))
+    #         print(counter,"counter")
+    #         try:
+    #             instr1 = Piplnsrcdest.objects.filter(instrnum=counter).get()
+    #             instr2 = Piplnsrcdest.objects.filter(instrnum=int(counter+1)).get()
+    #         except:pass
+    #         if instr1.dest == instr2.src1 or instr1.dest == instr2.src2:
+    #             print("CONFLICT")
+    #             arrpln.append([MEM[counter],"*"])
+    #             if(counter + 3 == len(plist) - 1):
+    #                 arrpln.append([WB[counter], EX[counter + 1], ID[counter + 2], IF[counter + 3]])
+    #             elif (counter + 2 == len(plist) - 1):  # Check if its the end of pipe
+    #                 arrpln.append([WB[counter], EX[counter + 1], ID[counter + 2]])
+    #             else:#(counter+1==len(plist)-1): #Check if its the end of pipe
+    #                 arrpln.append([WB[counter],EX[counter+1]])
+    #
+    #         else:
+    #             print("NO CONFLICT")
+    #             print(counter," a",len(plist) - 1)
+    #             if(counter + 4 == len(plist) - 1):
+    #                 print("do")
+    #                 print(arrpln)
+    #                 arrpln.append([MEM[counter ], EX[counter + 1], ID[counter + 2], IF[counter + 3]])
+    #             elif(counter + 3 == len(plist) - 1):
+    #                 print("do1")
+    #                 arrpln.append([MEM[counter], EX[counter + 1], ID[counter + 2], IF[counter + 3]])
+    #             elif (counter + 2 == len(plist) - 1):  # Check if its the end of pipe
+    #                 print("do2")
+    #                 print(arrpln)
+    #                 arrpln.append([MEM[counter], EX[counter + 1], ID[counter + 2]])
+    #             elif (counter + 1 == len(plist) - 1):  # Check if its the end of pipe
+    #                 print("do3")
+    #                 arrpln.append([MEM[counter], EX[counter + 1]])
+    #             else:# elif(counter == len(plist) - 1):
+    #                 print("do4")
+    #                 arrpln.append([MEM[counter]])
+    #
+    #     # arrpln.append("WB[3]")
+    #     print(counter, "counter end")
+    #     counter = counter+1
+    # print(arrpln)
+    # context={'arrpln':arrpln}
     return render(request, 'mips/pipeline.html', context)

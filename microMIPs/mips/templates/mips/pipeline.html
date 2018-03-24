@@ -1,40 +1,42 @@
 {% extends 'mips/extends/header.html' %}
 {% block body %}
-
-    <div class="table-container">
-            <div class="col-lg-4 col-lg-offset-4">
-                <h2 align="center"><strong>Pipeline</strong></h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr style="background-color: white; color: #111111;">
-                            <th>Instruction</th>
-                            <th>1</th>
-                            <th>2</th>
-                            <th>3</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th>Instruction</th>
-                            <th>Content</th>
-                            <th>Content</th>
-                            <th>Content</th>
-                        </tr>
-                        <tr>
-                            <th>Instruction</th>
-                            <th>Content</th>
-                            <th>Content</th>
-                            <th>Content</th>
-                        </tr>
-                        <tr>
-                            <th>Instruction</th>
-                            <th>Content</th>
-                            <th>Content</th>
-                            <th>Content</th>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="container-fluid">
+    <div class="text-center" style="color: white;width: 700px; height: 700px;">{% for a in arrpln %}<div class="row">{{ a }}</div>{% endfor %}</div>
+    </div>
+        {#    <div class="table-container">#}
+{#            <div class="col-lg-4 col-lg-offset-4">#}
+{#                <h2 align="center"><strong>Pipeline</strong></h2>#}
+{#                <table class="table table-bordered">#}
+{#                    <thead>#}
+{#                        <tr style="background-color: white; color: #111111;">#}
+{#                            <th>Instruction</th>#}
+{#                            <th>1</th>#}
+{#                            <th>2</th>#}
+{#                            <th>3</th>#}
+{#                        </tr>#}
+{#                    </thead>#}
+{#                    <tbody>#}
+{#                        <tr>#}
+{#                            <th>Instruction</th>#}
+{#                            <th>Content</th>#}
+{#                            <th>Content</th>#}
+{#                            <th>Content</th>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <th>Instruction</th>#}
+{#                            <th>Content</th>#}
+{#                            <th>Content</th>#}
+{#                            <th>Content</th>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <th>Instruction</th>#}
+{#                            <th>Content</th>#}
+{#                            <th>Content</th>#}
+{#                            <th>Content</th>#}
+{#                        </tr>#}
+{#                    </tbody>#}
+{#                </table>#}
+{#            </div>#}
+{#        </div>#}
 
 {% endblock %}

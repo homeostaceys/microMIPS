@@ -47,6 +47,7 @@ class Register(models.Model):
         verbose_name_plural = "Registers"
 
 class Piplnsrcdest(models.Model):
+    instrnum =models.IntegerField(default=0)
     instrc = models.CharField(max_length=40)
     dest = models.CharField(max_length=5, blank=True)
     src1 = models.CharField(max_length=5, blank=True)
