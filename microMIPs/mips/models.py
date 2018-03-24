@@ -48,9 +48,9 @@ class Register(models.Model):
 
 class Piplnsrcdest(models.Model):
     instrc = models.CharField(max_length=40)
-    dest = models.CharField(max_length=5)
-    src1 = models.CharField(max_length=5)
-    src2 = models.CharField(max_length=5)
+    dest = models.CharField(max_length=5, blank=True)
+    src1 = models.CharField(max_length=5, blank=True)
+    src2 = models.CharField(max_length=5, blank=True)
 
     def _str_(self):
         return self.instrc

@@ -29,6 +29,10 @@ def reset():
     j = 2574
     ilist = Codes.objects.all()
     ilist.delete()
+    olist = Opcodetable.objects.all()
+    olist.delete()
+    plist = Piplnsrcdest.objects.all()
+    plist.delete()
     rlist = Register.objects.all()
     mlist = Memory.objects.all()
     for r in rlist:
@@ -45,6 +49,10 @@ def resetindex(request):
     j = 2574
     ilist = Codes.objects.all()
     ilist.delete()
+    olist = Opcodetable.objects.all()
+    olist.delete()
+    plist = Piplnsrcdest.objects.all()
+    plist.delete()
     rlist = Register.objects.all()
     mlist = Memory.objects.all()
     for r in rlist:
@@ -62,6 +70,10 @@ def resetdb(request):
     j = 2574
     ilist = Codes.objects.all()
     ilist.delete()
+    olist = Opcodetable.objects.all()
+    olist.delete()
+    plist = Piplnsrcdest.objects.all()
+    plist.delete()
     rlist = Register.objects.all()
     mlist = Memory.objects.all()
     for r in rlist:
@@ -105,6 +117,38 @@ def editmem(request):
         editcont.save()
     return HttpResponse('Success')
 
+def piplineparse():
+    codes_obj = Codes.objects.all()
+    for c in codes_obj:
+        intrc = c.instruction
+        if ": " in intrc:
+            instr = intrc.split(": ")[1]
+        elif ":" in intrc:
+            instr = intrc.split(":")[1]
+        else:
+            instr = intrc
+        spl = instr.replace(",","")
+        spl = spl.split(" ")
+        if "DADDIU" in spl[0] or "XORI" in spl[0]:
+            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest=spl[1],src1=spl[2],src2="")
+            pip.save()
+        elif "LD" in spl[0]:
+            src = spl[2].split("(")
+            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest=spl[1],src1=src[1].replace(")",""),src2="")
+            pip.save()
+        elif  "DADDU" in spl[0] or "SLT" in spl[0]:
+            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest=spl[1],src1=spl[2],src2=spl[3])
+            pip.save()
+        elif "SD" in spl[0]:
+            dest = spl[2].split("(")
+            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest=dest[1].replace(")",""),src1=spl[1],src2="")
+            pip.save()
+        elif "BGTZC" in spl[0]:
+            pip = Piplnsrcdest.objects.create(instrc=c.instruction,dest="",src1=spl[1],src2="")
+            pip.save()
+        else: #J
+            pass
+            
 
 def check(request):
     error = None
@@ -163,6 +207,8 @@ def check(request):
     codes_obj = Codes.objects.all()
     for e in codes_obj:
         opcode(e)
+        
+    piplineparse()
     return redirect('/load/')
 
 
@@ -176,7 +222,6 @@ def errorCheck(instr):
   
 def opcode(codes_obj):
     instrc = codes_obj.instruction                          # get whole instruction
-    
     parts = instrc.split(" ")                               # split
     cmd = parts[0]                                          # get instruction
     
@@ -341,7 +386,7 @@ def opcode(codes_obj):
         while len(opc) < 8:                               # zero extend
             opc = "0" + opc
         
-        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=offsetop)
+        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=offset)
         opco.save()
         
         codes_obj.rep = opc.upper()
@@ -382,6 +427,7 @@ def pipelinemap(request):
     for c in clist:
         if c.status == 0:
             pass
+        
 
 
     context={}
