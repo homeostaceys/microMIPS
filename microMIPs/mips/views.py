@@ -381,6 +381,8 @@ def pipelinemap(request):
     clist = Codes.objects.all()
     for c in clist:
         if c.status == 0:
+            pass
+
 
     context={}
     return render(request, 'mips/pipeline.html', context)
