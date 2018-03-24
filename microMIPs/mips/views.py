@@ -425,75 +425,47 @@ def opcode(codes_obj):
         codes_obj.save(update_fields=['rep'])
 
 def pipelinemap(request):
-    # arrpln=[]
-    # plist = Piplnsrcdest.objects.all()
-    # IF = []
-    # ID = []
-    # EX = []
-    # MEM = []
-    # WB = []
-    # i = 0
-    # counter =0
-    # while i < len(plist):
-    #     IF.append("IF"+"["+str(i)+"]")
-    #     ID.append("ID"+"["+str(i)+"]")
-    #     EX.append("EX"+"["+str(i)+"]")
-    #     MEM.append("MEM"+"["+str(i)+"]")
-    #     WB.append("WB"+"["+str(i)+"]")
-    #
-    #     i+=1
-    #
-    # arrpln.append([IF[0]])#Cycle 1
-    # arrpln.append([IF[1], ID[0]]) #Cycle 2
-    # arrpln.append([IF[2], ID[1],EX[0]]) #Cycle 3
-    # while "WB[" + str(len(plist) - 1) + "]" not in arrpln[-1]: #If not the end of the pipe
-    #     #print(arrpln[-1].values)
-    #     #if "EX" in arrpln[-1]:
-    #     m=None
-    #     print(arrpln[-1])
-    #     matchex= [ a for a in arrpln[-1] if "EX" in a] #Looking for EX
-    #     print(matchex,"match")
-    #     if matchex[0] != []: #If found
-    #         counter = int(matchex[0].split("[")[1].replace("]",""))
-    #         print(counter,"counter")
-    #         try:
-    #             instr1 = Piplnsrcdest.objects.filter(instrnum=counter).get()
-    #             instr2 = Piplnsrcdest.objects.filter(instrnum=int(counter+1)).get()
-    #         except:pass
-    #         if instr1.dest == instr2.src1 or instr1.dest == instr2.src2:
-    #             print("CONFLICT")
-    #             arrpln.append([MEM[counter],"*"])
-    #             if(counter + 3 == len(plist) - 1):
-    #                 arrpln.append([WB[counter], EX[counter + 1], ID[counter + 2], IF[counter + 3]])
-    #             elif (counter + 2 == len(plist) - 1):  # Check if its the end of pipe
-    #                 arrpln.append([WB[counter], EX[counter + 1], ID[counter + 2]])
-    #             else:#(counter+1==len(plist)-1): #Check if its the end of pipe
-    #                 arrpln.append([WB[counter],EX[counter+1]])
-    #
-    #         else:
-    #             print("NO CONFLICT")
-    #             print(counter," a",len(plist) - 1)
-    #             if(counter + 4 == len(plist) - 1):
-    #                 print("do")
-    #                 print(arrpln)
-    #                 arrpln.append([MEM[counter ], EX[counter + 1], ID[counter + 2], IF[counter + 3]])
-    #             elif(counter + 3 == len(plist) - 1):
-    #                 print("do1")
-    #                 arrpln.append([MEM[counter], EX[counter + 1], ID[counter + 2], IF[counter + 3]])
-    #             elif (counter + 2 == len(plist) - 1):  # Check if its the end of pipe
-    #                 print("do2")
-    #                 print(arrpln)
-    #                 arrpln.append([MEM[counter], EX[counter + 1], ID[counter + 2]])
-    #             elif (counter + 1 == len(plist) - 1):  # Check if its the end of pipe
-    #                 print("do3")
-    #                 arrpln.append([MEM[counter], EX[counter + 1]])
-    #             else:# elif(counter == len(plist) - 1):
-    #                 print("do4")
-    #                 arrpln.append([MEM[counter]])
-    #
-    #     # arrpln.append("WB[3]")
-    #     print(counter, "counter end")
-    #     counter = counter+1
-    # print(arrpln)
-    # context={'arrpln':arrpln}
+    arrpln=[]
+    lstoappend =[]
+    plist = Piplnsrcdest.objects.all()
+    arrpln.append(["IF","ID","EX","MEM","WB"])
+    counter = 1
+    while counter != len(plist):
+        complain = 0
+        lstoappend = []
+        currinstr = Piplnsrcdest.objects.filter(instrnum=counter).get().instrc
+        if "BGTZC" in currinstr or "J" in currinstr:
+            print("DO FREEZE")
+        else:
+            prevobj = Piplnsrcdest.objects.filter(instrnum=counter-1).get()
+            currobj = Piplnsrcdest.objects.filter(instrnum=counter).get()
+            if prevobj.dest == currobj.src1 or prevobj.dest == currobj.src2:
+                complain = 1
+            for obj in arrpln[-1]:
+                if obj == " " or obj == "IF":
+                    lstoappend.append(" ")
+                if obj == "ID":
+                    lstoappend.append("IF")
+                if obj == "EX":
+                    lstoappend.append("ID")
+                if obj == "MEM":
+                    if complain == 1:
+                        lstoappend.append("*")
+                    else:
+                        lstoappend.append("EX")
+                if obj == "WB":
+                    if complain == 1:
+                        lstoappend.append("EX")
+                        lstoappend.append("MEM")
+                        lstoappend.append("WB")
+
+                    else:
+                        lstoappend.append("MEM")
+                        lstoappend.append("WB")
+                if obj == "*" or obj == "/":
+                    lstoappend.append("/")
+            arrpln.append(lstoappend)
+        counter+=1
+    print(arrpln)
+    context={'arrpln':arrpln}
     return render(request, 'mips/pipeline.html', context)
