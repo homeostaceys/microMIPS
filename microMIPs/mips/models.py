@@ -52,7 +52,7 @@ class Piplnsrcdest(models.Model):
     src1 = models.CharField(max_length=5, blank=True)
     src2 = models.CharField(max_length=5, blank=True)
 
-    def _str_(self):
+    def __str__(self):
         return self.instrc
     class Meta:
         verbose_name_plural = "Pipeline Source Destination"
