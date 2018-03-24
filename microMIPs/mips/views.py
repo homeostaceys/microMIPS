@@ -425,12 +425,13 @@ def opcode(codes_obj):
 def pipelinemap(request):
     plist = Piplnsrcdest.objects.all()
     i = 0
-    while i < len(plist):
+    while i < len(plist)-1:
+        
         if plist[i].dest == plist[i+1].src1 or plist[i].dest == plist[i+1].src2:
             print("conflict")
         else:
-            pass
-        
+            print("not")
+        i += 1
 
 
     context={}

@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^check/$', views.check, name='check'),
     url(r'^reset/$', views.resetindex, name='resetindex'),
     url(r'^pipeline/$', views.pipeline, name='pipeline'),
+    url(r'^pipelinemap/$', views.pipelinemap, name='pipelinemap'),
     url(r'^editmem/$', views.editmem, name='editmem'),
 
 ]
