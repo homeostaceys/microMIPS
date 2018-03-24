@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^inputcode/$', views.inputcode, name='inputcode'),
     url(r'^opcode/$', views.opcode, name='opcode'),
     url(r'^check/$', views.check, name='check'),
-    url(r'^reset/$', views.reset, name='reset'),
+    url(r'^reset/$', views.resetindex, name='resetindex'),
     url(r'^pipeline/$', views.pipeline, name='pipeline'),
     url(r'^editmem/$', views.editmem, name='editmem'),
 
