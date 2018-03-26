@@ -25,8 +25,6 @@ def load(request):
     }
     return render(request, 'mips/load.html', context)
 def reset():
-    i = 0
-    j = 2574
     ilist = Codes.objects.all()
     ilist.delete()
     olist = Opcodetable.objects.all()
