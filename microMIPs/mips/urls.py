@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^pipeline/$', views.pipeline, name='pipeline'),
     url(r'^pipelinemap/$', views.pipelinemap, name='pipelinemap'),
     url(r'^editmem/$', views.editmem, name='editmem'),
+    url(r'^editreg/$', views.editreg, name='editreg'),
 
 ]
 

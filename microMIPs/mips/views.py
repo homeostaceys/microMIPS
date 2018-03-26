@@ -113,10 +113,18 @@ def editmem(request):
         memvalue = request.POST['memvalue']
         print(memadd,"",memvalue)
         editcont = Memory.objects.get(address=memadd)
-        editcont.memval = memvalue
+        editcont.memval = memvalue.upper()
         editcont.save()
     return HttpResponse('Success')
-
+def editreg(request):
+    if (request.method == "POST"):
+        regnum = request.POST['regnum']
+        regval = request.POST['regval']
+        print(regnum,"",regval)
+        editcont = Register.objects.get(regnum=regnum)
+        editcont.regval = regval.upper()
+        editcont.save()
+    return HttpResponse('Success')
 def piplineparse():
     codes_obj = Codes.objects.all()
     i = 0
