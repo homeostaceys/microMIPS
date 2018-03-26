@@ -6,11 +6,29 @@
 {% block script%}
     $(document).ready(function(){
 
-        $('#editform').on("submit", function (event) {
+        $('#editmform').on("submit", function (event) {
                 event.preventDefault();
                 var data = new FormData(this);
                 $.ajax({
                     url: "/editmem/",
+                    method: "POST",
+                    data: data,
+                    async: false,
+                    cache: false,
+                    contentType: false,
+                    enctype: 'multipart/form-data',
+                    processData: false,
+                    success: function (response) {
+                        if ( response === "Success")
+                            location.reload();
+                    }
+                });
+        });
+     $('#editrform').on("submit", function (event) {
+                event.preventDefault();
+                var data = new FormData(this);
+                $.ajax({
+                    url: "/editreg/",
                     method: "POST",
                     data: data,
                     async: false,
@@ -30,14 +48,18 @@
         $('#memadd').val(address);
         $('#memval').val(memval);
     }
+    function editreg( regnum, regval ){
+        $('#regnum').val(regnum);
+        $('#regval').val(regval);
+    }
 {% endblock %}
 {% block body %}
 
-<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="editModal" id="editModal" aria-hidden="true">
+<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="editModal" id="editMModal" aria-hidden="true">
       <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <form action="#" method="GET" enctype="multipart/form-data" id="editform">
-<div class="modal-header">
+            <form action="#" method="GET" enctype="multipart/form-data" id="editmform">
+        <div class="modal-header">
                 <h2>Edit Memory</h2>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
@@ -48,6 +70,31 @@
                     <label>Memory Content</label>
                     <input type="hidden" id="memadd" name="memadd" value="">
                     <input type="text" id="memval" class="form-control" name="memvalue" pattern="^([0-9A-Fa-f]{2})$"  size="2" maxlength="2" title="LENGTH OF A BYTE AND VALID HEX VAULES" required>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" >Save</button>
+            </div>
+             </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="editModal" id="editRModal" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form action="#" method="GET" enctype="multipart/form-data" id="editrform">
+        <div class="modal-header">
+                <h2>Edit Register</h2>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+
+                    {% csrf_token %}
+                    <label>Register Content</label>
+                    <input type="hidden" id="regnum" name="regnum" value="">
+                    <input type="text" id="regval" class="form-control" name="regval" pattern="^([0-9A-Fa-f]{16})$"  size="16" maxlength="16" title="LENGTH OF DOUBLE WORD AND VALID HEX VAULES" required>
 
             </div>
 
@@ -97,7 +144,7 @@
                     {% for mem in mem1list %}
 
                     <tr>
-                        <td><a role="button" onclick="editmem('{{ mem.address}}','{{ mem.memval }}');" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editModal" >{{ mem.address }}</a></td>
+                        <td><a role="button" onclick="editmem('{{ mem.address}}','{{ mem.memval }}');" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editMModal" >{{ mem.address }}</a></td>
                         <td >{{ mem.memval }}</td>
                     </tr>
 
@@ -132,8 +179,8 @@
                 <tbody style="height: 200px; display: inline-block; width: 100%; overflow: auto; color: white;">
                     {% for reg in reglist %}
                     <tr>
-                        <td>R{{ reg.regnum }}</td>
-                        <td>{{ reg.regval }}</td>
+                        <td><a role="button" onclick="editreg('{{ reg.regnum}}','{{ reg.regval }}');" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editRModal" >R{{ reg.regnum }}</a></td>
+                        <td >{{ reg.regval }}</td>
                     </tr>
                     {% endfor %}
 
