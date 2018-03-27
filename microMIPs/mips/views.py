@@ -537,3 +537,123 @@ def pipelinemap(request):
 
     context={'arrpln':arrpln}
     return render(request, 'mips/pipeline.html', context)
+
+# code for internal pipeline thing
+
+#def IF(instrc):
+#    theif=[]
+#    
+#    op = Opcodetable.objects.filter(instrc=instrc).get()
+#    #if/id.ir
+#    ir = op.opcode
+#    #if/id.npc
+#    # pc = 
+#    #if/id.pc
+#    # npc =
+#    
+#    theif.append(ir)
+#    theif.append(npc)
+#    theif.append(pc)
+#    
+#    return theif
+#
+#def ID(instrc, theif):
+#    theid=[]
+#    
+#    op = Opcodetable.objects.filter(instrc=instrc).get()
+#    #id/ex.a
+#    a = op.rs
+#    #id/ex.b
+#    b = op.rt
+#    # id/ex.imm
+#    imm = op.imm
+#    # id/ex.npc
+#    npc = theif[1]
+#    # id/ex.ir
+#    ir = theif[0]
+#    
+#    theid.append(op)
+#    theid.append(a)
+#    theid.append(b)
+#    theid.append(imm)
+#    theid.append(npc)
+#    theid.append(ir)
+#    
+#    return theid
+#
+#def EX(theid):
+#    theex=[]
+#    
+#    b = theid[2]
+#    ir = theid[5]
+#    
+#    # ALU instruction
+#    if():
+#        #aluo = a func b
+#        #aluo = a op imm
+#        cond = 0
+#    # Load/Store instruction
+#    elif():
+#        aluo = theid[1] + theid[3]
+#        cond = 0
+#    # Branch instruction
+#    elif():
+#        #aluo = npc + (imm << 2)
+#        # cond = a op 0
+#    # Jump instruction
+#    else:
+#        #aluo = (imm << 2)
+#        cond = 1
+#    
+#    theex.append(aluo)
+#    theex.append(b)
+#    theex.append(ir)
+#    theex.append(cond)
+#    
+#    return theex
+#
+#def MEM(theex):
+#     themem=[]
+#        
+#    #mem/wb.ir
+#    ir = theex[2]
+#    
+#    #load instruction
+#    if():
+#        #mem/wb.lmd
+#        #lmd = theex[0] # supposedly mem of aluoutput
+#        themem.append(lmd)
+#    #store instruction
+#    elif():
+#        # mem of aluoutput = theex[1]
+#        themem.append(memalu)
+#    else:
+#        aluo = theex[0]
+#        themem.append(aluo)
+#        
+#    themem.append(ir)
+#    
+#    return themem
+#
+#def WB(themem):
+#    thewb=[]
+#    #reg-reg
+#    if():
+#        # reg[mem/wb.ir 11..15] = themem[1] #aluoutput
+#    #reg-imm
+#    elif():
+#        # reg[mem/wb.ir 16..20] = themem[1] #aluoutput
+#    #load
+#    else:
+#        # reg[mem/wb.ir 16..20] = themem[1] # lmd
+#        
+#    thewb.append(reg)
+#    
+#    return thewb
+#
+#def pipeline(request):
+#    plist = Piplnsrcdest.objects.all()
+#    #oplist = Opcodetable.objects.all()
+#    
+#    context={'cycles':cycles}
+#    return render(request, 'mips/pipln.html', context)
