@@ -458,6 +458,8 @@ def pipelinemap(request):
     count= 0
     posjump = 0
     poslabel = 0
+    amij = 0
+    skipcount = -1
     while counter != len(plist):
         complain = 0
         lstoappend = []
@@ -466,10 +468,10 @@ def pipelinemap(request):
         if "BGTZC" in previnstr or "J" in previnstr:
             posjump = counter
             poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
-            label = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().label
+            
             if "J" in previnstr:
                 ###NEED TO CHECK EXECUTE 3 LINES THEN IF MORE THAN 3 LINES APPEND [] UNTIL POSITIONOFLABEL
-                print("Imma jumpa")
+                amij = 3
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
@@ -504,7 +506,30 @@ def pipelinemap(request):
                         lstoappend.append("/")
             print(lstoappend)
             print("DO FREEZE")
+        elif(amij == 1):
+            if(counter < poslabel):
+                lstoappend.append("SKIP")
+                skipcount -= 1
+            else:
+                amij = 0
+                print("skip " + str(skipcount))
+                for obj in arrpln[skipcount]:
+                    if obj == " " or obj == "IF":
+                        lstoappend.append(" ")
+                    if obj == "ID":
+                        lstoappend.append("IF")
+                    if obj == "EX":
+                        lstoappend.append("ID")
+                    if obj == "MEM":
+                        lstoappend.append("EX")
+                    if obj == "WB":
+                        lstoappend.append("MEM")
+                        lstoappend.append("WB")
+                    if obj == "*" or obj == "/":
+                        lstoappend.append("/")
         else:
+            if(amij > 1):
+                amij -= 1
             prevobj = Piplnsrcdest.objects.filter(instrnum=counter-1).get()
             currobj = Piplnsrcdest.objects.filter(instrnum=counter).get()
             if prevobj.dest == currobj.src1 or prevobj.dest == currobj.src2:
@@ -536,7 +561,6 @@ def pipelinemap(request):
 
         arrpln.append(lstoappend)
         counter+=1
-
     context={'arrpln':arrpln}
     return render(request, 'mips/pipeline.html', context)
 
