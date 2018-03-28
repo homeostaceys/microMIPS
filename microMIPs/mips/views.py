@@ -468,6 +468,7 @@ def pipelinemap(request):
             poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
             if "J" in previnstr:
                 ###NEED TO CHECK EXECUTE 3 LINES THEN IF MORE THAN 3 LINES APPEND [] UNTIL POSITIONOFLABEL
+                print("Imma jumpa")
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
@@ -482,7 +483,7 @@ def pipelinemap(request):
                         lstoappend.append("WB")
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
-            if "BGTZC" in previnstr and Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().stat == 1:
+            elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().stat == 1:
                 #DO BGTZC SINCE IT SHOULD BRANCH
                 pass
             else:#BRANCH NOR JUMP NOT TAKEN
@@ -538,122 +539,131 @@ def pipelinemap(request):
     context={'arrpln':arrpln}
     return render(request, 'mips/pipeline.html', context)
 
-# code for internal pipeline thing
+# CODE FOR INTERNAL MIPS64 REGISTERS PIPELINE
+def IF(instrc, pc):
+    theif=[]
+    
+    op = Opcodetable.objects.filter(instrc=instrc).get()
+    #if/id.ir
+    ir = op.opcode
+    #if/id.pc
+    pc = pc 
+    #if/id.npc
+    npc = pc
+    
+    theif.append(ir)
+    theif.append(npc)
+    theif.append(pc)
+    
+    return theif
 
-#def IF(instrc):
-#    theif=[]
-#    
-#    op = Opcodetable.objects.filter(instrc=instrc).get()
-#    #if/id.ir
-#    ir = op.opcode
-#    #if/id.npc
-#    # pc = 
-#    #if/id.pc
-#    # npc =
-#    
-#    theif.append(ir)
-#    theif.append(npc)
-#    theif.append(pc)
-#    
-#    return theif
-#
-#def ID(instrc, theif):
-#    theid=[]
-#    
-#    op = Opcodetable.objects.filter(instrc=instrc).get()
-#    #id/ex.a
-#    a = op.rs
-#    #id/ex.b
-#    b = op.rt
-#    # id/ex.imm
-#    imm = op.imm
-#    # id/ex.npc
-#    npc = theif[1]
-#    # id/ex.ir
-#    ir = theif[0]
-#    
-#    theid.append(op)
-#    theid.append(a)
-#    theid.append(b)
-#    theid.append(imm)
-#    theid.append(npc)
-#    theid.append(ir)
-#    
-#    return theid
-#
-#def EX(theid):
-#    theex=[]
-#    
-#    b = theid[2]
-#    ir = theid[5]
-#    
-#    # ALU instruction
-#    if():
-#        #aluo = a func b
-#        #aluo = a op imm
-#        cond = 0
-#    # Load/Store instruction
-#    elif():
-#        aluo = theid[1] + theid[3]
-#        cond = 0
-#    # Branch instruction
-#    elif():
-#        #aluo = npc + (imm << 2)
-#        # cond = a op 0
-#    # Jump instruction
-#    else:
-#        #aluo = (imm << 2)
-#        cond = 1
-#    
-#    theex.append(aluo)
-#    theex.append(b)
-#    theex.append(ir)
-#    theex.append(cond)
-#    
-#    return theex
-#
-#def MEM(theex):
-#     themem=[]
-#        
-#    #mem/wb.ir
-#    ir = theex[2]
-#    
-#    #load instruction
-#    if():
-#        #mem/wb.lmd
-#        #lmd = theex[0] # supposedly mem of aluoutput
-#        themem.append(lmd)
-#    #store instruction
-#    elif():
-#        # mem of aluoutput = theex[1]
-#        themem.append(memalu)
-#    else:
-#        aluo = theex[0]
-#        themem.append(aluo)
-#        
-#    themem.append(ir)
-#    
-#    return themem
-#
-#def WB(themem):
-#    thewb=[]
-#    #reg-reg
-#    if():
-#        # reg[mem/wb.ir 11..15] = themem[1] #aluoutput
-#    #reg-imm
-#    elif():
-#        # reg[mem/wb.ir 16..20] = themem[1] #aluoutput
-#    #load
-#    else:
-#        # reg[mem/wb.ir 16..20] = themem[1] # lmd
-#        
-#    thewb.append(reg)
-#    
-#    return thewb
-#
-#def pipeline(request):
-#    plist = Piplnsrcdest.objects.all()
-#    #oplist = Opcodetable.objects.all()
-#    
-#    context={'cycles':cycles}
-#    return render(request, 'mips/pipln.html', context)
+def ID(instrc, theif):
+    theid=[]
+    
+    op = Opcodetable.objects.filter(instrc=instrc).get()
+    #id/ex.a
+    a = op.rs
+    #id/ex.b
+    b = op.rt
+    # id/ex.imm
+    imm = op.imm
+    # id/ex.npc
+    npc = theif[1]
+    # id/ex.ir
+    ir = theif[0]
+    
+    theid.append(op)
+    theid.append(a)
+    theid.append(b)
+    theid.append(imm)
+    theid.append(npc)
+    theid.append(ir)
+    
+    return theid
+
+def EX(theid):
+    theex=[]
+    
+    b = theid[2]
+    ir = theid[5]
+    
+    # ALU instruction
+    if():
+        #aluo = a func b
+        #aluo = a op imm
+        cond = 0
+    # Load/Store instruction
+    elif():
+        aluo = theid[1] + theid[3]
+        cond = 0
+    # Branch instruction
+    elif():
+        pass
+        #aluo = npc + (imm << 2)
+        # cond = a op 0
+    # Jump instruction
+    else:
+        #aluo = (imm << 2)
+        cond = 1
+    
+    theex.append(aluo)
+    theex.append(b)
+    theex.append(ir)
+    theex.append(cond)
+    
+    return theex
+
+def MEM(theex):
+    themem=[]
+        
+    #mem/wb.ir
+    ir = theex[2]
+    
+    #load instruction
+    if():
+        #mem/wb.lmd
+        #lmd = theex[0] # supposedly mem of aluoutput
+        themem.append(lmd)
+    #store instruction
+    elif():
+        # mem of aluoutput = theex[1]
+        themem.append(memalu)
+    else:
+        aluo = theex[0]
+        themem.append(aluo)
+        
+    themem.append(ir)
+    
+    return themem
+
+def WB(themem):
+    thewb=[]
+    #reg-reg
+    if():
+        pass
+        # reg[mem/wb.ir 11..15] = themem[1] #aluoutput
+    #reg-imm
+    elif():
+        pass
+        # reg[mem/wb.ir 16..20] = themem[1] #aluoutput
+    #load
+    else:
+        pass
+        # reg[mem/wb.ir 16..20] = themem[1] # lmd
+        
+    thewb.append(reg)
+    
+    return thewb
+
+def pipeline(request):
+    plist = Piplnsrcdest.objects.all()
+    #oplist = Opcodetable.objects.all()
+    pc = 0
+    cycles = []
+    
+    # write algo here
+    # call the functions if, id, ex, mem, wb when needed
+    # all cycles will be placed in cycles list
+    
+    context={'cycles':cycles}
+    return render(request, 'mips/pipln.html', context)
