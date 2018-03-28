@@ -448,15 +448,12 @@ def opcode(codes_obj):
         
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
-
 def pipelinemap(request):
     arrpln=[]
     lstoappend =[]
     plist = Piplnsrcdest.objects.all()
     arrpln.append(["IF","ID","EX","MEM","WB"])
     counter = 1
-    count= 0
-    posjump = 0
     poslabel = 0
     amij = 0
     skipcount = -1
@@ -465,10 +462,10 @@ def pipelinemap(request):
         lstoappend = []
         previnstr = Piplnsrcdest.objects.filter(instrnum=counter-1).get().instrc
         print(previnstr,"previnstr")
+
         if "BGTZC" in previnstr or "J" in previnstr:
-            posjump = counter
             poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
-            
+
             if "J" in previnstr:
                 ###NEED TO CHECK EXECUTE 3 LINES THEN IF MORE THAN 3 LINES APPEND [] UNTIL POSITIONOFLABEL
                 amij = 3
@@ -487,7 +484,7 @@ def pipelinemap(request):
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
             elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().stat == 1:
-                #DO BGTZC SINCE IT SHOULD BRANCH
+
                 pass
             else:#BRANCH NOR JUMP NOT TAKEN
                 for obj in arrpln[-1]:
@@ -504,7 +501,6 @@ def pipelinemap(request):
                         lstoappend.append("WB")
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
-            print(lstoappend)
             print("DO FREEZE")
         elif(amij == 1):
             if(counter < poslabel):
@@ -513,6 +509,7 @@ def pipelinemap(request):
             else:
                 amij = 0
                 print("skip " + str(skipcount))
+                print(arrpln[skipcount])
                 for obj in arrpln[skipcount]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
@@ -527,6 +524,7 @@ def pipelinemap(request):
                         lstoappend.append("WB")
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
+                skipcount = -1
         else:
             if(amij > 1):
                 amij -= 1
@@ -563,7 +561,6 @@ def pipelinemap(request):
         counter+=1
     context={'arrpln':arrpln}
     return render(request, 'mips/pipeline.html', context)
-
 # CODE FOR INTERNAL MIPS64 REGISTERS PIPELINE
 def IF(instrc, pc):
     theif=[]
