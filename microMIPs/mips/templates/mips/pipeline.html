@@ -1,42 +1,96 @@
 {% extends 'mips/extends/header.html' %}
+{% block script %}
+    $(document).ready( function(){
+        $('#single').click(function(event) {
+            $('#full').attr("disabled","");
+            event.preventDefault();
+            var data = parseInt($(this).val());
+            if( data <= $(this).attr("size")){
+                var cycle ="<th>"+data+"</th>"
+                $('#tablehead').append(cycle);
+                $(this).val(data+1);
+                $.ajax({
+                        url: "/pipelinemap/?singleexec="+data,
+                        method: "GET",
+                        data: {},
+                        dataType: 'json',
+                        success: function (data) {
+                            var row=""
+                            for(var i=0;i < data.cycle.length;i++){
+                                if (data.cycle[i] == "/")
+                                    row = "<th> </th>";
+                                else
+                                    row ="<th>"+data.cycle[i]+"</th>";
+                                $('#instr'+i).append(row);
+                            }
+
+
+
+                        }
+                });
+             }
+        });
+
+        $('#full').click(function(event) {
+            $('#full').attr("disabled","");
+            $('#single').attr("disabled","");
+            event.preventDefault();
+            for(var i=0;i < $(this).attr("size");i++){
+                var cycle ="<th>"+parseInt(i+1)+"</th>"
+                $('#tablehead').append(cycle);
+            }
+
+            $.ajax({
+                    url: "/pipelinemap/?fullexec=true",
+                    method: "GET",
+                    data: {},
+                    dataType: 'json',
+                    success: function (data) {
+
+                        for(var i=0;i < data.arrpln.length;i++){
+                            var cycle=data.arrpln[i];
+                            for(var j=0;j < cycle.length;j++){
+                                if (cycle[j] == "/")
+                                    row = "<th> </th>";
+                                else
+                                    row ="<th>"+cycle[j]+"</th>";
+                                $('#instr'+i).append(row);
+                            }
+                        }
+
+                    }
+            });
+
+        });
+    });
+{% endblock %}
 {% block body %}
+{#    <div class="container-fluid">#}
+{#    <div class="text-center" style="color: white;width: 700px; height: 700px;">{% for a in arrpln %}<div class="row">{{ a }}</div>{% endfor %}</div>#}
+{#    </div>#}
     <div class="container-fluid">
-    <div class="text-center" style="color: white;width: 700px; height: 700px;">{% for a in arrpln %}<div class="row">{{ a }}</div>{% endfor %}</div>
+        <button type="button" class="btn btn-light ml-3" value="1" id="single" size="{{ maxsize }}" >Single Execution</button>
+        <button type="button" class="btn btn-dark ml-3" id="full" size="{{ maxsize }}">Full Execution</button>
+        <div class="table-container" style="height:500px; overflow: scroll;">
+            <div class="col-lg-4 col-lg-offset-4">
+                <h2 align="center"><strong>Pipeline</strong></h2>
+                <table class="table table-bordered" style="overflow:scroll;">
+                    <thead>
+                        <tr id="tablehead" style="background-color: white; color: #111111;">
+                            <th>Instruction</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in plist %}
+                        <tr id="instr{{ p.id }}">
+                            <th>{{ p.instruction }}</th>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-        {#    <div class="table-container">#}
-{#            <div class="col-lg-4 col-lg-offset-4">#}
-{#                <h2 align="center"><strong>Pipeline</strong></h2>#}
-{#                <table class="table table-bordered">#}
-{#                    <thead>#}
-{#                        <tr style="background-color: white; color: #111111;">#}
-{#                            <th>Instruction</th>#}
-{#                            <th>1</th>#}
-{#                            <th>2</th>#}
-{#                            <th>3</th>#}
-{#                        </tr>#}
-{#                    </thead>#}
-{#                    <tbody>#}
-{#                        <tr>#}
-{#                            <th>Instruction</th>#}
-{#                            <th>Content</th>#}
-{#                            <th>Content</th>#}
-{#                            <th>Content</th>#}
-{#                        </tr>#}
-{#                        <tr>#}
-{#                            <th>Instruction</th>#}
-{#                            <th>Content</th>#}
-{#                            <th>Content</th>#}
-{#                            <th>Content</th>#}
-{#                        </tr>#}
-{#                        <tr>#}
-{#                            <th>Instruction</th>#}
-{#                            <th>Content</th>#}
-{#                            <th>Content</th>#}
-{#                            <th>Content</th>#}
-{#                        </tr>#}
-{#                    </tbody>#}
-{#                </table>#}
-{#            </div>#}
-{#        </div>#}
 
 {% endblock %}

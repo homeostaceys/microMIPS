@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .models import *
 
 import re
@@ -86,10 +86,6 @@ def resetdb(request):
     olist.delete()
     request.session['codearea'] = ""
     return redirect('/')
-
-def pipeline(request):
-
-    return render(request,'mips/pipeline.html')
 
 def index(request):
     try:
@@ -446,11 +442,10 @@ def opcode(codes_obj):
         
         codes_obj.rep = opc.upper()
         codes_obj.save()
-
-def pipelinemap(request):
-    arrpln=[]
+def pipelnmap():
+    arrpln = []
     plist = Piplnsrcdest.objects.all()
-    arrpln.append(["IF","ID","EX","MEM","WB"])
+    arrpln.append(["IF", "ID", "EX", "MEM", "WB"])
     counter = 1
     poslabel = 0
     amij = 0
@@ -460,8 +455,8 @@ def pipelinemap(request):
         branch = 0
         complain = 0
         lstoappend = []
-        previnstr = Piplnsrcdest.objects.filter(instrnum=counter-1).get().instrc
-        print(previnstr,"previnstr")
+        previnstr = Piplnsrcdest.objects.filter(instrnum=counter - 1).get().instrc
+        print(previnstr, "previnstr")
 
         if "BGTZC" in previnstr or "J" in previnstr:
             poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
@@ -483,7 +478,7 @@ def pipelinemap(request):
                         lstoappend.append("WB")
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
-            elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(instrnum=counter-1).get().stat == 1:
+            elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(instrnum=counter - 1).get().stat == 1:
                 branch = 1
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
@@ -495,11 +490,11 @@ def pipelinemap(request):
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
                 arrpln.append(lstoappend)
-                for i in range(0,poslabel-counter-1):
+                for i in range(0, poslabel - counter - 1):
                     arrpln.append(["SKIP"])
                 lstoappend = []
-                print(arrpln[-(poslabel-counter)],"BEF")
-                for obj in arrpln[-(poslabel-counter)]:
+                print(arrpln[-(poslabel - counter)], "BEF")
+                for obj in arrpln[-(poslabel - counter)]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
                     if obj == "*" or obj == "/":
@@ -512,7 +507,7 @@ def pipelinemap(request):
                 arrpln.append(lstoappend)
                 counter = poslabel + 1
 
-            else:#BRANCH NOT TAKEN
+            else:  # BRANCH NOT TAKEN
 
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
@@ -529,8 +524,8 @@ def pipelinemap(request):
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
             print("DO FREEZE")
-        elif(amij == 1):
-            if(counter < poslabel):
+        elif (amij == 1):
+            if (counter < poslabel):
                 lstoappend.append("SKIP")
                 skipcount -= 1
             else:
@@ -553,9 +548,9 @@ def pipelinemap(request):
                         lstoappend.append("/")
                 skipcount = -1
         else:
-            if(amij > 1):
+            if (amij > 1):
                 amij -= 1
-            prevobj = Piplnsrcdest.objects.filter(instrnum=counter-1).get()
+            prevobj = Piplnsrcdest.objects.filter(instrnum=counter - 1).get()
             currobj = Piplnsrcdest.objects.filter(instrnum=counter).get()
             if prevobj.dest == currobj.src1 or prevobj.dest == currobj.src2:
                 complain = 1
@@ -586,9 +581,43 @@ def pipelinemap(request):
         if branch == 0:
             print("NON")
             arrpln.append(lstoappend)
-            counter+=1
-    context={'arrpln':arrpln}
+            counter += 1
+    return arrpln
+def pipelinemap(request):
+    arrpln = pipelnmap()
+    maxsize = len(arrpln[-1])
+    for a in arrpln:
+        if len(a) < maxsize :
+            for i in range(0,maxsize-len(a)):
+                a.append(" ")
+
+    plist = Codes.objects.all()
+    if request.method == 'GET':
+        cycle = []
+        data = request.GET.get('singleexec')
+        fulldata = request.GET.get('fullexec')
+        if data != None and int(data) <= maxsize:
+            for a in arrpln:
+                cycle.append(a[int(data)-1])
+
+            context = {
+                'cycle': cycle,
+            }
+            return JsonResponse(context)
+        if fulldata != None:
+
+            context = {
+                'arrpln': arrpln,
+            }
+
+            return JsonResponse(context)
+
+    context={
+        'plist':plist,
+        'maxsize': maxsize,
+    }
     return render(request, 'mips/pipeline.html', context)
+
 # CODE FOR INTERNAL MIPS64 REGISTERS PIPELINE
 def IF(instrc, pc):
     theif=[]

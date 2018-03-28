@@ -1,34 +1,9 @@
 
 {% extends 'mips/extends/header.html' %}
-{% block script %}
-$(document).ready( function(){
-
-    $('#myform').on("submit", function (event) {
-        event.preventDefault();
-        var data = new FormData(this);
-
-        $.ajax({
-            url: "/inputcode/",
-            method: "POST",
-            data: data,
-            async: false,
-            cache: false,
-            contentType: false,
-            enctype: 'multipart/form-data',
-            processData: false,
-            success: function (response) {}
-        });
-    });
-    $("body").on("click", "a", function() {
-        $('#myform').submit();
-    });
-
-});
-
-
-
-
+{% block extrahead %}
+    <script src="{{ STATIC_URL }} /static/js/index.js"></script>
 {% endblock %}
+
 {% block body %}
 
     <div class="container-fluid ml-auto ">
