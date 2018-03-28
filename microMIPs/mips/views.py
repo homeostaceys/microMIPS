@@ -287,7 +287,7 @@ def opcode(codes_obj):
         opco.save()
         
         codes_obj.rep = opc.upper()
-        codes_obj.save(update_fields=['rep'])
+        codes_obj.save()
         
     elif cmd == "DADDIU" or cmd == "XORI":                 # DADDIU or XORI
         if "0x" in parts[3]:
@@ -322,16 +322,15 @@ def opcode(codes_obj):
         opc = opc + immop
         
         temp = int(opc,2)                                 # binary to hex
-        opc = hex(temp)[2:]   
-        
-        while len(opc) < 8:                               # zero extend
-            opc = "0" + opc
+        opc = hex(temp)[2:]
+
+        opc = opc.zfill(8)                              # zero extend
         
         opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=immop)
         opco.save()
         
         codes_obj.rep = opc.upper()
-        codes_obj.save(update_fields=['rep'])
+        codes_obj.save()
         
     elif cmd == "DADDU" or cmd == "SLT":                  # DADDU or SLT
         rs = parts[2].replace(",","")
@@ -372,7 +371,7 @@ def opcode(codes_obj):
         opco.save()
         
         codes_obj.rep = opc.upper()
-        codes_obj.save(update_fields=['rep'])
+        codes_obj.save()
         
     elif cmd == "BGTZC":                                  # BGTZC
         rt = parts[1].replace(",","")
@@ -416,7 +415,7 @@ def opcode(codes_obj):
         opco.save()
         
         codes_obj.rep = opc.upper()
-        codes_obj.save(update_fields=['rep'])
+        codes_obj.save()
         
     elif cmd == "J":                                      # J
         opc = "000010"                                    # opcode(6)
@@ -438,19 +437,18 @@ def opcode(codes_obj):
         
         temp = int(opc,2)                               # binary to hex
         opc = hex(temp)[2:]
-        
-        while len(opc) < 8:                             # zero extend
-            opc = "0" + opc
+
+        opc = opc.zfill(8)                           # zero extend
+
         
         opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=lbl[:5],rt=lbl[5:10],imm=lbl[10:])
         opco.save()
         
         codes_obj.rep = opc.upper()
-        codes_obj.save(update_fields=['rep'])
+        codes_obj.save()
 
 def pipelinemap(request):
     arrpln=[]
-    lstoappend =[]
     plist = Piplnsrcdest.objects.all()
     arrpln.append(["IF","ID","EX","MEM","WB"])
     counter = 1
