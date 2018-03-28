@@ -466,6 +466,7 @@ def pipelinemap(request):
         if "BGTZC" in previnstr or "J" in previnstr:
             posjump = counter
             poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
+            label = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().label
             if "J" in previnstr:
                 ###NEED TO CHECK EXECUTE 3 LINES THEN IF MORE THAN 3 LINES APPEND [] UNTIL POSITIONOFLABEL
                 print("Imma jumpa")
