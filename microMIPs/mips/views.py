@@ -447,6 +447,7 @@ def opcode(codes_obj):
         
         codes_obj.rep = opc.upper()
         codes_obj.save(update_fields=['rep'])
+
 def pipelinemap(request):
     arrpln=[]
     lstoappend =[]
@@ -463,7 +464,6 @@ def pipelinemap(request):
         print(previnstr,"previnstr")
 
         if "BGTZC" in previnstr or "J" in previnstr:
-            posjump = counter
             poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
 
             if "J" in previnstr:
@@ -484,7 +484,16 @@ def pipelinemap(request):
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
             elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(instrnum=counter-1).get().stat == 1:
-                pass
+                for obj in arrpln[-1]:
+                    if obj == " " or obj == "IF":
+                        lstoappend.append(" ")
+                    if obj == "ID":
+                        lstoappend.append("IF")
+                    if obj == "EX" or obj == "MEM":
+                        lstoappend.append("*")
+                    if obj == "*" or obj == "/":
+                        lstoappend.append("/")
+                print(poslabel - counter)
 
             else:#BRANCH NOR JUMP NOT TAKEN
                 for obj in arrpln[-1]:

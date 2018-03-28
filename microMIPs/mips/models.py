@@ -52,7 +52,7 @@ class Piplnsrcdest(models.Model):
     dest = models.CharField(max_length=5, blank=True)
     src1 = models.CharField(max_length=5, blank=True)
     src2 = models.CharField(max_length=5, blank=True)
-    label = models.CharField(max_length=30)
+    label = models.CharField(max_length=30, blank=True)
     stat = models.IntegerField(default=0) #whether or not jump or branch
     def __str__(self):
         return self.instrc
