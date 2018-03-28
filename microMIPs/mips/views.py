@@ -478,6 +478,7 @@ def pipelnmap():
                         lstoappend.append("WB")
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
+            #need to fix status to become == 1
             elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(instrnum=counter - 1).get().stat == 1:
                 branch = 1
                 for obj in arrpln[-1]:
