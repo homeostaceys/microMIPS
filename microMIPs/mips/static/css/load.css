@@ -1,3 +1,5 @@
-body{
-    overflow-y: visible;
+#editMModal, #editRModal
+{
+    overflow-y: hidden;
+    margin-top: -0.1cm;
 }
