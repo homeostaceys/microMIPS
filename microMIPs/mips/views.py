@@ -457,7 +457,9 @@ def pipelinemap(request):
     poslabel = 0
     amij = 0
     skipcount = -1
+
     while counter != len(plist):
+        branch = 0
         complain = 0
         lstoappend = []
         previnstr = Piplnsrcdest.objects.filter(instrnum=counter-1).get().instrc
@@ -484,6 +486,7 @@ def pipelinemap(request):
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
             elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(instrnum=counter-1).get().stat == 1:
+                branch = 1
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
@@ -493,8 +496,25 @@ def pipelinemap(request):
                         lstoappend.append("*")
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
-                print(poslabel - counter)
-
+                arrpln.append(lstoappend)
+                for i in range(0,poslabel-counter-1):
+                    arrpln.append(["SKIP"])
+                lstoappend = []
+                print(arrpln[-(poslabel-counter)],"BEF")
+                for obj in arrpln[-(poslabel-counter)]:
+                    if obj == " " or obj == "IF":
+                        lstoappend.append(" ")
+                    if obj == "*" or obj == "/":
+                        lstoappend.append("/")
+                lstoappend.append("IF")
+                lstoappend.append("ID")
+                lstoappend.append("EX")
+                lstoappend.append("MEM")
+                lstoappend.append("WB")
+                arrpln.append(lstoappend)
+                counter = poslabel + 1
+                print(arrpln[-1])
+                print("DONE")
             else:#BRANCH NOR JUMP NOT TAKEN
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
@@ -565,9 +585,10 @@ def pipelinemap(request):
                 if obj == "*" or obj == "/":
                     lstoappend.append("/")
 
-
-        arrpln.append(lstoappend)
-        counter+=1
+        if branch == 0:
+            print("NON")
+            arrpln.append(lstoappend)
+            counter+=1
     context={'arrpln':arrpln}
     return render(request, 'mips/pipeline.html', context)
 # CODE FOR INTERNAL MIPS64 REGISTERS PIPELINE
