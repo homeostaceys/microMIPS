@@ -269,10 +269,9 @@ def opcode(codes_obj):
         rtop = '{0:05b}'.format(int(rt))                    # Integer to binary
         offsetop = "{0:16b}".format(int(offset,16))         # hex to binary
         offsetop = offsetop.replace(" ", "")
-        
-        while len(offsetop) < 16:                           # zero extend
-            offsetop = "0" + offsetop
-        
+
+        offsetop = offsetop.zfill(16)                        # zero extend
+
         opc = inop
         opc = opc + baseop
         opc = opc + rtop
@@ -280,9 +279,9 @@ def opcode(codes_obj):
         
         temp = int(opc,2)                                  # binary to hex
         opc = hex(temp)[2:]
-        
-        while len(opc) < 8:                                # zero extend
-            opc = "0" + opc
+
+        opc = opc.zfill(8)                            # zero extend
+
         
         opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=baseop,rt=rtop,imm=offsetop)
         opco.save()
@@ -313,9 +312,9 @@ def opcode(codes_obj):
                   
         immop = "{0:16b}".format(int(imm,16))             # hex to binary
         immop = immop.replace(" ", "")
-        
-        while len(immop) < 16:                            # zero extend
-            immop = "0" + immop
+
+        immop = immop.zfill(16)                          # zero extend
+
         
         opc = str(inop)
         opc = opc + rsop
@@ -365,9 +364,9 @@ def opcode(codes_obj):
         
         temp = int(opc,2)                                 # binary to hex
         opc = hex(temp)[2:]
-        
-        while len(opc) < 8:                               # zero extend
-            opc = "0" + opc
+
+        opc = opc.zfill(8)                              # zero extend
+
         
         opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=(rdop+saop+funcop))
         opco.save()
@@ -399,8 +398,8 @@ def opcode(codes_obj):
         offset = (int(dest)-int(pc))/4                    # offset = (DEST - PC) / 4
         offset = "{0:b}".format(int(offset))              # integer to binary
 
-        while len(offset) < 16:                           # zero extend
-            offset = "0" + offset
+        offset = offset.zfill(16)        # zero extend
+
         
         opc = inop
         opc = opc + rsop
@@ -409,9 +408,9 @@ def opcode(codes_obj):
         
         temp = int(opc,2)                                 # binary to hex
         opc = hex(temp)[2:]
-        
-        while len(opc) < 8:                               # zero extend
-            opc = "0" + opc
+
+        opc = opc.zfill(8)                               # zero extend
+
         
         opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=offset)
         opco.save()
@@ -431,9 +430,9 @@ def opcode(codes_obj):
         lbl = lbl.split(".")[0]                          # remove decimal point
         
         lbl = "{0:b}".format(int(lbl))
-        
-        while len(lbl) < 26:                             # zero extend
-            lbl = "0" + lbl
+
+        lbl = lbl.zfill(26)                             # zero extend
+
         
         opc = opc + lbl
         
@@ -464,6 +463,7 @@ def pipelinemap(request):
         print(previnstr,"previnstr")
 
         if "BGTZC" in previnstr or "J" in previnstr:
+            posjump = counter
             poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
 
             if "J" in previnstr:
@@ -483,9 +483,9 @@ def pipelinemap(request):
                         lstoappend.append("WB")
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
-            elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().stat == 1:
-
+            elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(instrnum=counter-1).get().stat == 1:
                 pass
+
             else:#BRANCH NOR JUMP NOT TAKEN
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
