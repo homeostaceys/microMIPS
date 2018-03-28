@@ -513,9 +513,9 @@ def pipelinemap(request):
                 lstoappend.append("WB")
                 arrpln.append(lstoappend)
                 counter = poslabel + 1
-                print(arrpln[-1])
-                print("DONE")
-            else:#BRANCH NOR JUMP NOT TAKEN
+
+            else:#BRANCH NOT TAKEN
+                
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
