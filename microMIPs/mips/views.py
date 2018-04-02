@@ -661,29 +661,30 @@ def ID(instrc, theif):
     
     return theid
 
-def EX(theid):
+def EX(instrc, theid):
     theex=[]
     
     b = theid[2]
     ir = theid[5]
-    
+    #split instrc pa ata dapat
+
     # ALU instruction
     if():
-        #aluo = a func b
-        #aluo = a op imm
+        #aluo = theid[1] func theid[2]
+        #aluo = theid[1] op theid[3]
         cond = 0
     # Load/Store instruction
-    elif():
+    elif(“LD” in instrc or “SD” in instrc):
         aluo = theid[1] + theid[3]
         cond = 0
     # Branch instruction
-    elif():
+    elif(“BGTZC” in instrc):
         pass
-        #aluo = npc + (imm << 2)
+        #aluo = theid[4] + (theid[3] << 2)
         # cond = a op 0
     # Jump instruction
     else:
-        #aluo = (imm << 2)
+        #aluo = (theid[3] << 2)
         cond = 1
     
     theex.append(aluo)
