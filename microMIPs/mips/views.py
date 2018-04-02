@@ -694,19 +694,19 @@ def EX(instrc, theid):
     
     return theex
 
-def MEM(theex):
+def MEM(instrc, theex):
     themem=[]
         
     #mem/wb.ir
     ir = theex[2]
     
     #load instruction
-    if():
+    if(“LD” in instrc):
         #mem/wb.lmd
         #lmd = theex[0] # supposedly mem of aluoutput
         themem.append(lmd)
     #store instruction
-    elif():
+    elif(“SD” in instrc):
         # mem of aluoutput = theex[1]
         themem.append(memalu)
     else:
