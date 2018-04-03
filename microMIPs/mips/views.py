@@ -624,12 +624,10 @@ def IF(instrc, pc):
     theif=[]
     
     op = Opcodetable.objects.filter(instrc=instrc).get()
-    #if/id.ir
-    ir = op.opcode
-    #if/id.pc
-    pc = pc 
-    #if/id.npc
-    npc = pc
+    
+    ir = op.opcode              #if/id.ir
+    pc = pc                     #if/id.pc
+    npc = pc                    #if/id.npc
     
     theif.append(ir)
     theif.append(npc)
@@ -662,29 +660,27 @@ def EX(instrc, theid):
     
     b = theid[2]
     ir = theid[5]
-    #split instrc pa ata dapat
     
-    # Jump instruction
-    if("J" in instrc):
-        #aluo = (theid[3] << 2)
+    parts = instrc.split(" ")
+    instrc = parts[0]
+    
+    if("J" in instrc):                                      # Jump instruction
+        aluo = bin(theid[3] << 2)
         cond = 1
-    # Load/Store instruction
-    elif("LD" in instrc or "SD" in instrc):
+    elif("LD" in instrc or "SD" in instrc):                 # Load/Store instruction
         aluo = theid[1] + theid[3]
         cond = 0
-    # Branch instruction
-    elif("BGTZC" in instrc):
+    elif("BGTZC" in instrc):                                # Branch instruction
         pass
-        #aluo = theid[4] + (theid[3] << 2)
-        # cond = a op 0
-    # ALU instruction
-    else:
-        #aluo = theid[1] func theid[2]
-        #aluo = theid[1] op theid[3]
+        aluo = theid[4] + bin(theid[3] << 2)
+        # cond = a op 0 (do operation)
+    else:                                                   # ALU instruction
+        #if():
+            #aluo = theid[1] func theid[2] (do function)
+        #else:
+            #aluo = theid[1] op theid[3] (do operation)
         cond = 0
         
-        
-    
     theex.append(aluo)
     theex.append(b)
     theex.append(ir)
@@ -695,16 +691,16 @@ def EX(instrc, theid):
 def MEM(instrc, theex):
     themem=[]
         
-    #mem/wb.ir
-    ir = theex[2]
+    parts = instrc.split(" ")
+    instrc = parts[0]
     
-    #load instruction
-    if("LD" in instrc):
+    ir = theex[2]                               #mem/wb.ir
+    
+    if("LD" in instrc):                         #load instruction
         #mem/wb.lmd
         #lmd = theex[0] # supposedly mem of aluoutput
         themem.append(lmd)
-    #store instruction
-    elif("SD" in instrc):
+    elif("SD" in instrc):                       #store instruction
         # mem of aluoutput = theex[1]
         themem.append(memalu)
     else:
@@ -715,18 +711,19 @@ def MEM(instrc, theex):
     
     return themem
 
-def WB(themem):
+def WB(instrc, src2, themem):
+    
+    parts = instrc.split(" ")
+    instrc = parts[0]
+    
     thewb=[]
-    #reg-reg
-    if():
+    if("R" in src2 and "LD" not in instrc):                                       #reg-reg
         pass
         # reg[mem/wb.ir 11..15] = themem[1] #aluoutput
-    #reg-imm
-    elif():
+    elif("#" in src2 and "LD" not in instrc):                                     #reg-imm
         pass
         # reg[mem/wb.ir 16..20] = themem[1] #aluoutput
-    #load
-    else:
+    elif("LD" in instrc):                                                          #load
         pass
         # reg[mem/wb.ir 16..20] = themem[1] # lmd
         
