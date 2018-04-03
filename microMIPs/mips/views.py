@@ -639,10 +639,11 @@ def ID(instrc, theif):
     theid=[]
     
     op = Opcodetable.objects.filter(instrc=instrc).get()
-    
-    a = op.rs                        # id/ex.a
-    b = op.rt                        # id/ex.b
-    imm = op.imm                     # id/ex.imm
+    a = Register.objects.filter(regnum = op.rs.replace("R","")).get().regval.zfill(16)
+    #a = op.rs                        # id/ex.a
+    #b = op.rt                        # id/ex.b
+    b = Register.objects.filter(regnum = op.rt.replace("R","")).get().regval.zfill(16)
+    imm = op.imm.zfill(16)           # id/ex.imm
     npc = theif[1]                   # id/ex.npc
     ir = theif[0]                    # id/ex.ir
     
@@ -697,11 +698,14 @@ def MEM(instrc, theex):
     ir = theex[2]                               #mem/wb.ir
     
     if("LD" in instrc):                         #load instruction
-        #mem/wb.lmd
         #lmd = theex[0] # supposedly mem of aluoutput
+        lmd = Memory.objects.filter(address=theex[0]).get().memval
         themem.append(lmd)
     elif("SD" in instrc):                       #store instruction
         # mem of aluoutput = theex[1]
+        memval = Memory.objects.filter(address=theex).get()  # ano dapat si theex???
+        memval.memval = theex[1]
+        memval.save()
         themem.append(memalu)
     else:
         aluo = theex[0]
@@ -734,7 +738,7 @@ def WB(instrc, src2, themem):
 def pipeline(request):
     plist = Piplnsrcdest.objects.all()
     #oplist = Opcodetable.objects.all()
-    pc = 0
+    pc = "0000000000000000"
     cycles = []
     
     # write algo here
