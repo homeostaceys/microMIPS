@@ -641,16 +641,12 @@ def ID(instrc, theif):
     theid=[]
     
     op = Opcodetable.objects.filter(instrc=instrc).get()
-    #id/ex.a
-    a = op.rs
-    #id/ex.b
-    b = op.rt
-    # id/ex.imm
-    imm = op.imm
-    # id/ex.npc
-    npc = theif[1]
-    # id/ex.ir
-    ir = theif[0]
+    
+    a = op.rs                        # id/ex.a
+    b = op.rt                        # id/ex.b
+    imm = op.imm                     # id/ex.imm
+    npc = theif[1]                   # id/ex.npc
+    ir = theif[0]                    # id/ex.ir
     
     theid.append(op)
     theid.append(a)
@@ -667,25 +663,27 @@ def EX(instrc, theid):
     b = theid[2]
     ir = theid[5]
     #split instrc pa ata dapat
-
-    # ALU instruction
-    if():
-        #aluo = theid[1] func theid[2]
-        #aluo = theid[1] op theid[3]
-        cond = 0
+    
+    # Jump instruction
+    if("J" in instrc):
+        #aluo = (theid[3] << 2)
+        cond = 1
     # Load/Store instruction
-    elif(“LD” in instrc or “SD” in instrc):
+    elif("LD" in instrc or "SD" in instrc):
         aluo = theid[1] + theid[3]
         cond = 0
     # Branch instruction
-    elif(“BGTZC” in instrc):
+    elif("BGTZC" in instrc):
         pass
         #aluo = theid[4] + (theid[3] << 2)
         # cond = a op 0
-    # Jump instruction
+    # ALU instruction
     else:
-        #aluo = (theid[3] << 2)
-        cond = 1
+        #aluo = theid[1] func theid[2]
+        #aluo = theid[1] op theid[3]
+        cond = 0
+        
+        
     
     theex.append(aluo)
     theex.append(b)
@@ -701,12 +699,12 @@ def MEM(instrc, theex):
     ir = theex[2]
     
     #load instruction
-    if(“LD” in instrc):
+    if("LD" in instrc):
         #mem/wb.lmd
         #lmd = theex[0] # supposedly mem of aluoutput
         themem.append(lmd)
     #store instruction
-    elif(“SD” in instrc):
+    elif("SD" in instrc):
         # mem of aluoutput = theex[1]
         themem.append(memalu)
     else:
