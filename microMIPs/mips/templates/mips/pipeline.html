@@ -2,6 +2,7 @@
 {% block script %}
     $(document).ready( function(){
         $('#single').click(function(event) {
+            
             $('#full').attr("disabled","");
             event.preventDefault();
             var data = parseInt($(this).val());
@@ -29,6 +30,9 @@
                         }
                 });
              }
+            else{
+                $('#single').attr("disabled","");
+            }
         });
 
         $('#full').click(function(event) {

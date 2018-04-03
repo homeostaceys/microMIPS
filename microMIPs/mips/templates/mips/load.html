@@ -180,8 +180,13 @@
                 <tbody style="height: 300px; display: inline-block; width: 100%; overflow: auto; color: white;">
                     {% for reg in reglist %}
                     <tr>
+                        {% if reg.regnum != 0%}
                         <td class="col-1"><a role="button" onclick="editreg('{{ reg.regnum}}','{{ reg.regval }}');" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editRModal" >R{{ reg.regnum }}</a></td>
+                        {%else%}
+                        <td class="col-1">R{{ reg.regnum }}</td>
+                        {% endif %}
                         <td class="col-3">{{ reg.regval }}</td>
+                        
                     </tr>
                     {% endfor %}
 
