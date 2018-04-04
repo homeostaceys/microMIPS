@@ -10,6 +10,7 @@ def load(request):
     reglist = Register.objects.all()
     memlist = Memory.objects.all()
     instrlist = Codes.objects.all()
+    executemips()
     for m in memlist:
         if int(m.address,16) >= 0 and int(m.address,16) < 4096:
             mem1list.append(m)
@@ -144,7 +145,7 @@ def piplineparse():
             pip.save()
         elif "SD" in spl[0]:
             dest = spl[2].split("(")
-            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest=dest[1].replace(")",""),src1=spl[1],src2="",label=c.label,stat=0)
+            pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest="",src1=spl[1],src2=dest[1].replace(")",""),label=c.label,stat=0)
             pip.save()
         elif "BGTZC" in spl[0]:
             pip = Piplnsrcdest.objects.create(instrnum=i,instrc=c.instruction,dest="",src1=spl[1],src2="",label=c.label,stat=0)
@@ -747,3 +748,175 @@ def pipeline(request):
     
     context={'cycles':cycles}
     return render(request, 'mips/pipln.html', context)
+
+def executemips():
+    pipelist = Piplnsrcdest.objects.all()
+    reglist = Register.objects.all()
+    memlist = Memory.objects.all()
+    
+    
+    counter = 0
+    jump = 0
+    
+    tempreglist = []
+    tempmemlist = []
+    instruclist = []
+    
+    for reg in reglist:
+        tempreglist.append(reg.regval)
+        
+    for mem in memlist:
+        tempmemlist.append(mem.memval)
+        
+    while counter < len(pipelist):
+        print(pipelist[counter].instrc)
+        print("SOURCE1", pipelist[counter].src1)
+        print("SOURCE2", pipelist[counter].src2)
+        print("DEST", pipelist[counter].dest)
+        print("LABEL", pipelist[counter].label)
+        print(counter)
+        pip = pipelist[counter].instrc
+        pipinst = pip.split(" ")
+        print(pipinst[0])
+#        print(counter)
+    
+        if jump == 1:
+            pips = pipelist[counter-1].instrc
+            label = (pipelist[counter-1].instrc).split(" ")[1]
+            print("LABEL ",label)
+            print("PIPS", pips)
+            intnum = Piplnsrcdest.objects.filter(label=label).get().instrnum
+            counter = intnum
+            jump = 0
+            print("JUMP", intnum)
+            print("COUNTER", counter, pips)
+            
+            #get the label where jump is going to execute
+            #go to the label
+            #current counter will go to the label
+    
+        if "DADDU" in pipinst[0]:
+            src1 = pipelist[counter].src1
+            src2 = pipelist[counter].src2
+            dest = pipelist[counter].dest
+            s1 = src1.split("R")
+            s2 = src2.split("R")
+            de = dest.split("R")
+            print (s1, s2, de)
+            rs = tempreglist[int(s1[1])]
+            rs = int(rs, 16)
+            print(rs)
+            rt = tempreglist[int(s2[1])]
+            rt = int(rt, 16)
+            print(rt)
+            des = rs + rt
+            print(des)
+            tempreglist[counter] = format(des, 'x').zfill(16)
+            print(tempreglist[counter])
+            
+        if "DADDIU" in pipinst[0]:
+            src1 = pipelist[counter].src1
+            src2 = pipelist[counter].src2
+            dest = pipelist[counter].dest
+            s1 = src1.split("R")
+            s2 = (pipelist[counter].instrc).split("#")
+            s2 = s2[1]
+            de = dest.split("R")
+            print (s1, s2, de)
+            rs = tempreglist[int(s1[1])]
+            rs = int(rs,16)
+            rt = int(s2, 16)
+            print(rt)
+            des = rs + rt 
+            print("DES",des)
+            tempreglist[counter] = format(des, 'x').zfill(16).upper()
+            print ("DITO ME CIZT" + '\n',tempreglist[counter])
+        if "XORI" in pipinst[0]:
+            src1 = pipelist[counter].src1
+            src2 = pipelist[counter].src2
+            dest = pipelist[counter].dest
+            
+            s1 = src1.split("R")
+            s2 = (pipelist[counter].instrc).split("#")
+            s2 = s2[1]
+            de = dest.split("R")
+            print(s1,s2,de)
+            
+            rs = tempreglist[int(s1[1])]
+            rs = int(rs,16)
+            rt = int(s2,16)
+            des = bool(rs) ^ bool(rt)
+            print("DES",des)
+            tempreglist[counter] = format(des, 'x').zfill(16).upper()
+            print ("DITO ME CIZTT" + '\n',tempreglist[counter])
+        
+        if "SLT" in pipinst[0]:
+            src1 = pipelist[counter].src1
+            src2 = pipelist[counter].src2
+            dest = pipelist[counter].dest
+            s1 = src1.split("R")
+            s2 = src2.split("R")
+            de = dest.split("R")
+            print(s1,s2,de)
+            
+            rs = tempreglist[int(s1[1])]
+            rt = tempreglist[int(s2[1])]
+            
+            if rs < rt:
+                des = 1
+            else:
+                des = 0
+            
+            tempreglist[counter] = format(des,'x').zfill(16).upper()
+            
+        if "J" in pipinst[0]:
+            jump = 1
+            
+        if "LD" in pipinst[0]:
+            src1 = pipelist[counter].src1
+            dest = pipelist[counter].dest
+            
+            s1 = src1.split("R")
+            s2 = ((pipelist[counter].instrc).split(" ")[2]).split("(")[0]
+            de = dest.split("R")
+            print(s1,s2,de)
+            maxctr = 8
+            
+            rs = tempreglist[int(s1[1])]
+            rt = int(s2) + maxctr
+            print ("RS", rs)
+            print ("RT", rt)
+            rt = str(rt)
+            print (rt)
+            membox = []
+            mem = Memory.objects.filter(address=rt).get().memval
+            print (mem)
+            c = 0
+            while maxctr != 0:
+                rt = int(rt) - 1
+                rt = str(rt)
+                mem = Memory.objects.filter(address=rt).get().memval
+                membox.append(mem)
+                maxctr-=1
+                c+=1
+                print ("MAXCTR" , maxctr)
+            
+            print (''.join(membox))
+            
+
+            
+            
+        
+        if "SD" in pipinst[0]:
+            pass
+            
+            
+        
+            
+        
+        counter+=1
+#        
+#    while counter != len(pipelist):
+#        if "DADDIU" in currins:
+#            pass
+#        counter+=1
