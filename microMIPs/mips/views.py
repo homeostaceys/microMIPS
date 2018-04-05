@@ -32,16 +32,7 @@ def reset():
     olist.delete()
     plist = Piplnsrcdest.objects.all()
     plist.delete()
-    rlist = Register.objects.all()
-    mlist = Memory.objects.all()
-    for r in rlist:
-        if r.regval != "0000000000000000":
-            r.regval = "0000000000000000"
-            r.save()
-    for m in mlist:
-        if m.memval != "00":
-            m.memval = "00"
-            m.save()
+   
 
 def resetindex(request):
     # i = 0
@@ -164,13 +155,10 @@ def check(request):
     codearea = codearea.upper()
     list = codearea.split("\r\n")
     i = 0
-    jump = 0
-    previnstr = ""
     while i < len(list):
         instr = ""
         label = ""
         status = 0
-        
         if errorCheck(list[i]) == True:
             if ": " in list[i]:
                 label = list[i].split(": ")[0]
@@ -180,20 +168,9 @@ def check(request):
                 instr = list[i].split(":")[1]
             else:
                 instr = list[i]
-            if "J" in previnstr and "J" in instr:
-                error = True
-                line = i
-                context = {
-                    'error': error,
-                    'line': line,
-                }
-                return render(request, 'mips/index.html', context)
+
             if "J" in instr or "BGTZC" in instr:
                 status = 1
-                jump = 1
-                previnstr = instr
-              
-                
             code = Codes.objects.create(id=i, address=format(i * 4, 'x').zfill(4), rep="", label=label,
                                         instruction=instr,
                                         status=status)
@@ -783,69 +760,68 @@ def executemips():
         tempmemlist.append(mem.memval)
         
     while counter < len(pipelist):
+#        if jump == 1:
+#            label = (pipelist[counter-1].instrc).split(" ")[-1]
+#            print("labellll ",label)
+#            intnum = Piplnsrcdest.objects.filter(label=label).get().instrnum
+#            counter = intnum-1  
+#            jump = 0
+#            print("JUMP", intnum)
+#            print("COUNTER", counter)
         print(pipelist[counter].instrc)
         print("SOURCE1", pipelist[counter].src1)
         print("SOURCE2", pipelist[counter].src2)
         print("DEST", pipelist[counter].dest)
-        print("LABEL", pipelist[counter].label)
         print(counter)
         pip = pipelist[counter].instrc
         pipinst = pip.split(" ")
-        print(pipinst[0])
+        if ": " in pip:
+            pipinst = pip.split(": ")[1]
+        elif ":" in pip:
+            pipinst = pip.split(":")[1]
+        else:
+            pipinst = pip
 #        print(counter)
     
-        if jump == 1:
-            pips = pipelist[counter-1].instrc
-            label = (pipelist[counter-1].instrc).split(" ")[1]
-            print("LABEL ",label)
-            print("PIPS", pips)
-            intnum = Piplnsrcdest.objects.filter(label=label).get().instrnum
-            counter = intnum
-            jump = 0
-            print("JUMP", intnum)
-            print("COUNTER", counter, pips)
+        
             
             #get the label where jump is going to execute
             #go to the label
             #current counter will go to the label
-    
-        if "DADDU" in pipinst[0]:
+        
+        if "DADDU" in pipinst:
+            print ("START")
             src1 = pipelist[counter].src1
             src2 = pipelist[counter].src2
+            print("MY SRC2",src2)
             dest = pipelist[counter].dest
-            s1 = src1.split("R")
-            s2 = src2.split("R")
-            de = dest.split("R")
-            print (s1, s2, de)
-            rs = tempreglist[int(s1[1])]
-            rs = int(rs, 16)
-            print(rs)
-            rt = tempreglist[int(s2[1])]
-            rt = int(rt, 16)
-            print(rt)
-            des = rs + rt
+            src1 = tempreglist[int(src1.split("R")[1])]
+            src2 = tempreglist[int(src2.split("R")[1])]
+            print(src1,"SRC1",src2,"SRC2")
+            de = int(dest.split("R")[1])
+            rs = int(src1,16)
+            rt = int(src2,16)
+            des = format(int(hex(rs+rt),16),'x').upper()
+            des = sign_extend(des)
             print(des)
-            tempreglist[counter] = format(des, 'x').zfill(16)
-            print(tempreglist[counter])
+            tempreglist[de] = des
+            print(tempreglist[de])
             
-        if "DADDIU" in pipinst[0]:
+        if "DADDIU" in pipinst:
             src1 = pipelist[counter].src1
             src2 = pipelist[counter].src2
             dest = pipelist[counter].dest
-            s1 = src1.split("R")
-            s2 = (pipelist[counter].instrc).split("#")
-            s2 = s2[1]
-            de = dest.split("R")
-            print (s1, s2, de)
-            rs = tempreglist[int(s1[1])]
+            de = int(dest.split("R")[1])
+            rs = tempreglist[int(src1.split("R")[1])]
             rs = int(rs,16)
-            rt = int(s2, 16)
-            print(rt)
-            des = rs + rt 
+            rt = int(sign_extend(int((pipelist[counter].instrc).split("#")[1], 16)),16)
+            des = format(int(hex(rs+rt),16),'x').upper()
             print("DES",des)
-            tempreglist[counter] = format(des, 'x').zfill(16).upper()
-            print ("DITO ME CIZT" + '\n',tempreglist[counter])
-        if "XORI" in pipinst[0]:
+            des = sign_extend(des)
+            print(des)
+            tempreglist[de] = des
+            print ("DITO ME CIZT" + '\n',tempreglist[de])
+        if "XORI" in pipinst:
             src1 = pipelist[counter].src1
             src2 = pipelist[counter].src2
             dest = pipelist[counter].dest
@@ -864,7 +840,7 @@ def executemips():
             tempreglist[counter] = format(des, 'x').zfill(16).upper()
             print ("DITO ME CIZTT" + '\n',tempreglist[counter])
         
-        if "SLT" in pipinst[0]:
+        if "SLT" in pipinst:
             src1 = pipelist[counter].src1
             src2 = pipelist[counter].src2
             dest = pipelist[counter].dest
@@ -882,11 +858,7 @@ def executemips():
                 des = 0
             
             tempreglist[counter] = format(des,'x').zfill(16).upper()
-            
-        if "J" in pipinst[0]:
-            jump = 1
-            
-        if "LD" in pipinst[0]:
+        if "LD" in pipinst:
             src1 = pipelist[counter].src1
             dest = pipelist[counter].dest
             
@@ -918,11 +890,36 @@ def executemips():
             print (''.join(membox))
             
 
+        if "SD" in pipinst:
+            src1 = pipelist[counter].src1 #register
+            src2 = pipelist[counter].src2 #memory
             
+            s1 = src1.split("R")
+            s2 = ((pipelist[counter].instrc).split(" ")[2]).split("(")[0]
+            print(s1,s2,de)
+            
+            rs = tempreglist[int(s1[1])]
+            n = 2
+            [rs[i:i+n] for i in range(0, len(rs), n)]
+            print ("DITO NA AKO" ,rs)
+            
+        if jump == 1:
+            label = (pipelist[counter-1].instrc).split(" ")[-1]
+            print("labellll ",label)
+            intnum = Piplnsrcdest.objects.filter(label=label).get().instrnum
+            counter = intnum-1  
+            jump = 0
+            print("JUMP", intnum)
+            print("COUNTER", counter)
+            
+        if "J" in pipinst:
+            jump = 1
             
         
-        if "SD" in pipinst[0]:
-            pass
+            
+            
+            
+            
             
             
         
@@ -934,3 +931,16 @@ def executemips():
 #        if "DADDIU" in currins:
 #            pass
 #        counter+=1
+
+def sign_extend(value):
+    if len(str(value)) < 16:
+        if "{0:b}".format(value)[:1] == "1":
+            ext = ""
+            for i in range(1, 64-len(str(value))):
+                ext += "1"
+            return format(int(ext + "{0:b}".format(value),2),'x').upper() 
+        else:
+            return str(value).zfill(16).upper()
+    else:
+        return value
+        
