@@ -164,10 +164,13 @@ def check(request):
     codearea = codearea.upper()
     list = codearea.split("\r\n")
     i = 0
+    jump = 0
+    previnstr = ""
     while i < len(list):
         instr = ""
         label = ""
         status = 0
+        
         if errorCheck(list[i]) == True:
             if ": " in list[i]:
                 label = list[i].split(": ")[0]
@@ -177,9 +180,20 @@ def check(request):
                 instr = list[i].split(":")[1]
             else:
                 instr = list[i]
-
+            if "J" in previnstr and "J" in instr:
+                error = True
+                line = i
+                context = {
+                    'error': error,
+                    'line': line,
+                }
+                return render(request, 'mips/index.html', context)
             if "J" in instr or "BGTZC" in instr:
                 status = 1
+                jump = 1
+                previnstr = instr
+              
+                
             code = Codes.objects.create(id=i, address=format(i * 4, 'x').zfill(4), rep="", label=label,
                                         instruction=instr,
                                         status=status)
