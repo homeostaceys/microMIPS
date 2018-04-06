@@ -625,15 +625,21 @@ def IF(instrc, pc):
     
     return theif
 
-def ID(instrc, theif):
+def ID(instrc, theif, wbreg):
     theid=[]
     
     op = Opcodetable.objects.filter(instrc=instrc).get()
-    a = Register.objects.filter(regnum = op.rs.replace("R","")).get().regval.zfill(16)
-    #a = op.rs                        # id/ex.a
-    #b = op.rt                        # id/ex.b
-    b = Register.objects.filter(regnum = op.rt.replace("R","")).get().regval.zfill(16)
-    imm = op.imm.zfill(16)           # id/ex.imm
+    
+    for x in wbreg:
+        if(x == ("R" + hex(int(op.rs, 2))[2:])):
+            a = hex(int(op.rs, 2))[2:].zfill(16)                # id/ex.a
+            b = hex(int(op.rt, 2))[2:].zfill(16)                # id/ex.b
+        else:
+            a = Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval
+            b = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval
+    
+    imm = hex(int(op.imm, 2))[2:].zfill(16)             # id/ex.imm
+    
     npc = theif[1]                   # id/ex.npc
     ir = theif[0]                    # id/ex.ir
     
@@ -653,23 +659,32 @@ def EX(instrc, theid):
     ir = theid[5]
     
     parts = instrc.split(" ")
-    instrc = parts[0]
+    instr = parts[0]
     
-    if("J" in instrc):                                      # Jump instruction
-        aluo = bin(theid[3] << 2)
+    if("J" in instr):                                      # Jump instruction
+        aluo = bin(theid[3] << 2)[2:] + "00"
         cond = 1
-    elif("LD" in instrc or "SD" in instrc):                 # Load/Store instruction
-        aluo = theid[1] + theid[3]
+    elif("LD" in instr or "SD" in instr):                 # Load/Store instruction
+        aluo = (theid[1] + theid[3]) + "00"
         cond = 0
-    elif("BGTZC" in instrc):                                # Branch instruction
-        pass
-        aluo = theid[4] + bin(theid[3] << 2)
-        # cond = a op 0 (do operation)
+    elif("BGTZC" in instr):                                # Branch instruction
+        aluo = (theid[4] + bin(theid[3] << 2)) + "00"
+        cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
-        #if():
-            #aluo = theid[1] func theid[2] (do function)
-        #else:
-            #aluo = theid[1] op theid[3] (do operation)
+        if("DADDIU" in instr):
+            aluo = theid[1] + theid[3] # (do operation)
+        elif("SLT" in instr):
+            if(theid[1] < theid[3]):
+                aluo = "0000000000000001"
+            else:
+                aluo = "0000000000000000"
+        elif("DADDU" in instr):
+            aluo = theid[1] + theid[2]
+        elif("XORI" in instr):
+            aluo = theid[1] ^ theid[2]
+        else:
+            print("WRONG CHECK YOUR CODE PLES")
+            
         cond = 0
         
     theex.append(aluo)
@@ -689,13 +704,13 @@ def MEM(instrc, theex):
     
     if("LD" in instrc):                         #load instruction
         #lmd = theex[0] # supposedly mem of aluoutput
-        lmd = Memory.objects.filter(address=theex[0]).get().memval
+        #lmd = Memory.objects.filter(address=theex[0]).get().memval
         themem.append(lmd)
     elif("SD" in instrc):                       #store instruction
         # mem of aluoutput = theex[1]
-        memval = Memory.objects.filter(address=theex).get()  # ano dapat si theex???
-        memval.memval = theex[1]
-        memval.save()
+        #memval = Memory.objects.filter(address=theex).get()  # ano dapat si theex???
+        #memval.memval = theex[1]
+        #memval.save()
         themem.append(memalu)
     else:
         aluo = theex[0]
@@ -710,16 +725,23 @@ def WB(instrc, src2, themem):
     parts = instrc.split(" ")
     instrc = parts[0]
     
+    op = Opcodetable.objects.filter(instrc=instrc).get()
+    
     thewb=[]
     if("R" in src2 and "LD" not in instrc):                                       #reg-reg
         pass
-        # reg[mem/wb.ir 11..15] = themem[1] #aluoutput
+        kwa = op.imm[:5]                                                          #mem/wb.ir 11..15
+        r = Registers.objects.filter(regnum=hex(int(kwa, 2))[2:]).get()
+        r.regval = themem[1]
+        r.save()
     elif("#" in src2 and "LD" not in instrc):                                     #reg-imm
-        pass
-        # reg[mem/wb.ir 16..20] = themem[1] #aluoutput
-    elif("LD" in instrc):                                                          #load
-        pass
-        # reg[mem/wb.ir 16..20] = themem[1] # lmd
+        r = Registers.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
+        r.regval = themem[1]
+        r.save()
+    elif("LD" in instrc):                                                         #load
+        r = Registers.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
+        r.regval = themem[1]
+        r.save()
         
     thewb.append(reg)
     
@@ -728,15 +750,28 @@ def WB(instrc, src2, themem):
 def pipeline(request):
     plist = Piplnsrcdest.objects.all()
     #oplist = Opcodetable.objects.all()
-    pc = "0000000000000000"
-    cycles = []
+    pc = "0000000000000000"                 #pc/npc
+    cycles = []                             #cycles
+    wbreg = []                              #registers changed by wb
+    arrpln = pipelnmap()                    #pipeline map
     
+    print(arrpln)
+    print(len(arrpln[-1]))
+    
+    maxsize = len(arrpln[-1])                   # number of instructions
+    
+   # for x in maxsize:
+        
+    
+        
+        
     # write algo here
     # call the functions if, id, ex, mem, wb when needed
     # all cycles will be placed in cycles list
     
     context={'cycles':cycles}
     return render(request, 'mips/pipln.html', context)
+
 
 def executemips():
     pipelist = Piplnsrcdest.objects.all()
