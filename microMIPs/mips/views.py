@@ -468,38 +468,65 @@ def pipelnmap():
                         lstoappend.append("WB")
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
-            #need to fix status to become == 1
             elif "BGTZC" in previnstr and Piplnsrcdest.objects.filter(instrnum=counter - 1).get().stat == 1:
                 branch = 1
-                for obj in arrpln[-1]:
-                    if obj == " " or obj == "IF":
-                        lstoappend.append(" ")
-                    if obj == "ID":
-                        lstoappend.append("IF")
-                    if obj == "EX" or obj == "MEM":
-                        lstoappend.append("*")
-                    if obj == "*" or obj == "/":
-                        lstoappend.append("/")
-                arrpln.append(lstoappend)
-                for i in range(0, poslabel - counter - 1):
-                    arrpln.append(["SKIP"])
-                lstoappend = []
                 
-                for obj in arrpln[-(poslabel - counter)]:
-                    if obj == " " or obj == "IF":
-                        lstoappend.append(" ")
-                    if obj == "*" or obj == "/":
-                        lstoappend.append("/")
-                lstoappend.append("IF")
-                lstoappend.append("ID")
-                lstoappend.append("EX")
-                lstoappend.append("MEM")
-                lstoappend.append("WB")
+                if poslabel == counter:
+                    print("HI")
+                    for obj in arrpln[-2]:
+                        print(obj,"objj")
+                        if obj == " " or obj == "IF":
+                            lstoappend.append(" ")
+                        if obj == "ID":
+                            lstoappend.append("IF")
+                        if obj == "*" or obj == "/":
+                            lstoappend.append("/")
+                        if obj == "EX" or obj == "MEM":
+                            lstoappend.append("*")
+                        if obj == "WB":
+                            print("BANNAA")
+                            lstoappend.append("ID")
+                            lstoappend.append("EX")
+                            lstoappend.append("MEM")
+                            lstoappend.append("WB")
+                else: 
+                    for obj in arrpln[-1]:
+                        if obj == " " or obj == "IF":
+                            lstoappend.append(" ")
+                        if obj == "ID":
+                            lstoappend.append("IF")
+                        if obj == "EX" or obj == "MEM":
+                            lstoappend.append("*")
+                        if obj == "*" or obj == "/":
+                            lstoappend.append("/")
+                    arrpln.append(lstoappend)
+                    print(lstoappend, "dfsdf")
+                    for i in range(0, poslabel - counter - 1):
+                        arrpln.append(["SKIP"])
+                    lstoappend = []
+                    print(poslabel,"POSLABL", counter,"COUNT")
+                    print("ELSE")
+                    for obj in arrpln[-(poslabel - counter)]:
+                        if obj == " " or obj == "IF":
+                            lstoappend.append(" ")
+                        if obj == "*" or obj == "/":
+                            lstoappend.append("/")
+                        
+                    lstoappend.append("IF")
+                    lstoappend.append("ID")
+                    lstoappend.append("EX")
+                    lstoappend.append("MEM")
+                    lstoappend.append("WB")
+                
+                
+                
+                
+                print(lstoappend,"ls") 
                 arrpln.append(lstoappend)
+                print(arrpln)
                 counter = poslabel + 1
 
             else:  # BRANCH NOT TAKEN
-
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
@@ -926,6 +953,7 @@ def executemips():
                 intnum = Piplnsrcdest.objects.filter(label=label).get().instrnum
                 branch= Piplnsrcdest.objects.filter(instrnum=counter).get()
                 branch.stat = 1
+                branch.save()
                 counter = intnum-1  
                 
             
