@@ -7,20 +7,32 @@
         
         <div class="table-container" style="height:500px; overflow: scroll;">
             <div class="col-lg-4 col-lg-offset-4">
-                <h2 align="center"><strong>Internal MIPS64 registers</strong></h2>
+                <h2 align="center"><strong>Internal MIPS64 registers NOTE: WILL EDIT THIS LATER</strong></h2>
                 <table class="table table-bordered" style="overflow:scroll;">
                     <thead>
                         <tr id="tablehead" style="background-color: white; color: #111111;">
-                            <th>Instruction</th>
-
+                            <th>Cycles:</th>
+                            {% for p in lists %}
+                            <th>{{p}}</th>
+                            {% endfor %}
                         </tr>
-                    </thead>
+                    </thead>    
                     <tbody>
-                        {% for p in plist %}
+                       
+                        {% for q in internal %}
                         <tr id="instr{{ p.id }}">
-                            <th>{{ p.instruction }}</th>
+                             
+                            
+                            <th>{{forloop.counter}}</th>
+                            
+                            {% for r in q %}
+                            <th> {{ r }}</th>
+                            {% endfor %}
                         </tr>
                         {% endfor %}
+                        
+                        
+                        
                     </tbody>
                 </table>
             </div>

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from .models import *
 
-import re
+import re,copy
 # Create your views here.
 def load(request):
     mem1list = []
@@ -667,8 +667,9 @@ def ID(instrnum, theif, wbreg):
     theid.append(a)
     theid.append(b)
     theid.append(imm)
-    theid.append(npc)
     theid.append(ir)
+    theid.append(npc)
+    
     
     return theid
 
@@ -676,7 +677,7 @@ def EX(instrc, theid):
     theex=[]
     
     b = theid[1]
-    ir = theid[4]
+    ir = theid[3]
     
     parts = instrc.split(" ")
     instr = parts[0]
@@ -711,60 +712,71 @@ def EX(instrc, theid):
         cond = "0"
         
     theex.append(aluo)
-    theex.append(b)
-    theex.append(ir)
     theex.append(cond)
+    theex.append(ir)
+    theex.append(b)
     
     return theex
 
 def MEM(instrc, theex):
     themem=[]
-        
+    lmd = "N/A"
+    loc = "N/A"
+    aluo = "N/A"
     parts = instrc.split(" ")
     instrc = parts[0]
     
     ir = theex[2]                               #mem/wb.ir
     
     if("LD" in instrc):                         #load instruction
+        pass
         #lmd = theex[0] # supposedly mem of aluoutput
         #lmd = Memory.objects.filter(address=theex[0]).get().memval
-        themem.append(lmd)
+        
     elif("SD" in instrc):                       #store instruction
-        # mem of aluoutput = theex[1]
+        pass
+        # mem of aluoutput = theex[0]
         #memval = Memory.objects.filter(address=theex).get()  # ano dapat si theex???
-        #memval.memval = theex[1]
+        #memval.memval = theex[3]
         #memval.save()
-        themem.append(memalu)
     else:
         aluo = theex[0]
-        themem.append(aluo)
-        
+    
+    themem.append(lmd)
+    themem.append(loc)
     themem.append(ir)
+    themem.append(aluo)
     
     return themem
 
 def WB(instrc, src2, themem, wbreg):
+    print("instrc", instrc)
     op = Opcodetable.objects.filter(instrc=instrc).get()
     
     thewb=[]
     if("LD" in instrc):                                                           #load
-        r = Registers.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
-        r.regval = themem[1]
+        r = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
+        r.regval = themem[0]
         r.save()
+        wb = r.regval
     elif("R" in src2 and "LD" not in instrc):                                     #reg-reg
         kwa = op.imm[:5]                                                          #mem/wb.ir 11..15
-        r = Registers.objects.filter(regnum=hex(int(kwa, 2))[2:]).get()
-        r.regval = themem[1]
+        r = Register.objects.filter(regnum=hex(int(kwa, 2))[2:]).get()
+        print(themem[3], "mem")
+        print(r.regval," REGVAL")
+        r.regval = themem[3]
         r.save()
+        wb = r.regval
     else:                                                                         #reg-imm
-        r = Registers.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
-        r.regval = themem[1]
+        r = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
+        r.regval = themem[3]
         r.save()
+        wb = r.regval
     
         
-    thewb.append(reg)
+    thewb.append(wb)
     
-    return thewb, wbreg
+    return thewb
 
 def pipeline(request):
     internal = []
@@ -794,44 +806,48 @@ def pipeline(request):
     anex = []
     amem = []
     awb = []
-    for a in cycles:
-        for i, obj in enumerate(a):
+    for a in cycles:                        # instr/cycles
+        for i, obj in enumerate(a):         # cycle/ instr
+            print("count",i, a)
             if obj == "IF":
                 pc += 4
                 anif = IF(i, pc)
                 icyc.append(anif)
-            if obj == "ID":
+                #icyc.extend(anif)
+            elif obj == "ID":
                 anid = ID(i, anif, wbreg)
                 icyc.append(anid)
-            if obj == "EX":
+                #icyc.extend(anid)
+            elif obj == "EX":
                 anex = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
+                #icyc.extend(anex)
                 icyc.append(anex)
-            if obj == "MEM":
-                print("I AM MEM")
-                icyc.append("mem")
-            if obj == "WB":
-                print("I AM WB")
-                parts = Piplnsrcdest.objects.filter(instrnum=i).get().instrc.split(" ")
-                cmd = parts[0]                                                                  # get instruction
-                # awb, wbreg = WB(cmd, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem, wbreg)
-                icyc.append("wb")
-            if obj == " ":
-                icyc.append(" ")
-            if obj == "/":
-                icyc.append("/")
-            if obj == "*":
-                icyc.append("*")
+            elif obj == "MEM":
+                amem = MEM(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anex)
+                #icyc.extend(amem)
+                icyc.append(amem)
+            elif obj == "WB":
+                awb = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem, wbreg)
+                icyc.append(awb)
+                #icyc.extend(awb)
                 
+        icyc.reverse()
+            
+            
+            
+            
         internal.append(icyc)
         icyc=[]
+        
     
     print(cycles, "CYCLE")
     print(internal, "INTERNAL")
     
-    
+    lists = ['IF/ID.IR = ','IF/ID.PC = ','IF/ID.NPC = ',"ID/EX.A = ","ID/EX.B = ","ID/EX.IMM = ","ID/EX.IR = ","ID/EX.NPC = ","EX/MEM.ALUoutput = ","EX/MEM.COND = ","EX/MEM.IR = ","EX/MEM.B = ","MEM/WB.LMD = ","Mem. Loc. Affected = ", "MEM/WB.IR = ","MEM/WB.ALUoutput = ","Rn = "]
     
     context={
-        'internal':internal
+        'internal':internal,
+        'lists':lists,
     }
     return render(request, 'mips/pipln.html', context)
 
