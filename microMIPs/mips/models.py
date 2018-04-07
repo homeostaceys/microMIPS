@@ -14,6 +14,7 @@ class Codes(models.Model):
         verbose_name_plural = "Codes"
 
 class Opcodetable(models.Model):
+    instrnum =models.IntegerField(default=0)
     instrc = models.CharField(max_length=40)
     opcode = models.CharField(max_length=6)
     rs = models.CharField(blank=True, max_length=5)

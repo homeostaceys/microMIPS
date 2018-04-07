@@ -218,8 +218,8 @@ def check(request):
 
 
     codes_obj = Codes.objects.all()
-    for e in codes_obj:
-        opcode(e)
+    for i,e in enumerate(codes_obj):
+        opcode(i,e)
         
     piplineparse()
     return redirect('/load/')
@@ -233,7 +233,7 @@ def errorCheck(instr):
     return False
 
   
-def opcode(codes_obj):
+def opcode(instrnum, codes_obj):
     instrc = codes_obj.instruction                          # get whole instruction
     parts = instrc.split(" ")                               # split
     cmd = parts[0]                                          # get instruction
@@ -269,7 +269,7 @@ def opcode(codes_obj):
         opc = opc.zfill(8)                            # zero extend
 
         
-        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=baseop,rt=rtop,imm=offsetop)
+        opco = Opcodetable.objects.create(instrnum = instrnum, instrc=instrc,opcode=opc.upper(),rs=baseop,rt=rtop,imm=offsetop)
         opco.save()
         
         codes_obj.rep = opc.upper()
@@ -312,7 +312,7 @@ def opcode(codes_obj):
 
         opc = opc.zfill(8)                              # zero extend
         
-        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=immop)
+        opco = Opcodetable.objects.create(instrnum = instrnum, instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=immop)
         opco.save()
         
         codes_obj.rep = opc.upper()
@@ -353,7 +353,7 @@ def opcode(codes_obj):
         opc = opc.zfill(8)                              # zero extend
 
         
-        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=(rdop+saop+funcop))
+        opco = Opcodetable.objects.create(instrnum = instrnum, instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=(rdop+saop+funcop))
         opco.save()
         
         codes_obj.rep = opc.upper()
@@ -397,7 +397,7 @@ def opcode(codes_obj):
         opc = opc.zfill(8)                               # zero extend
 
         
-        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=offset)
+        opco = Opcodetable.objects.create(instrnum = instrnum, instrc=instrc,opcode=opc.upper(),rs=rsop,rt=rtop,imm=offset)
         opco.save()
         
         codes_obj.rep = opc.upper()
@@ -427,7 +427,7 @@ def opcode(codes_obj):
         opc = opc.zfill(8)                           # zero extend
 
         
-        opco = Opcodetable.objects.create(instrc=instrc,opcode=opc.upper(),rs=lbl[:5],rt=lbl[5:10],imm=lbl[10:])
+        opco = Opcodetable.objects.create(instrnum = instrnum, instrc=instrc,opcode=opc.upper(),rs=lbl[:5],rt=lbl[5:10],imm=lbl[10:])
         opco.save()
         
         codes_obj.rep = opc.upper()
@@ -472,9 +472,7 @@ def pipelnmap():
                 branch = 1
                 
                 if poslabel == counter:
-                    print("HI")
                     for obj in arrpln[-2]:
-                        print(obj,"objj")
                         if obj == " " or obj == "IF":
                             lstoappend.append(" ")
                         if obj == "ID":
@@ -484,7 +482,6 @@ def pipelnmap():
                         if obj == "EX" or obj == "MEM":
                             lstoappend.append("*")
                         if obj == "WB":
-                            print("BANNAA")
                             lstoappend.append("ID")
                             lstoappend.append("EX")
                             lstoappend.append("MEM")
@@ -500,12 +497,9 @@ def pipelnmap():
                         if obj == "*" or obj == "/":
                             lstoappend.append("/")
                     arrpln.append(lstoappend)
-                    print(lstoappend, "dfsdf")
                     for i in range(0, poslabel - counter - 1):
                         arrpln.append(["SKIP"])
                     lstoappend = []
-                    print(poslabel,"POSLABL", counter,"COUNT")
-                    print("ELSE")
                     for obj in arrpln[-(poslabel - counter)]:
                         if obj == " " or obj == "IF":
                             lstoappend.append(" ")
@@ -518,12 +512,7 @@ def pipelnmap():
                     lstoappend.append("MEM")
                     lstoappend.append("WB")
                 
-                
-                
-                
-                print(lstoappend,"ls") 
                 arrpln.append(lstoappend)
-                print(arrpln)
                 counter = poslabel + 1
 
             else:  # BRANCH NOT TAKEN
@@ -608,7 +597,7 @@ def pipelinemap(request):
         if len(a) < maxsize :
             for i in range(0,maxsize-len(a)):
                 a.append(" ")
-
+    
     plist = Codes.objects.all()
     if request.method == 'GET':
         cycle = []
@@ -617,6 +606,7 @@ def pipelinemap(request):
         if data != None and int(data) <= maxsize:
             for a in arrpln:
                 cycle.append(a[int(data)-1])
+            print(cycle, "cycle")
 
             context = {
                 'cycle': cycle,
@@ -637,14 +627,14 @@ def pipelinemap(request):
     return render(request, 'mips/pipeline.html', context)
 
 # CODE FOR INTERNAL MIPS64 REGISTERS PIPELINE
-def IF(instrc, pc):
+def IF(instrnum, thepc):
     theif=[]
     
-    op = Opcodetable.objects.filter(instrc=instrc).get()
+    op = Opcodetable.objects.filter(instrnum=instrnum).get()
     
-    ir = op.opcode              #if/id.ir
-    pc = pc                     #if/id.pc
-    npc = pc                    #if/id.npc
+    ir = op.opcode                                #if/id.ir
+    pc = format(thepc, '02x').zfill(16).upper()   #if/id.pc
+    npc = pc                                      #if/id.npc
     
     theif.append(ir)
     theif.append(npc)
@@ -652,10 +642,10 @@ def IF(instrc, pc):
     
     return theif
 
-def ID(instrc, theif, wbreg):
+def ID(instrnum, theif, wbreg):
     theid=[]
     
-    op = Opcodetable.objects.filter(instrc=instrc).get()
+    op = Opcodetable.objects.filter(instrnum=instrnum).get()
     
     for x in wbreg:
         if(x == ("R" + hex(int(op.rs, 2))[2:])):
@@ -748,55 +738,102 @@ def MEM(instrc, theex):
     return themem
 
 def WB(instrc, src2, themem):
-    
-    parts = instrc.split(" ")
-    instrc = parts[0]
-    
     op = Opcodetable.objects.filter(instrc=instrc).get()
     
     thewb=[]
-    if("R" in src2 and "LD" not in instrc):                                       #reg-reg
-        pass
+    if("LD" in instrc):                                                           #load
+        r = Registers.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
+        r.regval = themem[1]
+        r.save()
+    elif("R" in src2 and "LD" not in instrc):                                     #reg-reg
         kwa = op.imm[:5]                                                          #mem/wb.ir 11..15
         r = Registers.objects.filter(regnum=hex(int(kwa, 2))[2:]).get()
         r.regval = themem[1]
         r.save()
-    elif("#" in src2 and "LD" not in instrc):                                     #reg-imm
+    else:                                                                         #reg-imm
         r = Registers.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
         r.regval = themem[1]
         r.save()
-    elif("LD" in instrc):                                                         #load
-        r = Registers.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
-        r.regval = themem[1]
-        r.save()
+    
         
     thewb.append(reg)
     
     return thewb
 
 def pipeline(request):
-    plist = Piplnsrcdest.objects.all()
-    #oplist = Opcodetable.objects.all()
-    pc = "0000000000000000"                 #pc/npc
-    cycles = []                             #cycles
-    wbreg = []                              #registers changed by wb
-    arrpln = pipelnmap()                    #pipeline map
-    
-    print(arrpln)
-    print(len(arrpln[-1]))
-    
+    internal = []
+    pc = 0                     # pc/npc
+    wbreg = []                                  # registers changed by wb
+    arrpln = pipelnmap()                        # pipeline map
     maxsize = len(arrpln[-1])                   # number of instructions
     
-   # for x in maxsize:
+    for a in arrpln:                            # fills in spaces for pipeline
+        #print(a, "A")
+        if len(a) < maxsize:
+            for i in range(0,maxsize-len(a)):
+                a.append(" ")
+    
+    cycles = []                                 # get per cycle
+    cycle = []   
+    for v in range(0, maxsize):
+        for a in arrpln:
+            cycle.append(a[v])
+        #print(cycle, "cycle")
+        cycles.append(cycle)
+        cycle = []
+    
+    icyc=[]
+    anif = []
+    anid = []
+    anex = []
+    amem = []
+    awb = []
+    for a in cycles:
+        for i, obj in enumerate(reversed(a)):
+            if obj == "IF":
+                pc += 4
+                anif = IF(i, pc)
+                icyc.append(anif)
+            if obj == "ID":
+                print("I AM ID")
+                # anid = ID(i, anif, wbreg)
+                icyc.append("id")
+            if obj == "EX":
+                print("I AM EX")
+                #anex = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
+                icyc.append("ex")
+            if obj == "MEM":
+                print("I AM MEM")
+                icyc.append("mem")
+            if obj == "WB":
+                print("I AM WB")
+                parts = Piplnsrcdest.objects.filter(instrnum=i).get().instrc.split(" ")
+                cmd = parts[0]                                                                  # get instruction
+                # awb = WB(cmd, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem)
+                icyc.append("wb")
+            if obj == " ":
+                icyc.append(" ")
+            if obj == "/":
+                icyc.append("/")
+            if obj == "*":
+                icyc.append("*")
+                
+        internal.append(icyc)
+        icyc=[]
+        anif = []
+        anid = []
+        anex = []
+        amem = []
+        awb = []
         
+    print(internal, "INTERNAL")
     
         
         
-    # write algo here
-    # call the functions if, id, ex, mem, wb when needed
-    # all cycles will be placed in cycles list
     
-    context={'cycles':cycles}
+    context={
+        'internal':internal
+    }
     return render(request, 'mips/pipln.html', context)
 
 
