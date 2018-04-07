@@ -648,18 +648,18 @@ def ID(instrnum, theif, wbreg):
     op = Opcodetable.objects.filter(instrnum=instrnum).get()
     
     if not wbreg:                                           # is list empty?
-        a = hex(int(op.rs, 2))[2:].zfill(16)                # id/ex.a
-        b = hex(int(op.rt, 2))[2:].zfill(16)                # id/ex.b
+        a = hex(int(op.rs, 2))[2:].upper().zfill(16)                # id/ex.a
+        b = hex(int(op.rt, 2))[2:].upper().zfill(16)                # id/ex.b
     else:
         for x in wbreg:
             if(x == ("R" + hex(int(op.rs, 2))[2:])):
-                a = hex(int(op.rs, 2))[2:].zfill(16)                # id/ex.a
-                b = hex(int(op.rt, 2))[2:].zfill(16)                # id/ex.b
+                a = hex(int(op.rs, 2))[2:].upper().zfill(16)                # id/ex.a
+                b = hex(int(op.rt, 2))[2:].upper().zfill(16)                # id/ex.b
             else:
-                a = Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval
-                b = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval
+                a = Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval.upper()
+                b = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval.upper()
 
-    imm = hex(int(op.imm, 2))[2:].zfill(16)             # id/ex.imm
+    imm = hex(int(op.imm, 2))[2:].upper().zfill(16)             # id/ex.imm
     
     npc = theif[1]                   # id/ex.npc
     ir = theif[0]                    # id/ex.ir
@@ -682,30 +682,33 @@ def EX(instrc, theid):
     instr = parts[0]
     
     if("J" in instr):                                      # Jump instruction
-        aluo = bin(theid[2] << 2)[2:] + "00"
-        cond = 1
+        aluo = format(int(theid[2],16) << 2,'02x').upper().zfill(16)
+        cond = "1"
     elif("LD" in instr or "SD" in instr):                 # Load/Store instruction
-        aluo = (theid[0] + theid[3]) + "00"
-        cond = 0
+        #print(theid[0], "A")
+        #print(theid[3], "IMM")
+        #print(format(int(theid[0],16) + int(theid[3],16),'02x').upper().zfill(16))
+        aluo = format(int(theid[0],16) + int(theid[3],16),'02x').upper().zfill(16)
+        cond = "0"
     elif("BGTZC" in instr):                                # Branch instruction
-        aluo = (theid[3] + bin(theid[2] << 2)) + "00"
+        aluo = format(int(theid[3],16) + (int(theid[2],16) << 2),'02x').upper().zfill(16)
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
-            aluo = theid[0] + theid[2] # (do operation)
+            aluo = format(int(theid[0],16) + int(theid[2],16),'02x').upper().zfill(16) # (do operation)
         elif("SLT" in instr):
             if(theid[0] < theid[2]):
                 aluo = "0000000000000001"
             else:
                 aluo = "0000000000000000"
         elif("DADDU" in instr):
-            aluo = theid[0] + theid[1]
+            aluo = format(int(theid[0],16) + int(theid[1],16),'02x').upper().zfill(16)
         elif("XORI" in instr):
-            aluo = theid[0] ^ theid[1]
+            aluo = format(int(theid[0],16) ^ int(theid[1],16),'02x').upper().zfill(16)
         else:
             print("WRONG CHECK YOUR CODE PLES")
             
-        cond = 0
+        cond = "0"
         
     theex.append(aluo)
     theex.append(b)
@@ -792,7 +795,7 @@ def pipeline(request):
     amem = []
     awb = []
     for a in cycles:
-        for i, obj in enumerate(reversed(a)):
+        for i, obj in enumerate(a):
             if obj == "IF":
                 pc += 4
                 anif = IF(i, pc)
@@ -821,10 +824,11 @@ def pipeline(request):
                 
         internal.append(icyc)
         icyc=[]
-        
+    
+    print(cycles, "CYCLE")
     print(internal, "INTERNAL")
     
-        
+    
     
     context={
         'internal':internal
