@@ -740,7 +740,7 @@ def MEM(instrc, theex):
     
     return themem
 
-def WB(instrc, src2, themem):
+def WB(instrc, src2, themem, wbreg):
     op = Opcodetable.objects.filter(instrc=instrc).get()
     
     thewb=[]
@@ -761,7 +761,7 @@ def WB(instrc, src2, themem):
         
     thewb.append(reg)
     
-    return thewb
+    return thewb, wbreg
 
 def pipeline(request):
     internal = []
@@ -810,7 +810,7 @@ def pipeline(request):
                 print("I AM WB")
                 parts = Piplnsrcdest.objects.filter(instrnum=i).get().instrc.split(" ")
                 cmd = parts[0]                                                                  # get instruction
-                # awb = WB(cmd, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem)
+                # awb, wbreg = WB(cmd, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem, wbreg)
                 icyc.append("wb")
             if obj == " ":
                 icyc.append(" ")
