@@ -647,20 +647,23 @@ def ID(instrnum, theif, wbreg):
     
     op = Opcodetable.objects.filter(instrnum=instrnum).get()
     
-    for x in wbreg:
-        if(x == ("R" + hex(int(op.rs, 2))[2:])):
-            a = hex(int(op.rs, 2))[2:].zfill(16)                # id/ex.a
-            b = hex(int(op.rt, 2))[2:].zfill(16)                # id/ex.b
-        else:
-            a = Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval
-            b = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval
-    
+    if not wbreg:                                           # is list empty?
+        a = hex(int(op.rs, 2))[2:].zfill(16)                # id/ex.a
+        b = hex(int(op.rt, 2))[2:].zfill(16)                # id/ex.b
+    else:
+        for x in wbreg:
+            if(x == ("R" + hex(int(op.rs, 2))[2:])):
+                a = hex(int(op.rs, 2))[2:].zfill(16)                # id/ex.a
+                b = hex(int(op.rt, 2))[2:].zfill(16)                # id/ex.b
+            else:
+                a = Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval
+                b = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval
+
     imm = hex(int(op.imm, 2))[2:].zfill(16)             # id/ex.imm
     
     npc = theif[1]                   # id/ex.npc
     ir = theif[0]                    # id/ex.ir
     
-    theid.append(op)
     theid.append(a)
     theid.append(b)
     theid.append(imm)
@@ -672,33 +675,33 @@ def ID(instrnum, theif, wbreg):
 def EX(instrc, theid):
     theex=[]
     
-    b = theid[2]
-    ir = theid[5]
+    b = theid[1]
+    ir = theid[4]
     
     parts = instrc.split(" ")
     instr = parts[0]
     
     if("J" in instr):                                      # Jump instruction
-        aluo = bin(theid[3] << 2)[2:] + "00"
+        aluo = bin(theid[2] << 2)[2:] + "00"
         cond = 1
     elif("LD" in instr or "SD" in instr):                 # Load/Store instruction
-        aluo = (theid[1] + theid[3]) + "00"
+        aluo = (theid[0] + theid[3]) + "00"
         cond = 0
     elif("BGTZC" in instr):                                # Branch instruction
-        aluo = (theid[4] + bin(theid[3] << 2)) + "00"
+        aluo = (theid[3] + bin(theid[2] << 2)) + "00"
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
-            aluo = theid[1] + theid[3] # (do operation)
+            aluo = theid[0] + theid[2] # (do operation)
         elif("SLT" in instr):
-            if(theid[1] < theid[3]):
+            if(theid[0] < theid[2]):
                 aluo = "0000000000000001"
             else:
                 aluo = "0000000000000000"
         elif("DADDU" in instr):
-            aluo = theid[1] + theid[2]
+            aluo = theid[0] + theid[1]
         elif("XORI" in instr):
-            aluo = theid[1] ^ theid[2]
+            aluo = theid[0] ^ theid[1]
         else:
             print("WRONG CHECK YOUR CODE PLES")
             
@@ -795,13 +798,11 @@ def pipeline(request):
                 anif = IF(i, pc)
                 icyc.append(anif)
             if obj == "ID":
-                print("I AM ID")
-                # anid = ID(i, anif, wbreg)
-                icyc.append("id")
+                anid = ID(i, anif, wbreg)
+                icyc.append(anid)
             if obj == "EX":
-                print("I AM EX")
-                #anex = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
-                icyc.append("ex")
+                anex = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
+                icyc.append(anex)
             if obj == "MEM":
                 print("I AM MEM")
                 icyc.append("mem")
@@ -820,15 +821,9 @@ def pipeline(request):
                 
         internal.append(icyc)
         icyc=[]
-        anif = []
-        anid = []
-        anex = []
-        amem = []
-        awb = []
         
     print(internal, "INTERNAL")
     
-        
         
     
     context={
