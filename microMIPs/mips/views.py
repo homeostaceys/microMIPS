@@ -808,7 +808,6 @@ def pipeline(request):
     awb = []
     for a in cycles:                        # instr/cycles
         for i, obj in enumerate(a):         # cycle/ instr
-            print("count",i, a)
             if obj == "IF":
                 pc += 4
                 anif = IF(i, pc)
@@ -835,13 +834,13 @@ def pipeline(request):
             
             
             
-            
+        print(icyc, "I AM ICYC")    
         internal.append(icyc)
         icyc=[]
         
     
-    print(cycles, "CYCLE")
-    print(internal, "INTERNAL")
+    #print(cycles, "CYCLE")
+    #print(internal, "INTERNAL")
     
     lists = ['IF/ID.IR = ','IF/ID.PC = ','IF/ID.NPC = ',"ID/EX.A = ","ID/EX.B = ","ID/EX.IMM = ","ID/EX.IR = ","ID/EX.NPC = ","EX/MEM.ALUoutput = ","EX/MEM.COND = ","EX/MEM.IR = ","EX/MEM.B = ","MEM/WB.LMD = ","Mem. Loc. Affected = ", "MEM/WB.IR = ","MEM/WB.ALUoutput = ","Rn = "]
     
