@@ -987,7 +987,8 @@ def executemips():
             rs = tempreglist[int(s1[1])]
             print("RS",rs)
             n = 2
-            [print(rs[i:i+n]) for i in range(0, len(rs), n)]
+            for i in range(0, len(rs), n):
+                print(rs[i:i+n])
            
         if "BGTZC" in pipinst:
             src1 = tempreglist[int((pipelist[counter].src1).split("R")[1])]
