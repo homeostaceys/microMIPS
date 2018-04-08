@@ -863,11 +863,10 @@ def executemips():
     
     tempreglist = []
     tempmemlist = []
-    instruclist = []
     
     for reg in reglist:
         tempreglist.append(reg.regval)
-        
+
     for mem in memlist:
         tempmemlist.append(mem.memval)
         
@@ -956,32 +955,31 @@ def executemips():
             src1 = pipelist[counter].src1
             dest = pipelist[counter].dest
             
-            s1 = src1.split("R")
-            s2 = ((pipelist[counter].instrc).split(" ")[2]).split("(")[0]
+            s1 = src1.split("R")[1]
+            s2 = ((pipelist[counter].instrc).split(" ")[-1]).split("(")[0]
             de = dest.split("R")
-            print(s1,s2,de)
+
+            startmem = format(int(s2,16)  + int(rs,16),'x').zfill(4).upper()
+            endmem = format(int(s2,16) + int('7',16) + int(rs,16),'x').zfill(4).upper()
+            print ("START",startmem)
+            print("END",endmem)
             maxctr = 8
-            
-            rs = tempreglist[int(s1[1])]
-            rt = int(s2) + maxctr
-            print ("RS", rs)
-            print ("RT", rt)
-            rt = str(rt)
-            print (rt)
             membox = []
-            mem = Memory.objects.filter(address=rt).get().memval
+            mem = Memory.objects.filter(address=startmem).get().memval
             print (mem)
             c = 0
+            memtoget = endmem
+            strregval = ""
             while maxctr != 0:
-                rt = int(rt) - 1
-                rt = str(rt)
-                mem = Memory.objects.filter(address=rt).get().memval
-                membox.append(mem)
+
+                print("MEMORY TO GET", memtoget)
+                mem = Memory.objects.filter(address=memtoget).get().memval
+                strregval += mem
+                memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
                 maxctr-=1
                 c+=1
-                
-            print (''.join(membox))
-            
+
+            tempreglist[int(s1)] = strregval
 
         if "SD" in pipinst:
             src1 = pipelist[counter].src1 #register
