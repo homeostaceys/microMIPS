@@ -749,9 +749,8 @@ def MEM(instrc, theex):
     
     return themem
 
-def WB(instrc, src2, themem, wbreg):
-    print("instrc", instrc)
-    op = Opcodetable.objects.filter(instrc=instrc).get()
+def WB(instrc, instrnum, src2, themem, wbreg):
+    op = Opcodetable.objects.filter(instrnum=instrnum).get()
     
     thewb=[]
     if("LD" in instrc):                                                           #load
@@ -762,8 +761,8 @@ def WB(instrc, src2, themem, wbreg):
     elif("R" in src2 and "LD" not in instrc):                                     #reg-reg
         kwa = op.imm[:5]                                                          #mem/wb.ir 11..15
         r = Register.objects.filter(regnum=hex(int(kwa, 2))[2:]).get()
-        print(themem[3], "mem")
-        print(r.regval," REGVAL")
+#        print(themem[3], "mem")
+#        print(r.regval," REGVAL")
         r.regval = themem[3]
         r.save()
         wb = r.regval
@@ -786,7 +785,6 @@ def pipeline(request):
     maxsize = len(arrpln[-1])                   # number of instructions
     
     for a in arrpln:                            # fills in spaces for pipeline
-        #print(a, "A")
         if len(a) < maxsize:
             for i in range(0,maxsize-len(a)):
                 a.append(" ")
@@ -796,7 +794,6 @@ def pipeline(request):
     for v in range(0, maxsize):
         for a in arrpln:
             cycle.append(a[v])
-        #print(cycle, "cycle")
         cycles.append(cycle)
         cycle = []
     
@@ -806,37 +803,36 @@ def pipeline(request):
     anex = []
     amem = []
     awb = []
-    for a in cycles:                        # instr/cycles
-        for i, obj in enumerate(a):         # cycle/ instr
-            if obj == "IF":
-                pc += 4
-                anif = IF(i, pc)
-                icyc.append(anif)
-                #icyc.extend(anif)
-            elif obj == "ID":
-                anid = ID(i, anif, wbreg)
-                icyc.append(anid)
-                #icyc.extend(anid)
-            elif obj == "EX":
-                anex = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
-                #icyc.extend(anex)
-                icyc.append(anex)
-            elif obj == "MEM":
-                amem = MEM(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anex)
-                #icyc.extend(amem)
-                icyc.append(amem)
-            elif obj == "WB":
-                awb = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem, wbreg)
-                icyc.append(awb)
-                #icyc.extend(awb)
-                
-        icyc.reverse()
-            
-            
-            
-        print(icyc, "I AM ICYC")    
+                                                            # initialize table
+    for a in cycles:
+        icyc.append([" ", " ", " "]) # if
+        icyc.append([" ", " ", " ", " ", " "]) # id
+        icyc.append([" ", " ", " ", " "]) # ex
+        icyc.append([" ", " ", " ", " "]) # mem
+        icyc.append([" "]) #wb
         internal.append(icyc)
         icyc=[]
+                                                            # add values to table
+    ccnt = 0
+    for a in cycles:
+        for i, obj in enumerate(a):
+            if obj == "WB":
+                awb = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, i, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem, wbreg)
+                internal[ccnt][4] = awb
+            elif obj == "MEM":
+                amem = MEM(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anex)
+                internal[ccnt][3] = amem
+            elif obj == "EX":
+                anex = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
+                internal[ccnt][2] = anex
+            elif obj == "ID":
+                anid = ID(i, anif, wbreg)
+                internal[ccnt][1] = anid
+            elif obj == "IF":
+                pc += 4
+                anif = IF(i, pc)
+                internal[ccnt][0] = anif
+        ccnt+=1
         
     
     #print(cycles, "CYCLE")
