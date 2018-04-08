@@ -895,7 +895,7 @@ def executemips():
             des = format( int(rs,16) + int(rt,16),'x').upper()
             des = sign_extend(des)
             tempreglist[de] = des
-            print(tempreglist[de])
+
             
         if "DADDIU" in pipinst:
             src1 = pipelist[counter].src1
@@ -905,13 +905,12 @@ def executemips():
             rs = tempreglist[int(src1.split("R")[1])]
             
             rt = (pipelist[counter].instrc).split("#")[1]
-            print("RS ",rs)
-            print("Rt ",rt)
+
             des = format( int(rs,16) + int(rt,16),'x').upper()
             des = sign_extend(des)
             
             tempreglist[de] = des
-            print(tempreglist[de])
+
            
         if "XORI" in pipinst:
             src1 = pipelist[counter].src1
@@ -960,8 +959,7 @@ def executemips():
 
             startmem = format(int(s2,16)  + int(rs,16),'x').zfill(4).upper()
             endmem = format(int(s2,16) + int('7',16) + int(rs,16),'x').zfill(4).upper()
-            print ("START",startmem)
-            print("END",endmem)
+
             maxctr = 8
             membox = []
             mem = Memory.objects.filter(address=startmem).get().memval
@@ -970,8 +968,6 @@ def executemips():
             memtoget = endmem
             strregval = ""
             while maxctr != 0:
-
-                print("MEMORY TO GET", memtoget)
                 mem = Memory.objects.filter(address=memtoget).get().memval
                 strregval += mem
                 memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
@@ -990,8 +986,8 @@ def executemips():
             
             rs = tempreglist[int(s1[1])]
             print("RS",rs)
-            n = 8
-            [rs[i:i+n] for i in range(0, len(rs), n)]
+            n = 2
+            [print(rs[i:i+n]) for i in range(0, len(rs), n)]
            
         if "BGTZC" in pipinst:
             src1 = tempreglist[int((pipelist[counter].src1).split("R")[1])]
