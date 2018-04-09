@@ -698,9 +698,7 @@ def EX(instr, theid):
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
-            tmp = str(int(theid[0],16) + int(theid[2],16))
-            while len(tmp) < 16:
-                tmp = "0" + tmp
+            tmp = hex(int(theid[0],16) + int(theid[2],16))[2:].zfill(16).upper()
             aluo = tmp
         elif("SLT" in instr):
             if(theid[0] < theid[2]):
@@ -708,9 +706,7 @@ def EX(instr, theid):
             else:
                 aluo = "0000000000000000"
         elif("DADDU" in instr):
-            tmp = str(int(theid[0],16) + int(b,16))
-            while len(tmp) < 16:
-                tmp = "0" + tmp
+            tmp = hex(int(theid[0],16) + int(b,16))[2:].zfill(16).upper()
             aluo = tmp
         elif("XORI" in instr):
             tmp = bin(int(theid[0], 16) ^ int(b, 16))[2:]
@@ -733,7 +729,6 @@ def EX(instr, theid):
 def MEM(instrc, theex):
     themem=[]
     lmd = "N/A"
-    loc = "N/A"
     aluo = "N/A"
     
     ir = theex[2]                               #mem/wb.ir
@@ -753,7 +748,6 @@ def MEM(instrc, theex):
         aluo = theex[0]
     
     themem.append(lmd)
-    themem.append(loc)
     themem.append(ir)
     themem.append(aluo)
     
@@ -773,14 +767,14 @@ def WB(instrc, instrnum, src2, themem):
     elif("R" in src2 and "LD" not in instrc):                                     #reg-reg
         kwa = op.imm[:5]
         r = Register.objects.filter(regnum=int(kwa, 2)).get()
-        r.regval = themem[3]
+        r.regval = themem[2]
         r.save()
         reg = "R" + str(int(    kwa, 2))
         wb = reg + " = " + r.regval
         #wb = reg + " = " + themem[3]
     else:                                                                         #reg-imm
         r = Register.objects.filter(regnum=int(op.rt, 2)).get()         #mem/wb.ir 16..20
-        r.regval = themem[3]
+        r.regval = themem[2]
         r.save()
         reg = "R" + str(int(op.rt, 2))
         wb = reg + " = " + r.regval
@@ -822,7 +816,7 @@ def pipeline(request):
         icyc.append([" ", " ", " "])            # if
         icyc.append([" ", " ", " ", " ", " "])  # id
         icyc.append([" ", " ", " ", " "])       # ex
-        icyc.append([" ", " ", " ", " "])       # mem
+        icyc.append([" ", " ", " "])       # mem
         icyc.append([" "])                      # wb
         internal.append(icyc)
         icyc=[]
@@ -853,7 +847,7 @@ def pipeline(request):
     print(cycles, "CYCLE")
     #print(internal, "INTERNAL")
     
-    lists = ['IF/ID.IR = ','IF/ID.PC = ','IF/ID.NPC = ',"ID/EX.A = ","ID/EX.B = ","ID/EX.IMM = ","ID/EX.IR = ","ID/EX.NPC = ","EX/MEM.ALUoutput = ","EX/MEM.COND = ","EX/MEM.IR = ","EX/MEM.B = ","MEM/WB.LMD = ","Mem. Loc. Affected = ", "MEM/WB.IR = ","MEM/WB.ALUoutput = ","Rn = "]
+    lists = ['IF/ID.IR = ','IF/ID.PC = ','IF/ID.NPC = ',"ID/EX.A = ","ID/EX.B = ","ID/EX.IMM = ","ID/EX.IR = ","ID/EX.NPC = ","EX/MEM.ALUoutput = ","EX/MEM.COND = ","EX/MEM.IR = ","EX/MEM.B = ","MEM/WB.LMD = ", "MEM/WB.IR = ","MEM/WB.ALUoutput = ","Rn = "]
     
     context={
         'internal':internal,
