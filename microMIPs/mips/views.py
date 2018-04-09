@@ -674,23 +674,27 @@ def ID(instrnum, theif, wbreg):
     
     return theid
 
-def EX(instrc, theid):
+def EX(instr, theid):
     theex=[]
     
     b = theid[1]
     ir = theid[3]
     
-    parts = instrc.split(" ")
-    instr = parts[0]
-    
     if("J" in instr):                                      # Jump instruction
-        aluo = format(int(theid[2],16) << 2,'02x').upper().zfill(16)
+        print(theid[2], "theid")
+        aluo = str(int(theid[2],16) << 2)
+        while len(aluo) < 16:
+                aluo = "0" + aluo
         cond = "1"
     elif("LD" in instr or "SD" in instr):                 # Load/Store instruction
-        aluo = format(int(theid[0],16) + int(theid[3],16),'02x').upper().zfill(16)
+        aluo = str(int(theid[0],16) + int(ir,16))
+        while len(aluo) < 16:
+                aluo = "0" + aluo
         cond = "0"
     elif("BGTZC" in instr):                                # Branch instruction
-        aluo = format(int(theid[3],16) + (int(theid[2],16) << 2),'02x').upper().zfill(16)
+        aluo = str(int(ir,16) + (int(theid[2],16) << 2))
+        while len(aluo) < 16:
+                aluo = "0" + aluo
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
@@ -698,24 +702,19 @@ def EX(instrc, theid):
             while len(tmp) < 16:
                 tmp = "0" + tmp
             aluo = tmp
-            #aluo = format(int(theid[0],16) + int(theid[2],16),'02x').upper().zfill(16) # (do operation)
         elif("SLT" in instr):
             if(theid[0] < theid[2]):
                 aluo = "0000000000000001"
             else:
                 aluo = "0000000000000000"
         elif("DADDU" in instr):
-            print("check", int(theid[0],16), theid[0])
-            
-            tmp = str(int(theid[0],16) + int(theid[1],16))
+            tmp = str(int(theid[0],16) + int(b,16))
             while len(tmp) < 16:
                 tmp = "0" + tmp
             aluo = tmp
-            #aluo = format(int(theid[0],16) + int(theid[1],16),'02x').upper().zfill(16)
         elif("XORI" in instr):
-            #tmp = str(int(theid[0],16) ^ int(theid[1],16))
-            tmp = bin(int(theid[0], 16) ^ int(theid[1], 16))[2:]
-            temp = int(tmp,2)                               # binary to hex
+            tmp = bin(int(theid[0], 16) ^ int(b, 16))[2:]
+            temp = int(tmp,2)
             aluo = hex(temp)[2:]
             while len(aluo) < 16:
                 aluo = "0" + aluo
