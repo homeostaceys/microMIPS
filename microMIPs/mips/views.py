@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from .models import *
+from operator import xor
 
 import re,copy
 # Create your views here.
@@ -895,7 +896,6 @@ def executemips():
             
         if "DADDIU" in pipinst:
             src1 = pipelist[counter].src1
-            src2 = pipelist[counter].src2
             dest = pipelist[counter].dest
             de = int(dest.split("R")[1])
             rs = tempreglist[int(src1.split("R")[1])]
@@ -906,26 +906,22 @@ def executemips():
             des = sign_extend(des)
             
             tempreglist[de] = des
-
+            print("REG",de," is",tempreglist[de])
            
         if "XORI" in pipinst:
             src1 = pipelist[counter].src1
-            src2 = pipelist[counter].src2
             dest = pipelist[counter].dest
             
-            s1 = src1.split("R")
-            s2 = (pipelist[counter].instrc).split("#")
-            s2 = s2[1]
-            de = dest.split("R")
-            print(s1,s2,de)
-            
-            rs = tempreglist[int(s1[1])]
-            rs = int(rs,16)
+            s1 = src1.split("R")[1]
+            s2 = (pipelist[counter].instrc).split("#")[1]
+            de = dest.split("R")[1]
+
+            rs = tempreglist[int(s1)]
+            rs = int(sign_extend(rs),16)
             rt = int(s2,16)
-            des = bool(rs) ^ bool(rt)
-            
-            tempreglist[counter] = format(des, 'x').zfill(16).upper()
-            
+
+            tempreglist[int(de)] = format(rs^rt,'x').zfill(16).upper()
+            print("REG", de, " is", tempreglist[de])
         
         if "SLT" in pipinst:
             src1 = pipelist[counter].src1
@@ -933,18 +929,19 @@ def executemips():
             dest = pipelist[counter].dest
             s1 = src1.split("R")
             s2 = src2.split("R")
-            de = dest.split("R")
+            de = dest.split("R")[1]
             print(s1,s2,de)
             
             rs = tempreglist[int(s1[1])]
             rt = tempreglist[int(s2[1])]
 
-            if rs < rt:
-                des = 1
+            if s16(int(rs,16)) < s16(int(rt,16)):
+                tempreglist[int(de)] = "1".zfill(16)
             else:
-                des = 0
+                tempreglist[int(de)] = "0".zfill(16)
             
-            tempreglist[counter] = format(des,'x').zfill(16).upper()
+
+            print("REG", de, " is", tempreglist[int(de)])
         if "LD" in pipinst:
             src1 = pipelist[counter].src1
             dest = pipelist[counter].dest
@@ -953,11 +950,11 @@ def executemips():
             s2 = ((pipelist[counter].instrc).split(" ")[-1]).split("(")[0]
             de = dest.split("R")[1]
 
-            startmem = format(int(s2,16)  + int(tempreglist[int(s1)],16),'x').zfill(4).upper()
+            #startmem = format(int(s2,16)  + int(tempreglist[int(s1)],16),'x').zfill(4).upper()
             endmem = format(int(s2,16) + int('7',16) + int(tempreglist[int(s1)],16),'x').zfill(4).upper()
-
+            # print("START",startmem)
+            print("LD END mem",endmem)
             maxctr = 8
-            mem = Memory.objects.filter(address=startmem).get().memval
             memtoget = endmem
             strregval = ""
             while maxctr != 0:
@@ -968,7 +965,7 @@ def executemips():
 
 
             tempreglist[int(de)] = strregval
-
+            print("REG", de, " is", tempreglist[int(de)])
 
         if "SD" in pipinst:
             src1 = pipelist[counter].src1 #register
@@ -979,9 +976,9 @@ def executemips():
             smem = ((pipelist[counter].instrc).split(" ")[-1]).split("(")[0]
             regval = tempreglist[int(s1)]
 
-            startmem = format(int(tempreglist[int(s2)], 16) + int(smem, 16), 'x').zfill(4).upper()
+            #startmem = format(int(tempreglist[int(s2)], 16) + int(smem, 16), 'x').zfill(4).upper()
             endmem = format(int(tempreglist[int(s2)], 16) + int('7', 16) + int(smem, 16), 'x').zfill(4).upper()
-            print("START",startmem)
+            #print("START",startmem)
             print("END",endmem)
             print(regval,"REGVAL")
             n = 2
@@ -996,8 +993,6 @@ def executemips():
            
         if "BGTZC" in pipinst:
             src1 = tempreglist[int((pipelist[counter].src1).split("R")[1])]
-            print("BGTZC laman",src1)
-            print("BGTZC laman in int", int(src1,16))
             if int(src1,16) > 0:
                 label = (pipelist[counter].instrc).split(" ")[-1]
                 print("labellll ",label)
@@ -1024,12 +1019,11 @@ def executemips():
 def sign_extend(value):
      
     if len(str(value)) < 16:
-        print("CHECK"+"{0:16b}".format(int(value,16)))
+
         if "{0:16b}".format(int(value,16))[:1] == "1":
             ext = ""
             for i in range(0, 64-(len(str(value))*4)):
                 ext += "1"
-            print(len(ext))
             return format(int(ext + "{0:16b}".format(int(value,16)),2),'x').upper() 
         else:
             return str(value).zfill(16).upper()
@@ -1037,4 +1031,5 @@ def sign_extend(value):
         return value[1:]
     else:
         return value
-        
+def s16(value):
+    return -(value & 0x8000) | (value & 0x7fff)
