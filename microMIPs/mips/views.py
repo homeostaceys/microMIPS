@@ -765,26 +765,26 @@ def WB(instrc, instrnum, src2, themem):
     thewb=[]
     if("LD" in instrc):                                                           #load
         r = Register.objects.filter(regnum=int(op.rt, 2)).get()         #mem/wb.ir 16..20
-        #r.regval = themem[0]
-        #r.save()
+        r.regval = themem[0]
+        r.save()
         reg = "R" + str(int(op.rt,2))
-        #wb = reg + " = " + r.regval
-        wb = reg + " = " + themem[0]
+        wb = reg + " = " + r.regval
+        #wb = reg + " = " + themem[0]
     elif("R" in src2 and "LD" not in instrc):                                     #reg-reg
         kwa = op.imm[:5]
         r = Register.objects.filter(regnum=int(kwa, 2)).get()
-        #r.regval = themem[3]
-        #r.save()
+        r.regval = themem[3]
+        r.save()
         reg = "R" + str(int(    kwa, 2))
-        #wb = reg + " = " + r.regval
-        wb = reg + " = " + themem[3]
+        wb = reg + " = " + r.regval
+        #wb = reg + " = " + themem[3]
     else:                                                                         #reg-imm
         r = Register.objects.filter(regnum=int(op.rt, 2)).get()         #mem/wb.ir 16..20
-        #r.regval = themem[3]
-        #r.save()
+        r.regval = themem[3]
+        r.save()
         reg = "R" + str(int(op.rt, 2))
-        #wb = reg + " = " + r.regval
-        wb = reg + " = " + themem[3]
+        wb = reg + " = " + r.regval
+        #wb = reg + " = " + themem[3]
     
         
     thewb.append(wb)
@@ -793,7 +793,7 @@ def WB(instrc, instrnum, src2, themem):
 
 def pipeline(request):
     internal = []
-    pc = 0                     # pc/npc
+    pc = 0                                      # pc/npc
     wbreg = []                                  # registers changed by wb
     arrpln = pipelnmap()                        # pipeline map
     maxsize = len(arrpln[-1])                   # number of instructions
@@ -817,16 +817,16 @@ def pipeline(request):
     anex = []
     amem = []
     awb = []
-                                                            # initialize table
+                                                # initialize table
     for a in cycles:
-        icyc.append([" ", " ", " "]) # if
-        icyc.append([" ", " ", " ", " ", " "]) # id
-        icyc.append([" ", " ", " ", " "]) # ex
-        icyc.append([" ", " ", " ", " "]) # mem
-        icyc.append([" "]) #wb
+        icyc.append([" ", " ", " "])            # if
+        icyc.append([" ", " ", " ", " ", " "])  # id
+        icyc.append([" ", " ", " ", " "])       # ex
+        icyc.append([" ", " ", " ", " "])       # mem
+        icyc.append([" "])                      # wb
         internal.append(icyc)
         icyc=[]
-                                                            # add values to table
+                                                # add values to table
     ccnt = 0
     for a in cycles:
         for i, obj in enumerate(a):
