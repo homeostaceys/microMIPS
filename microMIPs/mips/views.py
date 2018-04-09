@@ -682,19 +682,13 @@ def EX(instr, theid):
     
     if("J" in instr):                                      # Jump instruction
         print(theid[2], "theid")
-        aluo = str(int(theid[2],16) << 2)
-        while len(aluo) < 16:
-                aluo = "0" + aluo
+        aluo = hex(int(theid[2],16) << 2)[2:].zfill(16).upper()
         cond = "1"
     elif("LD" in instr or "SD" in instr):                 # Load/Store instruction
-        aluo = str(int(theid[0],16) + int(ir,16))
-        while len(aluo) < 16:
-                aluo = "0" + aluo
+        aluo = hex(int(theid[0],16) + int(ir,16))[2:].zfill(16).upper()
         cond = "0"
     elif("BGTZC" in instr):                                # Branch instruction
-        aluo = str(int(ir,16) + (int(theid[2],16) << 2))
-        while len(aluo) < 16:
-                aluo = "0" + aluo
+        aluo = hex(int(ir,16) + (int(theid[2],16) << 2))[2:].zfill(16).upper()
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
