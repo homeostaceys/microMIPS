@@ -705,9 +705,7 @@ def EX(instr, theid):
         elif("XORI" in instr):
             tmp = bin(int(theid[0], 16) ^ int(b, 16))[2:]
             temp = int(tmp,2)
-            aluo = hex(temp)[2:]
-            while len(aluo) < 16:
-                aluo = "0" + aluo
+            aluo = hex(temp)[2:].upper().zfill(16)
         else:
             aluo = "ERROR!! WHAT HAPPENED?? :<"
             
@@ -728,16 +726,23 @@ def MEM(instrc, theex):
     ir = theex[2]                               #mem/wb.ir
     
     if("LD" in instrc):                         #load instruction
-        pass
-        #lmd = theex[0] # supposedly mem of aluoutput
-        #lmd = Memory.objects.filter(address=theex[0]).get().memval
+        end = theex[0][-4:]
+        start = '0x{:02x}'.format(int(end,16) + 7)[2:].upper()
+        lmd = Memory.objects.filter(address=start).get().memval
         
+        n = 6
+        while n >= 0:
+            start = '0x{:02x}'.format(int(end,16) + n)[2:].upper()
+            lmd = lmd + Memory.objects.filter(address=start).get().memval
+            n-=1
+       
     elif("SD" in instrc):                       #store instruction
         pass
         # mem of aluoutput = theex[0]
         #memval = Memory.objects.filter(address=theex).get()  # ano dapat si theex???
         #memval.memval = theex[3]
         #memval.save()
+       
     else:
         aluo = theex[0]
     
@@ -757,7 +762,6 @@ def WB(instrc, instrnum, src2, themem):
         r.save()
         reg = "R" + str(int(op.rt,2))
         wb = reg + " = " + r.regval
-        #wb = reg + " = " + themem[0]
     elif("R" in src2 and "LD" not in instrc):                                     #reg-reg
         kwa = op.imm[:5]
         r = Register.objects.filter(regnum=int(kwa, 2)).get()
@@ -765,15 +769,12 @@ def WB(instrc, instrnum, src2, themem):
         r.save()
         reg = "R" + str(int(    kwa, 2))
         wb = reg + " = " + r.regval
-        #wb = reg + " = " + themem[3]
     else:                                                                         #reg-imm
         r = Register.objects.filter(regnum=int(op.rt, 2)).get()         #mem/wb.ir 16..20
         r.regval = themem[2]
         r.save()
         reg = "R" + str(int(op.rt, 2))
         wb = reg + " = " + r.regval
-        #wb = reg + " = " + themem[3]
-    
         
     thewb.append(wb)
     
@@ -838,7 +839,7 @@ def pipeline(request):
         ccnt+=1
         
     #print(wbreg, "WBREG")
-    print(cycles, "CYCLE")
+    #print(cycles, "CYCLE")
     #print(internal, "INTERNAL")
     
     lists = ['IF/ID.IR = ','IF/ID.PC = ','IF/ID.NPC = ',"ID/EX.A = ","ID/EX.B = ","ID/EX.IMM = ","ID/EX.IR = ","ID/EX.NPC = ","EX/MEM.ALUoutput = ","EX/MEM.COND = ","EX/MEM.IR = ","EX/MEM.B = ","MEM/WB.LMD = ", "MEM/WB.IR = ","MEM/WB.ALUoutput = ","Rn = "]
@@ -923,7 +924,7 @@ def executemips():
             rt = int(s2,16)
 
             tempreglist[int(de)] = format(rs^rt,'x').zfill(16).upper()
-            print("REG", de, " is", tempreglist[de])
+            #print("REG", de, " is", tempreglist[de])
         
         if "SLT" in pipinst:
             src1 = pipelist[counter].src1
