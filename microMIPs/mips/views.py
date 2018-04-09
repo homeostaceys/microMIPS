@@ -938,7 +938,7 @@ def executemips():
             
             rs = tempreglist[int(s1[1])]
             rt = tempreglist[int(s2[1])]
-            
+
             if rs < rt:
                 des = 1
             else:
@@ -960,7 +960,6 @@ def executemips():
             membox = []
             mem = Memory.objects.filter(address=startmem).get().memval
             print (mem)
-            c = 0
             memtoget = endmem
             strregval = ""
             while maxctr != 0:
@@ -968,7 +967,7 @@ def executemips():
                 strregval += mem
                 memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
                 maxctr-=1
-                c+=1
+
 
             tempreglist[int(s1)] = strregval
 
@@ -976,15 +975,25 @@ def executemips():
             src1 = pipelist[counter].src1 #register
             src2 = pipelist[counter].src2 #memory
             
-            s1 = src1.split("R")
-            s2 = ((pipelist[counter].instrc).split(" ")[2]).split("(")[0]
-            
-            
-            rs = tempreglist[int(s1[1])]
-            print("RS",rs)
+            s1 = src1.split("R")[1]
+            s2 = src2.split("R")[1]
+            smem = ((pipelist[counter].instrc).split(" ")[-1]).split("(")[0]
+            regval = tempreglist[int(s1)]
+
+            startmem = format(int(tempreglist[int(s2)], 16) + int(smem, 16), 'x').zfill(4).upper()
+            endmem = format(int(tempreglist[int(s2)], 16) + int('7', 16) + int(smem, 16), 'x').zfill(4).upper()
+            print("START",startmem)
+            print("END",endmem)
+            print(regval,"REGVAL")
             n = 2
-            for i in range(0, len(rs), n):
-                print(rs[i:i+n])
+            memtoget = endmem
+
+            for i in range(0, len(regval), n):
+                print(regval[i:i+n])
+                mem = Memory.objects.filter(address=memtoget).get().memval
+                print(int(memtoget, 16), "tempmem")
+                tempmemlist[int(memtoget, 16)] = mem
+                memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
            
         if "BGTZC" in pipinst:
             src1 = tempreglist[int((pipelist[counter].src1).split("R")[1])]
