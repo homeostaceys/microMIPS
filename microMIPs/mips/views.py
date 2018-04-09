@@ -957,9 +957,7 @@ def executemips():
             endmem = format(int(s2,16) + int('7',16) + int(tempreglist[int(s1)],16),'x').zfill(4).upper()
 
             maxctr = 8
-            print(startmem,"LD START    ")
             mem = Memory.objects.filter(address=startmem).get().memval
-            print (mem)
             memtoget = endmem
             strregval = ""
             while maxctr != 0:
@@ -970,7 +968,7 @@ def executemips():
 
 
             tempreglist[int(de)] = strregval
-            
+
 
         if "SD" in pipinst:
             src1 = pipelist[counter].src1 #register
@@ -998,8 +996,9 @@ def executemips():
            
         if "BGTZC" in pipinst:
             src1 = tempreglist[int((pipelist[counter].src1).split("R")[1])]
-        
-            if int(src1,16) == 0:
+            print("BGTZC laman",src1)
+            print("BGTZC laman in int", int(src1,16))
+            if int(src1,16) > 0:
                 label = (pipelist[counter].instrc).split(" ")[-1]
                 print("labellll ",label)
                 intnum = Piplnsrcdest.objects.filter(label=label).get().instrnum
