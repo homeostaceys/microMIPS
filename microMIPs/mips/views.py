@@ -951,13 +951,13 @@ def executemips():
             
             s1 = src1.split("R")[1]
             s2 = ((pipelist[counter].instrc).split(" ")[-1]).split("(")[0]
-            de = dest.split("R")
+            de = dest.split("R")[1]
 
-            startmem = format(int(s2,16)  + int(rs,16),'x').zfill(4).upper()
-            endmem = format(int(s2,16) + int('7',16) + int(rs,16),'x').zfill(4).upper()
+            startmem = format(int(s2,16)  + int(tempreglist[int(s1)],16),'x').zfill(4).upper()
+            endmem = format(int(s2,16) + int('7',16) + int(tempreglist[int(s1)],16),'x').zfill(4).upper()
 
             maxctr = 8
-            membox = []
+            print(startmem,"LD START    ")
             mem = Memory.objects.filter(address=startmem).get().memval
             print (mem)
             memtoget = endmem
@@ -969,7 +969,8 @@ def executemips():
                 maxctr-=1
 
 
-            tempreglist[int(s1)] = strregval
+            tempreglist[int(de)] = strregval
+            
 
         if "SD" in pipinst:
             src1 = pipelist[counter].src1 #register
