@@ -626,7 +626,6 @@ def pipelinemap(request):
         'maxsize': maxsize,
     }
     return render(request, 'mips/pipeline.html', context)
-
 # CODE FOR INTERNAL MIPS64 REGISTERS PIPELINE
 def IF(instrnum, thepc):
     theif=[]
@@ -645,14 +644,15 @@ def IF(instrnum, thepc):
 
 def ID(instrnum, theif, wbreg):
     theid=[]
-    
     op = Opcodetable.objects.filter(instrnum=instrnum).get()
     
-    if not wbreg:                                           # is list empty?
+    if not wbreg:                                           # is list empty
+        print("NOT WBREG")
         a = hex(int(op.rs, 2))[2:].upper().zfill(16)                # id/ex.a
         b = hex(int(op.rt, 2))[2:].upper().zfill(16)                # id/ex.b
     else:
         for x in wbreg:
+            print(("R" + hex(int(op.rs, 2))[2:]), "EQUAL?", x)
             if(x == ("R" + hex(int(op.rs, 2))[2:])):
                 a = hex(int(op.rs, 2))[2:].upper().zfill(16)                # id/ex.a
                 b = hex(int(op.rt, 2))[2:].upper().zfill(16)                # id/ex.b
@@ -687,9 +687,6 @@ def EX(instrc, theid):
         aluo = format(int(theid[2],16) << 2,'02x').upper().zfill(16)
         cond = "1"
     elif("LD" in instr or "SD" in instr):                 # Load/Store instruction
-        #print(theid[0], "A")
-        #print(theid[3], "IMM")
-        #print(format(int(theid[0],16) + int(theid[3],16),'02x').upper().zfill(16))
         aluo = format(int(theid[0],16) + int(theid[3],16),'02x').upper().zfill(16)
         cond = "0"
     elif("BGTZC" in instr):                                # Branch instruction
@@ -697,18 +694,33 @@ def EX(instrc, theid):
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
-            aluo = format(int(theid[0],16) + int(theid[2],16),'02x').upper().zfill(16) # (do operation)
+            tmp = str(int(theid[0],16) + int(theid[2],16))
+            while len(tmp) < 16:
+                tmp = "0" + tmp
+            aluo = tmp
+            #aluo = format(int(theid[0],16) + int(theid[2],16),'02x').upper().zfill(16) # (do operation)
         elif("SLT" in instr):
             if(theid[0] < theid[2]):
                 aluo = "0000000000000001"
             else:
                 aluo = "0000000000000000"
         elif("DADDU" in instr):
-            aluo = format(int(theid[0],16) + int(theid[1],16),'02x').upper().zfill(16)
+            print("check", int(theid[0],16), theid[0])
+            
+            tmp = str(int(theid[0],16) + int(theid[1],16))
+            while len(tmp) < 16:
+                tmp = "0" + tmp
+            aluo = tmp
+            #aluo = format(int(theid[0],16) + int(theid[1],16),'02x').upper().zfill(16)
         elif("XORI" in instr):
-            aluo = format(int(theid[0],16) ^ int(theid[1],16),'02x').upper().zfill(16)
+            #tmp = str(int(theid[0],16) ^ int(theid[1],16))
+            tmp = bin(int(theid[0], 16) ^ int(theid[1], 16))[2:]
+            temp = int(tmp,2)                               # binary to hex
+            aluo = hex(temp)[2:]
+            while len(aluo) < 16:
+                aluo = "0" + aluo
         else:
-            print("WRONG CHECK YOUR CODE PLES")
+            aluo = "ERROR!! WHAT HAPPENED?? :<"
             
         cond = "0"
         
@@ -724,8 +736,6 @@ def MEM(instrc, theex):
     lmd = "N/A"
     loc = "N/A"
     aluo = "N/A"
-    parts = instrc.split(" ")
-    instrc = parts[0]
     
     ir = theex[2]                               #mem/wb.ir
     
@@ -750,33 +760,37 @@ def MEM(instrc, theex):
     
     return themem
 
-def WB(instrc, instrnum, src2, themem, wbreg):
+def WB(instrc, instrnum, src2, themem):
     op = Opcodetable.objects.filter(instrnum=instrnum).get()
     
     thewb=[]
     if("LD" in instrc):                                                           #load
-        r = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
-        r.regval = themem[0]
-        r.save()
-        wb = r.regval
+        r = Register.objects.filter(regnum=int(op.rt, 2)).get()         #mem/wb.ir 16..20
+        #r.regval = themem[0]
+        #r.save()
+        reg = "R" + str(int(op.rt,2))
+        #wb = reg + " = " + r.regval
+        wb = reg + " = " + themem[0]
     elif("R" in src2 and "LD" not in instrc):                                     #reg-reg
-        kwa = op.imm[:5]                                                          #mem/wb.ir 11..15
-        r = Register.objects.filter(regnum=hex(int(kwa, 2))[2:]).get()
-#        print(themem[3], "mem")
-#        print(r.regval," REGVAL")
-        r.regval = themem[3]
-        r.save()
-        wb = r.regval
+        kwa = op.imm[:5]
+        r = Register.objects.filter(regnum=int(kwa, 2)).get()
+        #r.regval = themem[3]
+        #r.save()
+        reg = "R" + str(int(    kwa, 2))
+        #wb = reg + " = " + r.regval
+        wb = reg + " = " + themem[3]
     else:                                                                         #reg-imm
-        r = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get()         #mem/wb.ir 16..20
-        r.regval = themem[3]
-        r.save()
-        wb = r.regval
+        r = Register.objects.filter(regnum=int(op.rt, 2)).get()         #mem/wb.ir 16..20
+        #r.regval = themem[3]
+        #r.save()
+        reg = "R" + str(int(op.rt, 2))
+        #wb = reg + " = " + r.regval
+        wb = reg + " = " + themem[3]
     
         
     thewb.append(wb)
     
-    return thewb
+    return thewb, reg
 
 def pipeline(request):
     internal = []
@@ -818,7 +832,8 @@ def pipeline(request):
     for a in cycles:
         for i, obj in enumerate(a):
             if obj == "WB":
-                awb = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, i, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem, wbreg)
+                awb,temp = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, i, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem)
+                wbreg.append(temp)
                 internal[ccnt][4] = awb
             elif obj == "MEM":
                 amem = MEM(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anex)
@@ -835,8 +850,8 @@ def pipeline(request):
                 internal[ccnt][0] = anif
         ccnt+=1
         
-    
-    #print(cycles, "CYCLE")
+    #print(wbreg, "WBREG")
+    print(cycles, "CYCLE")
     #print(internal, "INTERNAL")
     
     lists = ['IF/ID.IR = ','IF/ID.PC = ','IF/ID.NPC = ',"ID/EX.A = ","ID/EX.B = ","ID/EX.IMM = ","ID/EX.IR = ","ID/EX.NPC = ","EX/MEM.ALUoutput = ","EX/MEM.COND = ","EX/MEM.IR = ","EX/MEM.B = ","MEM/WB.LMD = ","Mem. Loc. Affected = ", "MEM/WB.IR = ","MEM/WB.ALUoutput = ","Rn = "]
