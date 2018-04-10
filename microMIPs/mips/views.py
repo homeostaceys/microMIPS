@@ -158,6 +158,7 @@ def check(request):
         instr = ""
         label = ""
         status = 0
+
         if errorCheck(list[i]) == True:
             if ": " in list[i]:
                 label = list[i].split(": ")[0]
@@ -167,13 +168,27 @@ def check(request):
                 instr = list[i].split(":")[1]
             else:
                 instr = list[i]
-
+                
+            if "SD" in instr or "LD" in instr:
+                
+                if (int(instr.split(" ")[-1].split("(")[0],16) > 8184 or int(instr.split(" ")[-1].split("(")[0],16)%8 != 0):
+                    memerror = True
+                    line = i + 1
+                    context = {
+                        'memerror': memerror,
+                        'line': line,
+                    }
+                    return render(request, 'mips/index.html', context)
+                
             if "J" in instr or "BGTZC" in instr:
                 status = 1
             code = Codes.objects.create(id=i, address=format(i * 4, 'x').zfill(4), rep="", label=label,
                                         instruction=instr,
                                         status=status)
             code.save()
+            
+                    
+                
         else:
             error = True
             line = i + 1
