@@ -33,27 +33,25 @@ def reset():
     olist.delete()
     plist = Piplnsrcdest.objects.all()
     plist.delete()
-   
 
 def resetindex(request):
-    # i = 0
-    # j = 2574
+  
     ilist = Codes.objects.all()
     ilist.delete()
     olist = Opcodetable.objects.all()
     olist.delete()
     plist = Piplnsrcdest.objects.all()
     plist.delete()
-    # rlist = Register.objects.all()
-    # mlist = Memory.objects.all()
-    # for r in rlist:
-    #     if r.regval != "0000000000000000":
-    #         r.regval = "0000000000000000"
-    #         r.save()
-    # for m in mlist:
-    #     if m.memval != "00":
-    #         m.memval = "00"
-    #         m.save()
+    rlist = Register.objects.all()
+    mlist = Memory.objects.all()
+    for r in rlist:
+        if r.regval != "0000000000000000":
+            r.regval = "0000000000000000"
+            r.save()
+    for m in mlist:
+        if m.memval != "00":
+            m.memval = "00"
+            m.save()
     return redirect("/")
 
 def resetdb(request):
