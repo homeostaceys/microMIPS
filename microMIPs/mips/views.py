@@ -33,25 +33,27 @@ def reset():
     olist.delete()
     plist = Piplnsrcdest.objects.all()
     plist.delete()
+   
 
 def resetindex(request):
-  
+    # i = 0
+    # j = 2574
     ilist = Codes.objects.all()
     ilist.delete()
     olist = Opcodetable.objects.all()
     olist.delete()
     plist = Piplnsrcdest.objects.all()
     plist.delete()
-    rlist = Register.objects.all()
-    mlist = Memory.objects.all()
-    for r in rlist:
-        if r.regval != "0000000000000000":
-            r.regval = "0000000000000000"
-            r.save()
-    for m in mlist:
-        if m.memval != "00":
-            m.memval = "00"
-            m.save()
+    # rlist = Register.objects.all()
+    # mlist = Memory.objects.all()
+    # for r in rlist:
+    #     if r.regval != "0000000000000000":
+    #         r.regval = "0000000000000000"
+    #         r.save()
+    # for m in mlist:
+    #     if m.memval != "00":
+    #         m.memval = "00"
+    #         m.save()
     return redirect("/")
 
 def resetdb(request):
@@ -156,7 +158,6 @@ def check(request):
         instr = ""
         label = ""
         status = 0
-
         if errorCheck(list[i]) == True:
             if ": " in list[i]:
                 label = list[i].split(": ")[0]
@@ -166,27 +167,13 @@ def check(request):
                 instr = list[i].split(":")[1]
             else:
                 instr = list[i]
-                
-            if "SD" in instr or "LD" in instr:
-                
-                if (int(instr.split(" ")[-1].split("(")[0],16) > 8184 or int(instr.split(" ")[-1].split("(")[0],16)%8 != 0):
-                    memerror = True
-                    line = i + 1
-                    context = {
-                        'memerror': memerror,
-                        'line': line,
-                    }
-                    return render(request, 'mips/index.html', context)
-                
+
             if "J" in instr or "BGTZC" in instr:
                 status = 1
             code = Codes.objects.create(id=i, address=format(i * 4, 'x').zfill(4), rep="", label=label,
                                         instruction=instr,
                                         status=status)
             code.save()
-            
-                    
-                
         else:
             error = True
             line = i + 1
@@ -732,6 +719,7 @@ def EX(instr, theid):
     return theex
 
 def MEM(instrc, theex):
+    print("HOY")
     themem=[]
     lmd = "N/A"
     aluo = "N/A"
@@ -749,12 +737,37 @@ def MEM(instrc, theex):
             lmd = lmd + Memory.objects.filter(address=start).get().memval
             n-=1
        
-    elif("SD" in instrc):                       #store instruction
-        pass
+    if("SD" in instrc):                       #store instruction
+        #pass
         # mem of aluoutput = theex[0]
         #memval = Memory.objects.filter(address=theex).get()  # ano dapat si theex???
         #memval.memval = theex[3]
         #memval.save()
+        print("PASOK MGA SUKI!")
+        theex[0] = "11223344AABB1000"
+        theex[3] = "AABBCCCC11223333"
+        end = theex[0][-4:]
+        start = '0x{:02x}'.format(int(end,16) + 7)[2:].upper()
+        b = theex[3]
+        temparr = []
+        n=0
+        m = 14
+        while n <= 7:
+            temp = b[-2:]
+            b = b[m:]
+            print ("TEMP", temp)
+            print ("b", b)
+            end = '0x{:02x}'.format(int(end,16) + n)[2:].upper()
+            print (end)
+            mem = Memory.objects.filter(address=end).get()
+            mem.memval = temp
+            mem.save()
+            n+=1
+            m-=2
+            temparr.append(temp)
+            
+        print(temparr)
+        
        
     else:
         aluo = theex[0]
