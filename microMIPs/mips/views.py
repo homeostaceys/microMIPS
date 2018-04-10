@@ -166,9 +166,9 @@ def check(request):
                 instr = list[i].split(":")[1]
             else:
                 instr = list[i]
-                
+
             if "SD" in instr or "LD" in instr:
-                
+
                 if (int(instr.split(" ")[-1].split("(")[0],16) > 8184 or int(instr.split(" ")[-1].split("(")[0],16)%8 != 0):
                     memerror = True
                     line = i + 1
@@ -177,7 +177,7 @@ def check(request):
                         'line': line,
                     }
                     return render(request, 'mips/index.html', context)
-                
+
             if "J" in instr or "BGTZC" in instr:
                 status = 1
             code = Codes.objects.create(id=i, address=format(i * 4, 'x').zfill(4), rep="", label=label,
@@ -460,13 +460,10 @@ def pipelnmap():
         complain = 0
         lstoappend = []
         previnstr = Piplnsrcdest.objects.filter(instrnum=counter - 1).get().instrc
-        
-
         if "BGTZC" in previnstr or "J" in previnstr:
             poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
 
             if "J" in previnstr:
-                ###NEED TO CHECK EXECUTE 3 LINES THEN IF MORE THAN 3 LINES APPEND [] UNTIL POSITIONOFLABEL
                 amij = 3
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
@@ -486,7 +483,7 @@ def pipelnmap():
                 branch = 1
                 
                 if poslabel == counter:
-                    for obj in arrpln[-2]:
+                    for obj in arrpln[-1]:
                         if obj == " " or obj == "IF":
                             lstoappend.append(" ")
                         if obj == "ID":
@@ -530,6 +527,7 @@ def pipelnmap():
                 counter = poslabel + 1
 
             else:  # BRANCH NOT TAKEN
+                print("NOT TAKEN")
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
@@ -546,61 +544,87 @@ def pipelnmap():
                         lstoappend.append("/")
             
         elif (amij == 1):
+
             if (counter < poslabel):
                 lstoappend.append("SKIP")
                 skipcount -= 1
             else:
+                complain = 0
                 amij = 0
-                print("skip " + str(skipcount))
-                print(arrpln[skipcount])
+                prevobj = Piplnsrcdest.objects.filter(instrnum=counter - 1).get()
+                currobj = Piplnsrcdest.objects.filter(instrnum=counter).get()
+                if prevobj.dest == currobj.src1 or prevobj.dest == currobj.src2:
+                    complain = 1
                 for obj in arrpln[skipcount]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
                     if obj == "ID":
                         lstoappend.append("IF")
                     if obj == "EX":
-                        lstoappend.append("ID")
+                        if complain == 1:
+                            lstoappend.append("*")
+                        else:
+                            lstoappend.append("ID")
                     if obj == "MEM":
-                        lstoappend.append("EX")
+                        if complain == 1:
+                            lstoappend.append("*")
+                        else:
+                            lstoappend.append("EX")
                     if obj == "WB":
-                        lstoappend.append("MEM")
-                        lstoappend.append("WB")
+                        if complain == 1:
+                            lstoappend.append("ID")
+                            lstoappend.append("EX")
+                            lstoappend.append("MEM")
+                            lstoappend.append("WB")
+
+                        else:
+                            lstoappend.append("MEM")
+                            lstoappend.append("WB")
                     if obj == "*" or obj == "/":
                         lstoappend.append("/")
                 skipcount = -1
         else:
+            print("DOING ELSE")
             if (amij > 1):
                 amij -= 1
             prevobj = Piplnsrcdest.objects.filter(instrnum=counter - 1).get()
             currobj = Piplnsrcdest.objects.filter(instrnum=counter).get()
-            if prevobj.dest == currobj.src1 or prevobj.dest == currobj.src2:
-                complain = 1
-            for obj in arrpln[-1]:
-                if obj == " " or obj == "IF":
+            if currobj.instrc == "":
+                for i in range (0, len(arrpln[-1])):
                     lstoappend.append(" ")
-                if obj == "ID":
-                    lstoappend.append("IF")
-                if obj == "EX":
-                    lstoappend.append("ID")
-                if obj == "MEM":
-                    if complain == 1:
-                        lstoappend.append("*")
-                    else:
-                        lstoappend.append("EX")
-                if obj == "WB":
-                    if complain == 1:
-                        lstoappend.append("EX")
-                        lstoappend.append("MEM")
-                        lstoappend.append("WB")
+                arrpln.append(lstoappend)
+            else:
+                if prevobj.dest == currobj.src1 or prevobj.dest == currobj.src2:
+                    complain = 1
+                for obj in arrpln[-1]:
+                    if obj == " " or obj == "IF":
+                        lstoappend.append(" ")
+                    if obj == "ID":
+                        lstoappend.append("IF")
+                    if obj == "EX":
+                        if complain == 1:
+                            lstoappend.append("*")
+                        else:
+                            lstoappend.append("ID")
+                    if obj == "MEM":
+                        if complain == 1:
+                            lstoappend.append("*")
+                        else:
+                            lstoappend.append("EX")
+                    if obj == "WB":
+                        if complain == 1:
+                            lstoappend.append("ID")
+                            lstoappend.append("EX")
+                            lstoappend.append("MEM")
+                            lstoappend.append("WB")
 
-                    else:
-                        lstoappend.append("MEM")
-                        lstoappend.append("WB")
-                if obj == "*" or obj == "/":
-                    lstoappend.append("/")
+                        else:
+                            lstoappend.append("MEM")
+                            lstoappend.append("WB")
+                    if obj == "*" or obj == "/":
+                        lstoappend.append("/")
 
         if branch == 0:
-            print("NON")
             arrpln.append(lstoappend)
             counter += 1
     return arrpln
