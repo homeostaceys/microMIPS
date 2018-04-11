@@ -1,0 +1,136 @@
+@font-face {
+    font-family: Proxima;
+    src: url(/mips/static/ttf/Proxima.ttf)
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: url(/mips/static/image/bg1.jpg) no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow-y: hidden;
+}
+
+/*Navigation Bar Elements*/
+.navbar-container {
+    display: flex;
+    flex-direction: row;
+    top: 0;
+    margin: 10px;
+    opacity:0.9;
+}
+
+.navbar-content {
+    margin: 15px 15px;
+}
+
+.navbar-content a {
+    padding: 10px 15px;
+    text-decoration: none;
+    color: white;
+    font-size: 30px;
+    font-family: Proxima;
+    font-weight: bold;
+}
+
+.navbar-content a:hover{
+    background-color: #202020;
+    color: white;
+}
+
+/*Body Elements*/
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+}
+
+
+.col {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.container, .modal {
+    font-family: Proxima;
+
+}
+
+.modal {
+    margin-top: 300px;
+}
+
+.modal-body {
+    margin: 40px 0px
+}
+
+.btn-lg {
+    border-radius: 0;
+    margin-right: 20px;
+}
+
+.dropdown-menu {
+    font-size: 15px;
+}
+
+.dropdown-menu li a:hover {
+    background-color: #111111;
+    color: white;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 20px 0px;
+    background-color: #111111;
+    color: white;
+    text-align: center;
+    font-family: Proxima;
+    letter-spacing: 3px;
+}
+
+#myform {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+}
+
+.tablebox {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    
+}
+
+.table-container {
+    color: white;
+    font-family: Proxima;
+}
+
+.col-lg-offset-4 {
+    margin-top: 50px;
+}
+
+#id_load {
+    width: 200px;
+    padding: 10px 0px;
+}
