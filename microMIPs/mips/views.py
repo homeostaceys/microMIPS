@@ -914,7 +914,14 @@ def pipeline(request):
                 anif = IF(i, pc)
                 internal[ccnt][0] = anif
             elif obj == "*":
-                print("ASTERISK")
+                if "EX" in a:
+                    print("EX")
+                    internal[ccnt][1] = ["*", "*", "*", "*", "*"]
+                else:
+                    print("MEM")
+                    internal[ccnt][2] = ["*", "*", "*", "*"]
+                print("ASTERISK",a)
+
         ccnt+=1
         
     #print(cycles, "CYCLE")
