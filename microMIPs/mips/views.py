@@ -785,11 +785,35 @@ def MEM(instrc, theex):
             n-=1
        
     elif("SD" in instrc):                       #store instruction
-        pass
+        #pass
         # mem of aluoutput = theex[0]
         #memval = Memory.objects.filter(address=theex).get()  # ano dapat si theex???
         #memval.memval = theex[3]
         #memval.save()
+        ir = theex[2]
+        b = theex[3]
+        print (b)
+        src2 = (((instrc.split(" "))[2]).split("(")[1]).replace(")","").replace("R","")
+        print(src2)
+        
+        smem = ((instrc.split(" "))[2]).split("(")[0]
+        print (smem)
+        
+        endmem = format(int(Register.objects.filter(regnum=src2).get().regval, 16) +  int('7', 16) + int(smem, 16), 'x').zfill(4).upper()
+        print(endmem)
+        
+        n = 2
+        memtoget = endmem
+
+        for i in range(0, len(b), n):
+            print(b[i:i+n])
+            mem = Memory.objects.filter(address=memtoget).get()
+            mem.memval = b[i:i+n]
+            mem.save()
+            print("MEM VALUE",mem.memval, "MEMORY NUM", mem.address)
+            memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
+
+        
        
     else:
         aluo = theex[0]
@@ -1040,8 +1064,9 @@ def executemips(request):
 #                mem = Memory.objects.filter(address=memtoget).get()
 #                print(int(memtoget, 16), "tempmem")
                 tempmemlist[int(memtoget, 16)] = regval[i:i+n]
-                memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
                 print("TEMP MEM VALUE", tempmemlist[int(memtoget, 16)], "MEMORY NUM", memtoget)
+                memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
+                
            
         if "BGTZC" in pipinst:
             src1 = tempreglist[int((pipelist[counter].src1).split("R")[1])]
