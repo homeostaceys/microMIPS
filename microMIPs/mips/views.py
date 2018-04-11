@@ -792,6 +792,7 @@ def MEM(instrc, theex):
             n-=1
        
     elif("SD" in instrc):                       #store instruction
+        print(theex[0], theex[1], theex[2], theex[3], "theex")
         ir = theex[2]
         b = theex[3]
         print (b)
@@ -810,11 +811,13 @@ def MEM(instrc, theex):
         for i in range(0, len(b), n):
             print(b[i:i+n])
             mem = Memory.objects.filter(address=memtoget).get()
+            
             mem.memval = b[i:i+n]
-            mem.save()
+            mem.save()    
+            
             print("MEM VALUE",mem.memval, "MEMORY NUM", mem.address)
             memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
-            
+        
         aluo = theex[0]       
     else:
         aluo = theex[0]
@@ -836,6 +839,8 @@ def WB(instrc, instrnum, src2, themem):
         r.save()
         reg = "R" + str(int(op.rt,2))
         wb = reg + " = " + r.regval
+    elif("SD" in instrc):
+        wb = "N/A"
     elif("R" in src2 and "LD" not in instrc):                                     #reg-reg
         kwa = op.imm[:5]
         r = Register.objects.filter(regnum=int(kwa, 2)).get()
@@ -852,7 +857,7 @@ def WB(instrc, instrnum, src2, themem):
         
     thewb.append(wb)
     
-    return thewb, reg
+    return thewb
 
 def pipeline(request):
     internal = []
@@ -893,7 +898,7 @@ def pipeline(request):
     for a in cycles:
         for i, obj in enumerate(a):
             if obj == "WB":
-                awb,temp = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, i, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem)
+                awb = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, i, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem)
                 internal[ccnt][4] = awb
             elif obj == "MEM":
                 amem = MEM(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anex)
@@ -1032,6 +1037,7 @@ def executemips(request):
             memtoget = endmem
             strregval = ""
             while maxctr != 0:
+                print(memtoget, "who?")
                 mem = Memory.objects.filter(address=memtoget).get().memval
                 strregval += mem
                 memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
