@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from .models import *
 from operator import xor
@@ -476,7 +476,8 @@ def pipelnmap():
         branch = 0
         complain = 0
         lstoappend = []
-        previnstr = Piplnsrcdest.objects.filter(instrnum=counter - 1).get().instrc
+        previnstr = get_object_or_404(Piplnsrcdest, instrnum=counter - 1).instrc
+        #previnstr = Piplnsrcdest.objects.filter(instrnum=counter - 1).get().instrc
         if "BGTZC" in previnstr or "J" in previnstr:
             poslabel = Piplnsrcdest.objects.filter(label=previnstr.split(" ")[-1]).get().instrnum
 
