@@ -19,6 +19,8 @@ urlpatterns = [
     url(r'^pipelinemap/$', views.pipelinemap, name='pipelinemap'),
     url(r'^editmem/$', views.editmem, name='editmem'),
     url(r'^editreg/$', views.editreg, name='editreg'),
+    url(r'^e404/$', views.error_404, name='404'),
+    url(r'^500/$', views.error_500, name='500'),
 
 ]
 

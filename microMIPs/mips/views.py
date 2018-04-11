@@ -3,15 +3,27 @@ from django.http import HttpResponse, JsonResponse
 from .models import *
 from operator import xor
 
+from django.http import Http404
 import re,copy
 # Create your views here.
+
+def error_404(request):
+        print("hi")
+        return render(request,'mips/404.html')
+def e404():
+    print("hello")
+    return redirect('/')
+def error_500(request):
+        data = {}
+        return render(request,'mips/500.html', data)
+    
 def load(request):
     mem1list = []
     mem2list = []
     reglist = Register.objects.all()
     memlist = Memory.objects.all()
     instrlist = Codes.objects.all()
-    executemips()
+    executemips(request)
     for m in memlist:
         if int(m.address,16) >= 0 and int(m.address,16) < 4096:
             mem1list.append(m)
@@ -527,7 +539,7 @@ def pipelnmap():
                 counter = poslabel + 1
 
             else:  # BRANCH NOT TAKEN
-                print("NOT TAKEN")
+                #print("NOT TAKEN")
                 for obj in arrpln[-1]:
                     if obj == " " or obj == "IF":
                         lstoappend.append(" ")
@@ -584,7 +596,7 @@ def pipelnmap():
                         lstoappend.append("/")
                 skipcount = -1
         else:
-            print("DOING ELSE")
+            #print("DOING ELSE")
             if (amij > 1):
                 amij -= 1
             prevobj = Piplnsrcdest.objects.filter(instrnum=counter - 1).get()
@@ -644,7 +656,7 @@ def pipelinemap(request):
         if data != None and int(data) <= maxsize:
             for a in arrpln:
                 cycle.append(a[int(data)-1])
-            print(cycle, "cycle")
+            #print(cycle, "cycle")
 
             context = {
                 'cycle': cycle,
@@ -686,23 +698,12 @@ def ID(instrnum, theif, wbreg):
     b = None
     imm = None
     
-    if not wbreg:                                           # is list empty
-        print("NOT WBREG")
-        a = hex(int(op.rs, 2))[2:].upper().zfill(16)                # id/ex.a
-        b = hex(int(op.rt, 2))[2:].upper().zfill(16)                # id/ex.b
-    else:
-        for x in wbreg:
-            print("FOR")
-            print(("R" + hex(int(op.rs, 2))[2:]), "EQUAL?", x)
-            if(x == ("R" + hex(int(op.rs, 2))[2:])):
-                a = hex(int(op.rs, 2))[2:].upper().zfill(16)                # id/ex.a
-                b = hex(int(op.rt, 2))[2:].upper().zfill(16)                # id/ex.b
-                print("if")
-            else:
-                print("else")
-                a = Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval.upper()
-                b = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval.upper()
-
+    print(Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval.upper(), "rt", hex(int(op.rt, 2))[2:])
+    print(Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval.upper(), "rs", hex(int(op.rs, 2))[2:])
+    
+    a = Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval.upper()
+    b = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval.upper()
+    
     imm = hex(int(op.imm, 2))[2:].upper().zfill(16)             # id/ex.imm
     
     npc = theif[1]                   # id/ex.npc
@@ -898,7 +899,7 @@ def pipeline(request):
     return render(request, 'mips/pipln.html', context)
 
 
-def executemips():
+def executemips(request):
     pipelist = Piplnsrcdest.objects.all()
     reglist = Register.objects.all()
     memlist = Memory.objects.all()
@@ -1036,10 +1037,11 @@ def executemips():
 
             for i in range(0, len(regval), n):
                 print(regval[i:i+n])
-                mem = Memory.objects.filter(address=memtoget).get().memval
-                print(int(memtoget, 16), "tempmem")
-                tempmemlist[int(memtoget, 16)] = mem
+#                mem = Memory.objects.filter(address=memtoget).get()
+#                print(int(memtoget, 16), "tempmem")
+                tempmemlist[int(memtoget, 16)] = regval[i:i+n]
                 memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
+                print("TEMP MEM VALUE", tempmemlist[int(memtoget, 16)], "MEMORY NUM", memtoget)
            
         if "BGTZC" in pipinst:
             src1 = tempreglist[int((pipelist[counter].src1).split("R")[1])]
@@ -1054,14 +1056,26 @@ def executemips():
                 
             
         if jump == 1:
+            origc = counter - 1
             label = (pipelist[counter-1].instrc).split(" ")[-1]
             intnum = Piplnsrcdest.objects.filter(label=label).get().instrnum
-            counter = intnum-1  
+            counter = intnum-1
             jump = 0
             print("JUMP")
+            print(origc, counter + 1, "yo")
+            if origc > counter + 1:
+                raise Http404
+            
+            
+            
+            
             
         if "J" in pipinst:
+            print("ENTER J")
             jump = 1
+            
+            if counter == len(pipelist)-1:
+                raise Http404
             
 
         counter+=1

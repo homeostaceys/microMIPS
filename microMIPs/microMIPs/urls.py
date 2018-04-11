@@ -15,9 +15,15 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from mips import views as mips_views
+from django.conf.urls import handler404, handler500
 
 
 urlpatterns = [
 	url(r'^admin/', admin.site.urls),
-	url(r'^', include('mips.urls')),
+#	url(r'^', include('mips.urls')),
+	url(r'^', include('mips.urls', namespace='mips')),
 ]
+#
+handler404 = mips_views.error_404
+handler500 = mips_views.error_500
