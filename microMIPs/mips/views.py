@@ -691,9 +691,9 @@ def IF(instrnum, thepc):
     pc = format(thepc, '02x').zfill(16).upper()   #if/id.pc
     npc = pc                                      #if/id.npc
     
-    theif.append(ir)
-    theif.append(npc)
-    theif.append(pc)
+    theif.append(ir.upper())
+    theif.append(npc.upper())
+    theif.append(pc.upper())
     
     return theif
 
@@ -715,11 +715,11 @@ def ID(instrnum, theif):
     npc = theif[1]                   # id/ex.npc
     ir = theif[0]                    # id/ex.ir
     
-    theid.append(a)
-    theid.append(b)
-    theid.append(imm)
-    theid.append(ir)
-    theid.append(npc)
+    theid.append(a.upper())
+    theid.append(b.upper())
+    theid.append(imm.upper())
+    theid.append(ir.upper())
+    theid.append(npc.upper())
     
     
     return theid
@@ -742,7 +742,7 @@ def EX(instr, theid):
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
-            tmp = sign_extend(hex(int(theid[0],16) + int(sign_extend(theid[2]),16))[2:])
+            tmp = hex(int(theid[0],16) + int(sign_extend(theid[2]),16))[2:]
             print(theid[0], theid[2], tmp, "hello")
             aluo = tmp
         elif("SLT" in instr):
@@ -767,10 +767,10 @@ def EX(instr, theid):
             
         cond = "0"
         
-    theex.append(aluo)
-    theex.append(cond)
-    theex.append(ir)
-    theex.append(b)
+    theex.append(aluo.upper())
+    theex.append(cond.upper())
+    theex.append(ir.upper())
+    theex.append(b.upper())
     
     return theex
 
@@ -821,14 +821,14 @@ def MEM(instrc, theex):
             print("MEM VALUE",mem.memval, "MEMORY NUM", mem.address)
             memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
         
-        aluo = theex[0]       
+        aluo = theex[0]
     else:
         aluo = theex[0]
     
     
-    themem.append(lmd)
-    themem.append(ir)
-    themem.append(aluo)
+    themem.append(lmd.upper())
+    themem.append(ir.upper())
+    themem.append(aluo.upper())
     
     return themem
 
@@ -858,7 +858,7 @@ def WB(instrc, instrnum, src2, themem):
         reg = "R" + str(int(op.rt, 2))
         wb = reg + " = " + r.regval
         
-    thewb.append(wb)
+    thewb.append(wb.upper())
     
     return thewb
 
@@ -985,8 +985,6 @@ def executemips(request):
             rt = (pipelist[counter].instrc).split("#")[1]
 
             des = format( int(rs,16) + int(sign_extend(rt),16),'x').upper()
-            des = sign_extend(des)
-            
             tempreglist[de] = des
             print("REG",de," is",tempreglist[de])
            
