@@ -746,12 +746,9 @@ def EX(instr, theid):
             print(theid[0], theid[2], tmp, "hello")
             aluo = tmp
         elif("SLT" in instr):
-            print(theid[0], theid[1], "less than?")
-            if(theid[0] < theid[1]):
-                print("less")
+            if(theid[0] < b):
                 aluo = "0000000000000001"
             else:
-                print("more")
                 aluo = "0000000000000000"
         elif("DADDU" in instr):
             tmp = sign_extend(hex(int(theid[0],16) + int(b,16))[2:])
@@ -761,7 +758,6 @@ def EX(instr, theid):
             rt = int(theid[2],16)
             
             aluo = format(rs^rt,'x').zfill(16).upper()
-            print(rs, rt, aluo, "HELLO")
         else:
             aluo = "ERROR!! WHAT HAPPENED?? :<"
             
@@ -842,7 +838,7 @@ def WB(instrc, instrnum, src2, themem):
         r.save()
         reg = "R" + str(int(op.rt,2))
         wb = reg + " = " + r.regval
-    elif("SD" in instrc):
+    elif("SD" in instrc or "BGTZC" in instrc or "J" in instrc):
         wb = "N/A"
     elif("R" in src2 and "LD" not in instrc):                                     #reg-reg
         kwa = op.imm[:5]
@@ -861,7 +857,6 @@ def WB(instrc, instrnum, src2, themem):
     thewb.append(wb.upper())
     
     return thewb
-
 def pipeline(request):
     internal = []
     pc = 0                                      # pc/npc
