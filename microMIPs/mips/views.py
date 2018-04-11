@@ -742,7 +742,7 @@ def EX(instr, theid):
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
-            tmp = sign_extend(hex(int(theid[0],16) + int(theid[2],16))[2:])
+            tmp = sign_extend(hex(int(theid[0],16) + int(sign_extend(theid[2]),16))[2:])
             print(theid[0], theid[2], tmp, "hello")
             aluo = tmp
         elif("SLT" in instr):
@@ -981,7 +981,7 @@ def executemips(request):
             
             rt = (pipelist[counter].instrc).split("#")[1]
 
-            des = format( int(rs,16) + int(rt,16),'x').upper()
+            des = format( int(rs,16) + int(sign_extend(rt),16),'x').upper()
             des = sign_extend(des)
             
             tempreglist[de] = des
