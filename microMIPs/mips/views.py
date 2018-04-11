@@ -746,9 +746,12 @@ def EX(instr, theid):
             print(theid[0], theid[2], tmp, "hello")
             aluo = tmp
         elif("SLT" in instr):
-            if(theid[0] < theid[2]):
+            print(theid[0], theid[1], "less than?")
+            if(theid[0] < theid[1]):
+                print("less")
                 aluo = "0000000000000001"
             else:
+                print("more")
                 aluo = "0000000000000000"
         elif("DADDU" in instr):
             tmp = sign_extend(hex(int(theid[0],16) + int(b,16))[2:])
