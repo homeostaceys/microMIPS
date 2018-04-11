@@ -751,7 +751,7 @@ def EX(instr, theid):
             else:
                 aluo = "0000000000000000"
         elif("DADDU" in instr):
-            tmp = sign_extend(hex(int(theid[0],16) + int(b,16))[2:])
+            tmp = hex(int(theid[0],16) + int(b,16))[2:]
             aluo = tmp
         elif("XORI" in instr):
             rs = int(sign_extend(theid[0]),16)
@@ -967,7 +967,6 @@ def executemips(request):
             
             de = int(dest.split("R")[1])
             des = format( int(rs,16) + int(rt,16),'x').upper()
-            des = sign_extend(des)
             tempreglist[de] = des
 
             
