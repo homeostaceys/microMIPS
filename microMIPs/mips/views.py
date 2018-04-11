@@ -527,7 +527,7 @@ def pipelnmap():
                             lstoappend.append("/")
                     arrpln.append(lstoappend)
                     for i in range(0, poslabel - counter - 1):
-                        arrpln.append(["SKIP"])
+                        arrpln.append([""])
                     lstoappend = []
                     for obj in arrpln[-(poslabel - counter)]:
                         if obj == " " or obj == "IF":
@@ -564,7 +564,7 @@ def pipelnmap():
         elif (amij == 1):
 
             if (counter < poslabel):
-                lstoappend.append("SKIP")
+                lstoappend.append("")
                 skipcount -= 1
             else:
                 complain = 0
@@ -913,10 +913,12 @@ def pipeline(request):
                 pc += 4
                 anif = IF(i, pc)
                 internal[ccnt][0] = anif
+            elif obj == "*":
+                print("ASTERISK")
         ccnt+=1
         
     #print(cycles, "CYCLE")
-    #print(internal, "INTERNAL")
+    print(internal, "INTERNAL")
     
     lists = ['IF/ID.IR = ','IF/ID.PC = ','IF/ID.NPC = ',"ID/EX.A = ","ID/EX.B = ","ID/EX.IMM = ","ID/EX.IR = ","ID/EX.NPC = ","EX/MEM.ALUoutput = ","EX/MEM.COND = ","EX/MEM.IR = ","EX/MEM.B = ","MEM/WB.LMD = ", "MEM/WB.IR = ","MEM/WB.ALUoutput = ","Rn = "]
     
