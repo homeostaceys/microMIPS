@@ -755,7 +755,7 @@ def EX(instr, theid):
             aluo = tmp
         elif("XORI" in instr):
             rs = int(sign_extend(theid[0]),16)
-            rt = int(theid[2],16)
+            rt = int(theid[2].zfill(16),16)
             
             aluo = format(rs^rt,'x').zfill(16).upper()
         else:
@@ -992,7 +992,7 @@ def executemips(request):
 
             rs = tempreglist[int(s1)]
             rs = int(sign_extend(rs),16)
-            rt = int(s2,16)
+            rt = int(s2.zfill(16),16)
 
             tempreglist[int(de)] = format(rs^rt,'x').zfill(16).upper()
             print("REG", de, " is", tempreglist[int(de)])
