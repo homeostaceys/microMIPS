@@ -696,16 +696,16 @@ def IF(instrnum, thepc):
     
     return theif
 
-def ID(instrnum, theif, wbreg):
+def ID(instrnum, theif):
     theid=[]
     op = Opcodetable.objects.filter(instrnum=instrnum).get()
     a = None
     b = None
     imm = None
     
-    print(Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval.upper(), "rt", hex(int(op.rt, 2))[2:])
-    print(Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval.upper(), "rs", hex(int(op.rs, 2))[2:])
-    
+#    print(Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval.upper(), "rt", hex(int(op.rt, 2))[2:])
+#    print(Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval.upper(), "rs", hex(int(op.rs, 2))[2:])
+#    
     a = Register.objects.filter(regnum=hex(int(op.rs, 2))[2:]).get().regval.upper()
     b = Register.objects.filter(regnum=hex(int(op.rt, 2))[2:]).get().regval.upper()
     
@@ -741,7 +741,6 @@ def EX(instr, theid):
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
-            
             tmp = sign_extend(hex(int(theid[0],16) + int(theid[2],16))[2:])
             print(theid[0], theid[2], tmp, "hello")
             aluo = tmp
@@ -780,21 +779,18 @@ def MEM(instrc, theex):
     
     if("LD" in instrc):                         #load instruction
         end = theex[0][-4:]
-        start = '0x{:02x}'.format(int(end,16) + 7)[2:].upper()
+        start = '0x{:02x}'.format(int(end,16) + 7)[2:].upper().zfill(4)
+        print("start", start)
         lmd = Memory.objects.filter(address=start).get().memval
         
         n = 6
         while n >= 0:
-            start = '0x{:02x}'.format(int(end,16) + n)[2:].upper()
+            start = '0x{:02x}'.format(int(end,16) + n)[2:].upper().zfill(4)
+            print("start again", start)
             lmd = lmd + Memory.objects.filter(address=start).get().memval
             n-=1
        
     elif("SD" in instrc):                       #store instruction
-        #pass
-        # mem of aluoutput = theex[0]
-        #memval = Memory.objects.filter(address=theex).get()  # ano dapat si theex???
-        #memval.memval = theex[3]
-        #memval.save()
         ir = theex[2]
         b = theex[3]
         print (b)
@@ -818,10 +814,7 @@ def MEM(instrc, theex):
             print("MEM VALUE",mem.memval, "MEMORY NUM", mem.address)
             memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
             
-        aluo = theex[0]
-
-        
-       
+        aluo = theex[0]       
     else:
         aluo = theex[0]
     
@@ -863,7 +856,6 @@ def WB(instrc, instrnum, src2, themem):
 def pipeline(request):
     internal = []
     pc = 0                                      # pc/npc
-    wbreg = []                                  # registers changed by wb
     arrpln = pipelnmap()                        # pipeline map
     maxsize = len(arrpln[-1])                   # number of instructions
     
@@ -891,7 +883,7 @@ def pipeline(request):
         icyc.append([" ", " ", " "])            # if
         icyc.append([" ", " ", " ", " ", " "])  # id
         icyc.append([" ", " ", " ", " "])       # ex
-        icyc.append([" ", " ", " "])       # mem
+        icyc.append([" ", " ", " "])            # mem
         icyc.append([" "])                      # wb
         internal.append(icyc)
         icyc=[]
@@ -901,7 +893,6 @@ def pipeline(request):
         for i, obj in enumerate(a):
             if obj == "WB":
                 awb,temp = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, i, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem)
-                wbreg.append(temp)
                 internal[ccnt][4] = awb
             elif obj == "MEM":
                 amem = MEM(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anex)
@@ -910,7 +901,7 @@ def pipeline(request):
                 anex = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
                 internal[ccnt][2] = anex
             elif obj == "ID":
-                anid = ID(i, anif, wbreg)
+                anid = ID(i, anif)
                 internal[ccnt][1] = anid
             elif obj == "IF":
                 pc += 4
@@ -918,7 +909,6 @@ def pipeline(request):
                 internal[ccnt][0] = anif
         ccnt+=1
         
-    #print(wbreg, "WBREG")
     #print(cycles, "CYCLE")
     #print(internal, "INTERNAL")
     
@@ -1076,8 +1066,7 @@ def executemips(request):
                 tempmemlist[int(memtoget, 16)] = regval[i:i+n]
                 print("TEMP MEM VALUE", tempmemlist[int(memtoget, 16)], "MEMORY NUM", memtoget)
                 memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
-                
-           
+      
         if "BGTZC" in pipinst:
             src1 = tempreglist[int((pipelist[counter].src1).split("R")[1])]
             if int(src1,16) > 0:
@@ -1088,8 +1077,7 @@ def executemips(request):
                 branch.stat = 1
                 branch.save()
                 counter = intnum-1  
-                
-            
+    
         if jump == 1:
             origc = counter - 1
             label = (pipelist[counter-1].instrc).split(" ")[-1]
@@ -1100,19 +1088,14 @@ def executemips(request):
             print(origc, counter + 1, "yo")
             if origc > counter + 1:
                 raise Http404
-            
-            
-            
-            
-            
+   
         if "J" in pipinst:
             print("ENTER J")
             jump = 1
             
             if counter == len(pipelist)-1:
                 raise Http404
-            
-
+  
         counter+=1
         
 
