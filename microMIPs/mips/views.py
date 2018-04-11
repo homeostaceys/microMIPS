@@ -1071,6 +1071,7 @@ def executemips(request):
         if "BGTZC" in pipinst:
             src1 = tempreglist[int((pipelist[counter].src1).split("R")[1])]
             if int(src1,16) > 0:
+                origc = counter - 1
                 label = (pipelist[counter].instrc).split(" ")[-1]
                 print("labellll ",label)
                 intnum = Piplnsrcdest.objects.filter(label=label).get().instrnum
@@ -1078,6 +1079,10 @@ def executemips(request):
                 branch.stat = 1
                 branch.save()
                 counter = intnum-1  
+                
+                print(origc, counter+1, "YOO")
+                if origc >= counter + 1:
+                    raise Http404
     
         if jump == 1:
             origc = counter - 1
