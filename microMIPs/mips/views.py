@@ -742,9 +742,10 @@ def EX(instr, theid):
         cond = Codes.objects.filter(instruction=instrc).get().status
     else:                                                   # ALU instruction
         if("DADDIU" in instr):
-            tmp = hex(int(theid[0],16) + int(sign_extend(theid[2]),16))[2:]
+            tmp = hex(int(theid[0],16) + int(sign_extend(theid[2]),16))[2:].zfill(16)
             print(theid[0], theid[2], tmp, "hello")
             aluo = tmp
+            print("TMP!!!", tmp)
         elif("SLT" in instr):
             if(theid[0] < b):
                 aluo = "0000000000000001"
