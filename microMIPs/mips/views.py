@@ -18,12 +18,13 @@ def error_500(request):
         return render(request,'mips/500.html', data)
     
 def load(request):
+    print("LOAD")
     mem1list = []
     mem2list = []
     reglist = Register.objects.all()
     memlist = Memory.objects.all()
     instrlist = Codes.objects.all()
-    executemips(request)
+    
     for m in memlist:
         if int(m.address,16) >= 0 and int(m.address,16) < 4096:
             mem1list.append(m)
@@ -37,6 +38,7 @@ def load(request):
         'instrclist':instrlist,
 
     }
+    
     return render(request, 'mips/load.html', context)
 def reset():
     ilist = Codes.objects.all()
@@ -91,6 +93,7 @@ def resetdb(request):
     return redirect('/')
 
 def index(request):
+    
     try:
         request.session['codearea']
     except:
@@ -248,7 +251,9 @@ def check(request):
         opcode(i,e)
         
     piplineparse()
+    executemips(request)
     return redirect('/load/')
+    
 
 
 def errorCheck(instr):
@@ -812,11 +817,14 @@ def MEM(instrc, theex):
             mem.save()
             print("MEM VALUE",mem.memval, "MEMORY NUM", mem.address)
             memtoget = format(int(memtoget, 16) - int('1', 16), 'x').zfill(4).upper()
+            
+        aluo = theex[0]
 
         
        
     else:
         aluo = theex[0]
+    
     
     themem.append(lmd)
     themem.append(ir)
@@ -1050,6 +1058,7 @@ def executemips(request):
             s2 = src2.split("R")[1]
             smem = ((pipelist[counter].instrc).split(" ")[-1]).split("(")[0]
             regval = tempreglist[int(s1)]
+            print("HAHAHAHAHA",tempreglist[int(s2)])
 
             #startmem = format(int(tempreglist[int(s2)], 16) + int(smem, 16), 'x').zfill(4).upper()
             endmem = format(int(tempreglist[int(s2)], 16) + int('7', 16) + int(smem, 16), 'x').zfill(4).upper()
@@ -1061,6 +1070,7 @@ def executemips(request):
 
             for i in range(0, len(regval), n):
                 print(regval[i:i+n])
+                print(memtoget)
 #                mem = Memory.objects.filter(address=memtoget).get()
 #                print(int(memtoget, 16), "tempmem")
                 tempmemlist[int(memtoget, 16)] = regval[i:i+n]
@@ -1104,6 +1114,7 @@ def executemips(request):
             
 
         counter+=1
+        
 
 def sign_extend(value):
      
