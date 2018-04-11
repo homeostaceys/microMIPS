@@ -751,8 +751,9 @@ def EX(instr, theid):
             else:
                 aluo = "0000000000000000"
         elif("DADDU" in instr):
-            tmp = hex(int(theid[0],16) + int(b,16))[2:]
+            tmp = hex(int(theid[0],16) + int(b,16))[2:].zfill(16).upper()
             aluo = tmp
+            print(tmp, "TMPPPP")
         elif("XORI" in instr):
             rs = int(sign_extend(theid[0]),16)
             rt = int(theid[2].zfill(16),16)
