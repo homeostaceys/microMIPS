@@ -691,11 +691,12 @@ def IF(instrnum, thepc):
     pc = format(thepc, '02x').zfill(16).upper()   #if/id.pc
     npc = pc                                      #if/id.npc
     
-    theif.append(ir.upper())
-    theif.append(npc.upper())
-    theif.append(pc.upper())
-    
-    return theif
+    return ir.upper(), npc.upper(), pc.upper()
+#    theif.append(ir.upper())
+#    theif.append(npc.upper())
+#    theif.append(pc.upper())
+#    
+#    return theif
 
 def ID(instrnum, theif):
     theid=[]
@@ -715,14 +716,16 @@ def ID(instrnum, theif):
     npc = theif[1]                   # id/ex.npc
     ir = theif[0]                    # id/ex.ir
     
-    theid.append(a.upper())
-    theid.append(b.upper())
-    theid.append(imm.upper())
-    theid.append(ir.upper())
-    theid.append(npc.upper())
+    return a.upper(), b.upper(), imm.upper(), ir.upper(), npc.upper()
     
-    
-    return theid
+#    theid.append(a.upper())
+#    theid.append(b.upper())
+#    theid.append(imm.upper())
+#    theid.append(ir.upper())
+#    theid.append(npc.upper())
+#    
+#    
+#    return theid
 
 def EX(instr, theid):
     theex=[]
@@ -765,12 +768,13 @@ def EX(instr, theid):
             
         cond = "0"
         
-    theex.append(aluo.upper())
-    theex.append(cond.upper())
-    theex.append(ir.upper())
-    theex.append(b.upper())
-    
-    return theex
+    return aluo.upper(), cond.upper(), ir.upper(), b.upper()
+#    theex.append(aluo.upper())
+#    theex.append(cond.upper())
+#    theex.append(ir.upper())
+#    theex.append(b.upper())
+#    
+#    return theex
 
 def MEM(instrc, theex):
     themem=[]
@@ -823,12 +827,13 @@ def MEM(instrc, theex):
     else:
         aluo = theex[0]
     
+    return lmd.upper(), ir.upper(), aluo.upper()
     
-    themem.append(lmd.upper())
-    themem.append(ir.upper())
-    themem.append(aluo.upper())
-    
-    return themem
+#    themem.append(lmd.upper())
+#    themem.append(ir.upper())
+#    themem.append(aluo.upper())
+#    
+#    return themem
 
 def WB(instrc, instrnum, src2, themem):
     op = Opcodetable.objects.filter(instrnum=instrnum).get()
@@ -856,9 +861,11 @@ def WB(instrc, instrnum, src2, themem):
         reg = "R" + str(int(op.rt, 2))
         wb = reg + " = " + r.regval
         
-    thewb.append(wb.upper())
+    return wb.upper()
+        
+#    thewb.append(wb.upper())
     
-    return thewb
+#    return thewb
 def pipeline(request):
     internal = []
     pc = 0                                      # pc/npc
@@ -886,43 +893,85 @@ def pipeline(request):
     awb = []
                                                 # initialize table
     for a in cycles:
-        icyc.append([" ", " ", " "])            # if
-        icyc.append([" ", " ", " ", " ", " "])  # id
-        icyc.append([" ", " ", " ", " "])       # ex
-        icyc.append([" ", " ", " "])            # mem
-        icyc.append([" "])                      # wb
-        internal.append(icyc)
-        icyc=[]
-                                                # add values to table
+        internal.append([" ", " ", " "," "," "," "," "," "," "," "," "," "," "," "," "," "])
+#        icyc.append([" ", " ", " "])            # if
+#        icyc.append([" ", " ", " ", " ", " "])  # id
+#        icyc.append([" ", " ", " ", " "])       # ex
+#        icyc.append([" ", " ", " "])            # mem
+#        icyc.append([" "])                      # wb
+#        internal.append(icyc)
+#        icyc=[]
+
+#    internal[0][0] = "dog"
+#    internal[0][1] = "aa"
+#    internal[1] = ["apple", " ", " "," "," "," "," "," "," "," "," "," "," "," "," "," "]
+
     ccnt = 0
     for a in cycles:
         for i, obj in enumerate(a):
             if obj == "WB":
-                awb = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, i, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem)
-                internal[ccnt][4] = awb
+                internal[ccnt][15] = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, i, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem)
+#                internal[ccnt][4] = awb
             elif obj == "MEM":
-                amem = MEM(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anex)
-                internal[ccnt][3] = amem
+                internal[ccnt][12],internal[ccnt][13],internal[ccnt][14] = MEM(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anex)
+#                internal[ccnt][3] = amem
+                amem.append(internal[ccnt][12])
+                amem.append(internal[ccnt][13])
+                amem.append(internal[ccnt][14])
             elif obj == "EX":
-                anex = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
-                internal[ccnt][2] = anex
+                internal[ccnt][8],internal[ccnt][9],internal[ccnt][10],internal[ccnt][11] = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
+                anex.append(internal[ccnt][8])
+                anex.append(internal[ccnt][9])
+                anex.append(internal[ccnt][10])
+                anex.append(internal[ccnt][11])
+#                internal[ccnt][2] = anex
             elif obj == "ID":
-                anid = ID(i, anif)
-                internal[ccnt][1] = anid
+                internal[ccnt][3],internal[ccnt][4],internal[ccnt][5],internal[ccnt][6],internal[ccnt][7] = ID(i, anif)
+#                internal[ccnt][1] = anid
+                anid.append(internal[ccnt][3])
+                anid.append(internal[ccnt][4])
+                anid.append(internal[ccnt][5])
+                anid.append(internal[ccnt][6])
+                anid.append(internal[ccnt][7])
             elif obj == "IF":
                 pc += 4
-                anif = IF(i, pc)
-                internal[ccnt][0] = anif
-            elif obj == "*":
-                if "EX" in a:
-                    print("EX")
-                    internal[ccnt][1] = ["*", "*", "*", "*", "*"]
-                else:
-                    print("MEM")
-                    internal[ccnt][2] = ["*", "*", "*", "*"]
-                print("ASTERISK",a)
-
+                internal[ccnt][0],internal[ccnt][1],internal[ccnt][2] = IF(i, pc)
+                anif.append(internal[ccnt][0])
+                anif.append(internal[ccnt][1])
+                anif.append(internal[ccnt][2])
+#                internal[ccnt][0] = anif
         ccnt+=1
+    
+                                                # add values to table
+#    ccnt = 0
+#    for a in cycles:
+#        for i, obj in enumerate(a):
+#            if obj == "WB":
+#                awb = WB(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, i, Piplnsrcdest.objects.filter(instrnum=i).get().src2, amem)
+#                internal[ccnt][4] = awb
+#            elif obj == "MEM":
+#                amem = MEM(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anex)
+#                internal[ccnt][3] = amem
+#            elif obj == "EX":
+#                anex = EX(Piplnsrcdest.objects.filter(instrnum=i).get().instrc, anid)
+#                internal[ccnt][2] = anex
+#            elif obj == "ID":
+#                anid = ID(i, anif)
+#                internal[ccnt][1] = anid
+#            elif obj == "IF":
+#                pc += 4
+#                anif = IF(i, pc)
+#                internal[ccnt][0] = anif
+#            elif obj == "*":
+##                if "EX" in a:
+##                    print("EX")
+##                    internal[ccnt][1] = ["*", "*", "*", "*", "*"]
+##                else:
+##                    print("MEM")
+##                    internal[ccnt][2] = ["*", "*", "*", "*"]
+#                print("ASTERISK",a)
+#
+#        ccnt+=1
         
     #print(cycles, "CYCLE")
     print(internal, "INTERNAL")

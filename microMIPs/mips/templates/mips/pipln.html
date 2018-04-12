@@ -1,10 +1,80 @@
 {% extends 'mips/extends/header.html' %}
+{% block script %}
+    $(document).ready( function(){
+        $('#single').click(function(event) {
+            
+            $('#full').attr("disabled","");
+            event.preventDefault();
+            var data = parseInt($(this).val());
+            if( data <= $(this).attr("size")){
+                var cycle ="<th>"+data+"</th>"
+                $('#tablehead').append(cycle);
+                $(this).val(data+1);
+                $.ajax({
+                        url: "/pipelinemap/?singleexec="+data,
+                        method: "GET",
+                        data: {},
+                        dataType: 'json',
+                        success: function (data) {
+                            var row=""
+                            for(var i=0;i < data.cycle.length;i++){
+                                if (data.cycle[i] == "/")
+                                    row = "<th> </th>";
+                                else
+                                    row ="<th>"+data.cycle[i]+"</th>";
+                                $('#instr'+i).append(row);
+                            }
+
+
+
+                        }
+                });
+             }
+            else{
+                $('#single').attr("disabled","");
+            }
+        });
+
+        $('#full').click(function(event) {
+            $('#full').attr("disabled","");
+            $('#single').attr("disabled","");
+            event.preventDefault();
+            for(var i=0;i < $(this).attr("size");i++){
+                var cycle ="<th>"+parseInt(i+1)+"</th>"
+                $('#tablehead').append(cycle);
+            }
+
+            $.ajax({
+                    url: "/pipelinemap/?fullexec=true",
+                    method: "GET",
+                    data: {},
+                    dataType: 'json',
+                    success: function (data) {
+
+                        for(var i=0;i < data.arrpln.length;i++){
+                            var cycle=data.arrpln[i];
+                            for(var j=0;j < cycle.length;j++){
+                                if (cycle[j] == "/")
+                                    row = "<th> </th>";
+                                else
+                                    row ="<th>"+cycle[j]+"</th>";
+                                $('#instr'+i).append(row);
+                            }
+                        }
+
+                    }
+            });
+
+        });
+    });
+{% endblock %}
 {% block body %}
 {#    <div class="container-fluid">#}
 {#    <div class="text-center" style="color: white;width: 700px; height: 700px;">{% for a in arrpln %}<div class="row">{{ a }}</div>{% endfor %}</div>#}
 {#    </div>#}
     <div class="container-fluid">
-        
+        <button type="button" class="btn btn-light ml-3" value="1" id="single" size="{{ maxsize }}" >Single Execution</button>
+        <button type="button" class="btn btn-dark ml-3" id="full" size="{{ maxsize }}">Full Execution</button>
         <div class="table-container" style="height:500px; overflow: scroll;">
             <div class="col-lg-4 col-lg-offset-4">
                 <h2 align="center"><strong>Internal MIPS64 Registers</strong></h2>
@@ -20,16 +90,16 @@
                     <tbody>
                        
                         {% for q in internal %}
-                        <tr id="instr{{ p.id }}">
+                        <tr id="instr{{ forloop.counter }}">
                              
                             
                             <th>{{forloop.counter}}</th>
                             
-                            {% for r in q %}
-                            {%for s in r %}
+                           
+                            {%for s in q %}
                             <th> {{ s }}</th>
                             {% endfor %}
-                            {% endfor %}
+                         
                         </tr>
                         {% endfor %}
                         
